@@ -3,8 +3,6 @@
 <head>
     
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    <script src="https://cdn.jsdelivr.net/npm/apache-arrow@latest/Arrow.es2015.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/parquet-wasm@latest/parquet_wasm.min.js"></script>
     
         <script>
             L_NO_TOUCH = false;
@@ -27,7 +25,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_ec144920526aae937d2b0771818e0ce3 {
+                #map_19bf7ff2be2341c5eff6053b20e716df {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -41,6 +39,11 @@
 <body>
     
     
+            <div class="folium-map" id="map_19bf7ff2be2341c5eff6053b20e716df" ></div>
+        
+
+<script src="https://cdn.jsdelivr.net/npm/apache-arrow@latest/Arrow.es2015.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/parquet-wasm@latest/parquet_wasm.min.js"></script>
 <script>
 async function loadParquetData() {
     const response = await fetch('https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.parquet');
@@ -80,20 +83,17 @@ async function loadParquetData() {
         onEachFeature: function(feature, layer) {
             layer.bindPopup(Object.entries(feature.properties).map(([key, value]) => `<strong>${key}:</strong> ${value}`).join('<br>'));
         }
-    }).addTo(map_map_ec144920526aae937d2b0771818e0ce3);
+    }).addTo(map_map_19bf7ff2be2341c5eff6053b20e716df);
 }
 
 loadParquetData();
 </script>
-    
-            <div class="folium-map" id="map_ec144920526aae937d2b0771818e0ce3" ></div>
-        
 </body>
 <script>
     
     
-            var map_ec144920526aae937d2b0771818e0ce3 = L.map(
-                "map_ec144920526aae937d2b0771818e0ce3",
+            var map_19bf7ff2be2341c5eff6053b20e716df = L.map(
+                "map_19bf7ff2be2341c5eff6053b20e716df",
                 {
                     center: [42.83, 11.82],
                     crs: L.CRS.EPSG3857,
@@ -107,27 +107,27 @@ loadParquetData();
 
         
     
-            var tile_layer_8e9214e05f6690abe9a6f7c7e6d1f458 = L.tileLayer(
+            var tile_layer_99e8093f6724b57565f9406711cd5ca8 = L.tileLayer(
                 "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                 {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "detectRetina": false, "maxNativeZoom": 19, "maxZoom": 19, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
             );
         
     
-            tile_layer_8e9214e05f6690abe9a6f7c7e6d1f458.addTo(map_ec144920526aae937d2b0771818e0ce3);
+            tile_layer_99e8093f6724b57565f9406711cd5ca8.addTo(map_19bf7ff2be2341c5eff6053b20e716df);
         
     
-            var layer_control_a5dd5daf70f0c0416129b43c5273c64f_layers = {
+            var layer_control_601bbc65f0b683e5698970bce0524a13_layers = {
                 base_layers : {
-                    "openstreetmap" : tile_layer_8e9214e05f6690abe9a6f7c7e6d1f458,
+                    "openstreetmap" : tile_layer_99e8093f6724b57565f9406711cd5ca8,
                 },
                 overlays :  {
                 },
             };
-            let layer_control_a5dd5daf70f0c0416129b43c5273c64f = L.control.layers(
-                layer_control_a5dd5daf70f0c0416129b43c5273c64f_layers.base_layers,
-                layer_control_a5dd5daf70f0c0416129b43c5273c64f_layers.overlays,
+            let layer_control_601bbc65f0b683e5698970bce0524a13 = L.control.layers(
+                layer_control_601bbc65f0b683e5698970bce0524a13_layers.base_layers,
+                layer_control_601bbc65f0b683e5698970bce0524a13_layers.overlays,
                 {"autoZIndex": true, "collapsed": true, "position": "topright"}
-            ).addTo(map_ec144920526aae937d2b0771818e0ce3);
+            ).addTo(map_19bf7ff2be2341c5eff6053b20e716df);
 
         
 </script>
