@@ -25,7 +25,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_12093f14bf7009b3794389cc24e004fe {
+                #map_acb3e1c82ae3676fa41cbb04bf96ac38 {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -39,79 +39,14 @@
 <body>
     
     
-            <div class="folium-map" id="map_12093f14bf7009b3794389cc24e004fe" ></div>
+            <div class="folium-map" id="map_acb3e1c82ae3676fa41cbb04bf96ac38" ></div>
         
-
-<script src="https://cdn.jsdelivr.net/npm/apache-arrow@latest/Arrow.es2015.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/parquet-wasm@latest/parquet_wasm.min.js"></script>
-<script>
-async function loadParquetData() {
-    try {
-        console.log("Fetching Parquet data...");
-        const response = await fetch('https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.parquet');
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const arrayBuffer = await response.arrayBuffer();
-        console.log("Parquet data fetched, parsing...");
-        const parquetData = await parquet_wasm.readParquet(new Uint8Array(arrayBuffer));
-        console.log("Parquet data parsed, rows:", parquetData.numRows);
-
-        const features = [];
-        for (let i = 0; i < parquetData.numRows; i++) {
-            const geometryStr = parquetData.getColumn('geometry').values[i];
-            let geometry;
-            try {
-                geometry = JSON.parse(geometryStr);
-            } catch (e) {
-                console.error("Error parsing geometry:", geometryStr);
-                continue;
-            }
-            const properties = {};
-            parquetData.schema.fields.forEach(field => {
-                if (field.name !== 'geometry') {
-                    properties[field.name] = parquetData.getColumn(field.name).values[i];
-                }
-            });
-            features.push({
-                type: 'Feature',
-                geometry: geometry,
-                properties: properties
-            });
-        }
-        console.log("Features created:", features.length);
-
-        const geojsonData = {
-            type: 'FeatureCollection',
-            features: features
-        };
-
-        console.log("Adding GeoJSON to map...");
-        L.geoJSON(geojsonData, {
-            style: function(feature) {
-                return {
-                    fillColor: 'green',
-                    color: 'black',
-                    weight: 2,
-                    fillOpacity: 0.7
-                };
-            },
-            onEachFeature: function(feature, layer) {
-                layer.bindPopup(Object.entries(feature.properties).map(([key, value]) => `<strong>${key}:</strong> ${value}`).join('<br>'));
-            }
-        }).addTo(map_map_12093f14bf7009b3794389cc24e004fe);
-        console.log("GeoJSON added to map");
-    } catch (error) {
-        console.error("Error loading or processing Parquet data:", error);
-    }
-}
-
-loadParquetData();
-</script>
 </body>
 <script>
     
     
-            var map_12093f14bf7009b3794389cc24e004fe = L.map(
-                "map_12093f14bf7009b3794389cc24e004fe",
+            var map_acb3e1c82ae3676fa41cbb04bf96ac38 = L.map(
+                "map_acb3e1c82ae3676fa41cbb04bf96ac38",
                 {
                     center: [42.83, 11.82],
                     crs: L.CRS.EPSG3857,
@@ -125,27 +60,37 @@ loadParquetData();
 
         
     
-            var tile_layer_46e7a29aea38c5c2f25d783f915ec326 = L.tileLayer(
+            var tile_layer_aeb6b0de2dfe3c3179684ce507645cc0 = L.tileLayer(
                 "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                 {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "detectRetina": false, "maxNativeZoom": 19, "maxZoom": 19, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
             );
         
     
-            tile_layer_46e7a29aea38c5c2f25d783f915ec326.addTo(map_12093f14bf7009b3794389cc24e004fe);
+            tile_layer_aeb6b0de2dfe3c3179684ce507645cc0.addTo(map_acb3e1c82ae3676fa41cbb04bf96ac38);
         
     
-            var layer_control_f5c1ab110783e32cdc3958dc150356a2_layers = {
+            var tile_layer_29b570598c9a408850b59faacd94b4bd = L.tileLayer(
+                "https://api.maptiler.com/data/a7ad3a91-dd8f-4d75-84c5-002b7be15dc2/features.json?key=RQJiKgPXFuK3fxBXEeyE",
+                {"attribution": "none", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            );
+        
+    
+            tile_layer_29b570598c9a408850b59faacd94b4bd.addTo(map_acb3e1c82ae3676fa41cbb04bf96ac38);
+        
+    
+            var layer_control_ec578f60c1d244214a763dcf63511da9_layers = {
                 base_layers : {
-                    "openstreetmap" : tile_layer_46e7a29aea38c5c2f25d783f915ec326,
+                    "openstreetmap" : tile_layer_aeb6b0de2dfe3c3179684ce507645cc0,
+                    "https://api.maptiler.com/data/a7ad3a91-dd8f-4d75-84c5-002b7be15dc2/features.json?key=rqjikgpxfuk3fxbxeeye" : tile_layer_29b570598c9a408850b59faacd94b4bd,
                 },
                 overlays :  {
                 },
             };
-            let layer_control_f5c1ab110783e32cdc3958dc150356a2 = L.control.layers(
-                layer_control_f5c1ab110783e32cdc3958dc150356a2_layers.base_layers,
-                layer_control_f5c1ab110783e32cdc3958dc150356a2_layers.overlays,
+            let layer_control_ec578f60c1d244214a763dcf63511da9 = L.control.layers(
+                layer_control_ec578f60c1d244214a763dcf63511da9_layers.base_layers,
+                layer_control_ec578f60c1d244214a763dcf63511da9_layers.overlays,
                 {"autoZIndex": true, "collapsed": true, "position": "topright"}
-            ).addTo(map_12093f14bf7009b3794389cc24e004fe);
+            ).addTo(map_acb3e1c82ae3676fa41cbb04bf96ac38);
 
         
 </script>
