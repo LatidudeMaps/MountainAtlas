@@ -4,6 +4,21 @@
     
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     
+<script>
+document.addEventListener('contextmenu', event => event.preventDefault());
+
+document.addEventListener('keydown', event => {
+    if (event.ctrlKey && (event.key === 'u' || event.key === 's')) {
+        event.preventDefault();
+        alert('Sorry, this action is not allowed.');
+    }
+});
+
+console.log = function() {};
+console.warn = function() {};
+console.error = function() {};
+</script>
+    
         <script>
             L_NO_TOUCH = false;
             L_DISABLE_3D = false;
@@ -25,7 +40,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_4d213780d15b796dbf7d650eddc42557 {
+                #map_d91d394cfca708a696d36b1cc9eb27c9 {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -39,14 +54,14 @@
 <body>
     
     
-            <div class="folium-map" id="map_4d213780d15b796dbf7d650eddc42557" ></div>
+            <div class="folium-map" id="map_d91d394cfca708a696d36b1cc9eb27c9" ></div>
         
 </body>
 <script>
     
     
-            var map_4d213780d15b796dbf7d650eddc42557 = L.map(
-                "map_4d213780d15b796dbf7d650eddc42557",
+            var map_d91d394cfca708a696d36b1cc9eb27c9 = L.map(
+                "map_d91d394cfca708a696d36b1cc9eb27c9",
                 {
                     center: [42.83, 11.82],
                     crs: L.CRS.EPSG3857,
@@ -60,50 +75,50 @@
 
         
     
-            var tile_layer_9b2059ecc25721803d9fcb2478bbf42c = L.tileLayer(
+            var tile_layer_51eccf3f95861dd5d758c68769bf6432 = L.tileLayer(
                 "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                 {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "detectRetina": false, "maxNativeZoom": 19, "maxZoom": 19, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
             );
         
     
-            tile_layer_9b2059ecc25721803d9fcb2478bbf42c.addTo(map_4d213780d15b796dbf7d650eddc42557);
+            tile_layer_51eccf3f95861dd5d758c68769bf6432.addTo(map_d91d394cfca708a696d36b1cc9eb27c9);
         
     
 
-        function geo_json_2fc1c4edc727260189c4adb99054ed77_onEachFeature(feature, layer) {
+        function geo_json_d12d1194e19a24723229d4f62055653c_onEachFeature(feature, layer) {
             layer.on({
             });
         };
-        var geo_json_2fc1c4edc727260189c4adb99054ed77 = L.geoJson(null, {
-                onEachFeature: geo_json_2fc1c4edc727260189c4adb99054ed77_onEachFeature,
+        var geo_json_d12d1194e19a24723229d4f62055653c = L.geoJson(null, {
+                onEachFeature: geo_json_d12d1194e19a24723229d4f62055653c_onEachFeature,
             
         });
 
-        function geo_json_2fc1c4edc727260189c4adb99054ed77_add (data) {
-            geo_json_2fc1c4edc727260189c4adb99054ed77
+        function geo_json_d12d1194e19a24723229d4f62055653c_add (data) {
+            geo_json_d12d1194e19a24723229d4f62055653c
                 .addData(data);
         }
             $.ajax("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson", {dataType: 'json', async: false})
-                .done(geo_json_2fc1c4edc727260189c4adb99054ed77_add);
+                .done(geo_json_d12d1194e19a24723229d4f62055653c_add);
 
         
     
-            geo_json_2fc1c4edc727260189c4adb99054ed77.addTo(map_4d213780d15b796dbf7d650eddc42557);
+            geo_json_d12d1194e19a24723229d4f62055653c.addTo(map_d91d394cfca708a696d36b1cc9eb27c9);
         
     
-            var layer_control_bfa7162a711a0a913aa1b8ad76a27dba_layers = {
+            var layer_control_31c560b58856566fd344d3713b8af4c1_layers = {
                 base_layers : {
-                    "openstreetmap" : tile_layer_9b2059ecc25721803d9fcb2478bbf42c,
+                    "openstreetmap" : tile_layer_51eccf3f95861dd5d758c68769bf6432,
                 },
                 overlays :  {
-                    "Mountain Areas" : geo_json_2fc1c4edc727260189c4adb99054ed77,
+                    "Mountain Areas" : geo_json_d12d1194e19a24723229d4f62055653c,
                 },
             };
-            let layer_control_bfa7162a711a0a913aa1b8ad76a27dba = L.control.layers(
-                layer_control_bfa7162a711a0a913aa1b8ad76a27dba_layers.base_layers,
-                layer_control_bfa7162a711a0a913aa1b8ad76a27dba_layers.overlays,
+            let layer_control_31c560b58856566fd344d3713b8af4c1 = L.control.layers(
+                layer_control_31c560b58856566fd344d3713b8af4c1_layers.base_layers,
+                layer_control_31c560b58856566fd344d3713b8af4c1_layers.overlays,
                 {"autoZIndex": true, "collapsed": true, "position": "topright"}
-            ).addTo(map_4d213780d15b796dbf7d650eddc42557);
+            ).addTo(map_d91d394cfca708a696d36b1cc9eb27c9);
 
         
 </script>
