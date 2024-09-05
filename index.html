@@ -25,7 +25,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_eb61bbe01066c8ef6e16b0c633115f39 {
+                #map_4d213780d15b796dbf7d650eddc42557 {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -39,14 +39,14 @@
 <body>
     
     
-            <div class="folium-map" id="map_eb61bbe01066c8ef6e16b0c633115f39" ></div>
+            <div class="folium-map" id="map_4d213780d15b796dbf7d650eddc42557" ></div>
         
 </body>
 <script>
     
     
-            var map_eb61bbe01066c8ef6e16b0c633115f39 = L.map(
-                "map_eb61bbe01066c8ef6e16b0c633115f39",
+            var map_4d213780d15b796dbf7d650eddc42557 = L.map(
+                "map_4d213780d15b796dbf7d650eddc42557",
                 {
                     center: [42.83, 11.82],
                     crs: L.CRS.EPSG3857,
@@ -60,50 +60,50 @@
 
         
     
-            var tile_layer_fc715c2f35fc1a52c83770bd033b864a = L.tileLayer(
+            var tile_layer_9b2059ecc25721803d9fcb2478bbf42c = L.tileLayer(
                 "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                 {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "detectRetina": false, "maxNativeZoom": 19, "maxZoom": 19, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
             );
         
     
-            tile_layer_fc715c2f35fc1a52c83770bd033b864a.addTo(map_eb61bbe01066c8ef6e16b0c633115f39);
+            tile_layer_9b2059ecc25721803d9fcb2478bbf42c.addTo(map_4d213780d15b796dbf7d650eddc42557);
         
     
 
-        function geo_json_2d4223acd33abebb7cfe0286e0739845_onEachFeature(feature, layer) {
+        function geo_json_2fc1c4edc727260189c4adb99054ed77_onEachFeature(feature, layer) {
             layer.on({
             });
         };
-        var geo_json_2d4223acd33abebb7cfe0286e0739845 = L.geoJson(null, {
-                onEachFeature: geo_json_2d4223acd33abebb7cfe0286e0739845_onEachFeature,
+        var geo_json_2fc1c4edc727260189c4adb99054ed77 = L.geoJson(null, {
+                onEachFeature: geo_json_2fc1c4edc727260189c4adb99054ed77_onEachFeature,
             
         });
 
-        function geo_json_2d4223acd33abebb7cfe0286e0739845_add (data) {
-            geo_json_2d4223acd33abebb7cfe0286e0739845
+        function geo_json_2fc1c4edc727260189c4adb99054ed77_add (data) {
+            geo_json_2fc1c4edc727260189c4adb99054ed77
                 .addData(data);
         }
             $.ajax("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson", {dataType: 'json', async: false})
-                .done(geo_json_2d4223acd33abebb7cfe0286e0739845_add);
+                .done(geo_json_2fc1c4edc727260189c4adb99054ed77_add);
 
         
     
-            geo_json_2d4223acd33abebb7cfe0286e0739845.addTo(map_eb61bbe01066c8ef6e16b0c633115f39);
+            geo_json_2fc1c4edc727260189c4adb99054ed77.addTo(map_4d213780d15b796dbf7d650eddc42557);
         
     
-            var layer_control_c571852c7a1737eabc25e4ea08825aac_layers = {
+            var layer_control_bfa7162a711a0a913aa1b8ad76a27dba_layers = {
                 base_layers : {
-                    "openstreetmap" : tile_layer_fc715c2f35fc1a52c83770bd033b864a,
+                    "openstreetmap" : tile_layer_9b2059ecc25721803d9fcb2478bbf42c,
                 },
                 overlays :  {
-                    "Mountain Areas" : geo_json_2d4223acd33abebb7cfe0286e0739845,
+                    "Mountain Areas" : geo_json_2fc1c4edc727260189c4adb99054ed77,
                 },
             };
-            let layer_control_c571852c7a1737eabc25e4ea08825aac = L.control.layers(
-                layer_control_c571852c7a1737eabc25e4ea08825aac_layers.base_layers,
-                layer_control_c571852c7a1737eabc25e4ea08825aac_layers.overlays,
+            let layer_control_bfa7162a711a0a913aa1b8ad76a27dba = L.control.layers(
+                layer_control_bfa7162a711a0a913aa1b8ad76a27dba_layers.base_layers,
+                layer_control_bfa7162a711a0a913aa1b8ad76a27dba_layers.overlays,
                 {"autoZIndex": true, "collapsed": true, "position": "topright"}
-            ).addTo(map_eb61bbe01066c8ef6e16b0c633115f39);
+            ).addTo(map_4d213780d15b796dbf7d650eddc42557);
 
         
 </script>
