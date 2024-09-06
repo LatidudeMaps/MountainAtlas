@@ -19,7 +19,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
@@ -27,7 +27,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_08a85777c258b4b971b634b33e331b58 {
+                #map_86e35a49f5807ccc5cf49155f82ec8e8 {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -60,14 +60,14 @@
 <body>
     
     
-            <div class="folium-map" id="map_08a85777c258b4b971b634b33e331b58" ></div>
+            <div class="folium-map" id="map_86e35a49f5807ccc5cf49155f82ec8e8" ></div>
         
 </body>
 <script>
     
     
-            var map_08a85777c258b4b971b634b33e331b58 = L.map(
-                "map_08a85777c258b4b971b634b33e331b58",
+            var map_86e35a49f5807ccc5cf49155f82ec8e8 = L.map(
+                "map_86e35a49f5807ccc5cf49155f82ec8e8",
                 {
                     center: [42.83, 11.82],
                     crs: L.CRS.EPSG3857,
@@ -81,41 +81,42 @@
 
         
     
-            var tile_layer_51c09a9421bc1dc23a6411697eecb8b1 = L.tileLayer(
+            var tile_layer_20c6bb3c05d8a4a848ead5e22c87a747 = L.tileLayer(
                 "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-                {"attribution": "Tiles \u0026copy; Esri \u0026mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+                {"attribution": "Tiles \u0026copy; Esri \u0026mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community", "detectRetina": false, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
             );
         
     
-            tile_layer_51c09a9421bc1dc23a6411697eecb8b1.addTo(map_08a85777c258b4b971b634b33e331b58);
+            tile_layer_20c6bb3c05d8a4a848ead5e22c87a747.addTo(map_86e35a49f5807ccc5cf49155f82ec8e8);
         
     
-            var tile_layer_61774cc702d4b1fcb3f1dc4e1e65db23 = L.tileLayer(
+            var tile_layer_69b5a1ec575e86bd3567cd0f831f3fbf = L.tileLayer(
                 "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                 {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "detectRetina": false, "maxNativeZoom": 19, "maxZoom": 19, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
             );
         
     
 
-        function geo_json_807a076abe05cfb467ecaafcc0ba8744_onEachFeature(feature, layer) {
+        function geo_json_1627cb9eae4fe73ee8387f0f58f786ed_onEachFeature(feature, layer) {
             layer.on({
             });
         };
-        var geo_json_807a076abe05cfb467ecaafcc0ba8744 = L.geoJson(null, {
-                onEachFeature: geo_json_807a076abe05cfb467ecaafcc0ba8744_onEachFeature,
+        var geo_json_1627cb9eae4fe73ee8387f0f58f786ed = L.geoJson(null, {
+                onEachFeature: geo_json_1627cb9eae4fe73ee8387f0f58f786ed_onEachFeature,
             
         });
 
-        function geo_json_807a076abe05cfb467ecaafcc0ba8744_add (data) {
-            geo_json_807a076abe05cfb467ecaafcc0ba8744
+        function geo_json_1627cb9eae4fe73ee8387f0f58f786ed_add (data) {
+            geo_json_1627cb9eae4fe73ee8387f0f58f786ed
                 .addData(data);
         }
             $.ajax("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson", {dataType: 'json', async: false})
-                .done(geo_json_807a076abe05cfb467ecaafcc0ba8744_add);
+                .done(geo_json_1627cb9eae4fe73ee8387f0f58f786ed_add);
+        geo_json_1627cb9eae4fe73ee8387f0f58f786ed.setStyle(function(feature) {return feature.properties.style;});
 
         
     
-    geo_json_807a076abe05cfb467ecaafcc0ba8744.bindTooltip(
+    geo_json_1627cb9eae4fe73ee8387f0f58f786ed.bindTooltip(
     function(layer){
     let div = L.DomUtil.create('div');
     
@@ -137,10 +138,10 @@
     ,{"className": "foliumtooltip", "sticky": true});
                      
     
-            geo_json_807a076abe05cfb467ecaafcc0ba8744.addTo(map_08a85777c258b4b971b634b33e331b58);
+            geo_json_1627cb9eae4fe73ee8387f0f58f786ed.addTo(map_86e35a49f5807ccc5cf49155f82ec8e8);
         
     
-            var fast_marker_cluster_58631072f75383bda2e038f4485e58a1 = (function(){
+            var fast_marker_cluster_75f8c26329baf4155fb56fc67b25658c = (function(){
                 
                 var callback = function (row) {
                     var icon = L.AwesomeMarkers.icon();
@@ -158,29 +159,29 @@
                     marker.addTo(cluster);
                 }
 
-                cluster.addTo(map_08a85777c258b4b971b634b33e331b58);
+                cluster.addTo(map_86e35a49f5807ccc5cf49155f82ec8e8);
                 return cluster;
             })();
         
     
-            fast_marker_cluster_58631072f75383bda2e038f4485e58a1.addTo(map_08a85777c258b4b971b634b33e331b58);
+            fast_marker_cluster_75f8c26329baf4155fb56fc67b25658c.addTo(map_86e35a49f5807ccc5cf49155f82ec8e8);
         
     
-            var layer_control_829df2c83399b1877a7b8d6c7d5998a9_layers = {
+            var layer_control_074f9b18735d1d26f64e447543bc3511_layers = {
                 base_layers : {
-                    "Esri World Imagery" : tile_layer_51c09a9421bc1dc23a6411697eecb8b1,
-                    "Open Street Map" : tile_layer_61774cc702d4b1fcb3f1dc4e1e65db23,
+                    "Esri World Imagery" : tile_layer_20c6bb3c05d8a4a848ead5e22c87a747,
+                    "Open Street Map" : tile_layer_69b5a1ec575e86bd3567cd0f831f3fbf,
                 },
                 overlays :  {
-                    "Mountain Areas" : geo_json_807a076abe05cfb467ecaafcc0ba8744,
-                    "OSM Peaks" : fast_marker_cluster_58631072f75383bda2e038f4485e58a1,
+                    "Mountain Areas" : geo_json_1627cb9eae4fe73ee8387f0f58f786ed,
+                    "OSM Peaks" : fast_marker_cluster_75f8c26329baf4155fb56fc67b25658c,
                 },
             };
-            let layer_control_829df2c83399b1877a7b8d6c7d5998a9 = L.control.layers(
-                layer_control_829df2c83399b1877a7b8d6c7d5998a9_layers.base_layers,
-                layer_control_829df2c83399b1877a7b8d6c7d5998a9_layers.overlays,
+            let layer_control_074f9b18735d1d26f64e447543bc3511 = L.control.layers(
+                layer_control_074f9b18735d1d26f64e447543bc3511_layers.base_layers,
+                layer_control_074f9b18735d1d26f64e447543bc3511_layers.overlays,
                 {"autoZIndex": true, "collapsed": false, "position": "topright"}
-            ).addTo(map_08a85777c258b4b971b634b33e331b58);
+            ).addTo(map_86e35a49f5807ccc5cf49155f82ec8e8);
 
         
 </script>
