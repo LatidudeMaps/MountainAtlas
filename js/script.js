@@ -11,7 +11,8 @@ console.log = function() {};
 console.warn = function() {};
 console.error = function() {};
 
-// In script.js
+// Add this at the end of your existing script.js file
+
 function initializePopups() {
     if (typeof window.markers !== 'undefined' && Array.isArray(window.markers)) {
         window.markers.forEach(function(marker) {
@@ -28,12 +29,14 @@ function initializePopups() {
     }
 }
 
+// Modify your existing DOMContentLoaded event listener
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if coordinates are loaded, if not, wait for them
+    // Your existing code here
+
+    // Add this check for coordinates
     if (typeof window.coordinates !== 'undefined') {
         initializePopups();
     } else {
-        // Wait for coordinates to be loaded
         window.addEventListener('coordinatesLoaded', initializePopups);
     }
 });
