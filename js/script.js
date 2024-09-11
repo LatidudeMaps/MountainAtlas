@@ -1,84 +1,39 @@
-// Your existing security measures here
+// Preserve your existing security measures
+document.addEventListener('contextmenu', event => event.preventDefault());
+document.addEventListener('keydown', event => {
+    if (event.ctrlKey && (event.key === 'u' || event.key === 's')) {
+        event.preventDefault();
+        alert('Sorry, this action is not allowed.');
+    }
+});
 
-// Add Leaflet.markercluster plugin
-var markerClusterScript = document.createElement('script');
-markerClusterScript.src = 'https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js';
-document.head.appendChild(markerClusterScript);
+// Function to clusterize OSM peaks layer
+function clusterizePeaks() {
+    // Check if the map and OSM peaks layer exist
+    if (typeof map !== 'undefined' && map.hasLayer(osmPeaks)) {
+        // Remove the existing OSM peaks layer
+        map.removeLayer(osmPeaks);
 
-var markerClusterCSS = document.createElement('link');
-markerClusterCSS.rel = 'stylesheet';
-markerClusterCSS.href = 'https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css';
-document.head.appendChild(markerClusterCSS);
+        // Create a new MarkerClusterGroup
+        var markers = L.markerClusterGroup();
 
-var markerClusterDefaultCSS = document.createElement('link');
-markerClusterDefaultCSS.rel = 'stylesheet';
-markerClusterDefaultCSS.href = 'https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css';
-document.head.appendChild(markerClusterDefaultCSS);
-
-// Function to add clustered markers
-function addClusteredMarkers(map, geojsonData) {
-    var markers = L.markerClusterGroup();
-
-    L.geoJSON(geojsonData, {
-        pointToLayer: function(feature, latlng) {
-            var marker = L.circleMarker(latlng, {
-                radius: 8,
-                fillColor: "#ff7800",
-                color: "#000",
-                weight: 1,
-                opacity: 1,
-                fillOpacity: 0.8
-            });
-            marker.bindPopup("Name: " + feature.properties.name + "<br>Elevation: " + feature.properties.elevation + " m");
-            marker.bindTooltip(feature.properties.name);
-            return marker;
-        }
-    }).addTo(markers);
-
-    map.addLayer(markers);
-    
-    // Add markers to the layer control
-    var layerControl = document.querySelector('.leaflet-control-layers');
-    if (layerControl) {
-        var overlaysContainer = layerControl.querySelector('.leaflet-control-layers-overlays');
-        var label = document.createElement('label');
-        var input = document.createElement('input');
-        input.type = 'checkbox';
-        input.checked = true;
-        label.appendChild(input);
-        label.appendChild(document.createTextNode(' OSM Peaks'));
-        overlaysContainer.appendChild(label);
-
-        input.addEventListener('change', function() {
-            if (this.checked) {
-                map.addLayer(markers);
-            } else {
-                map.removeLayer(markers);
-            }
+        // Add all markers from the OSM peaks layer to the cluster group
+        osmPeaks.eachLayer(function (layer) {
+            markers.addLayer(layer);
         });
+
+        // Add the cluster group to the map
+        map.addLayer(markers);
+
+        // Update the layer control
+        layerControl.addOverlay(markers, 'OSM Peaks (Clustered)');
+    } else {
+        console.error('Map or OSM peaks layer not found');
     }
 }
 
-// Function to load GeoJSON data and initialize clustering
-function loadDataAndInitialize() {
-    fetch('peaks_data.json')
-        .then(response => response.json())
-        .then(data => {
-            var map = Object.values(window).find(item => item instanceof L.Map);
-            if (map) {
-                addClusteredMarkers(map, data);
-            } else {
-                console.error('Map not found');
-            }
-        })
-        .catch(error => console.error('Error loading GeoJSON data:', error));
-}
-
-// Ensure the script runs after the map is fully loaded
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    setTimeout(loadDataAndInitialize, 1000);
-} else {
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(loadDataAndInitialize, 1000);
-    });
-}
+// Call the clusterizePeaks function when the page is fully loaded
+document.addEventListener('DOMContentLoaded', (event) => {
+    // Wait a bit to ensure the map and layers are fully initialized
+    setTimeout(clusterizePeaks, 1000);
+});
