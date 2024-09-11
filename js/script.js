@@ -1,16 +1,4 @@
-// Preserve your existing security measures
-document.addEventListener('contextmenu', event => event.preventDefault());
-document.addEventListener('keydown', event => {
-    if (event.ctrlKey && (event.key === 'u' || event.key === 's')) {
-        event.preventDefault();
-        alert('Sorry, this action is not allowed.');
-    }
-});
-
-// Re-enable console for debugging
-// console.log = function() {};
-// console.warn = function() {};
-// console.error = function() {};
+// Your existing security measures here
 
 // Add Leaflet.markercluster plugin
 var markerClusterScript = document.createElement('script');
@@ -29,7 +17,6 @@ document.head.appendChild(markerClusterDefaultCSS);
 
 // Function to add clustered markers
 function addClusteredMarkers(map, geojsonData) {
-    console.log('Adding clustered markers');
     var markers = L.markerClusterGroup();
 
     L.geoJSON(geojsonData, {
@@ -49,7 +36,6 @@ function addClusteredMarkers(map, geojsonData) {
     }).addTo(markers);
 
     map.addLayer(markers);
-    console.log('Markers added to map');
     
     // Add markers to the layer control
     var layerControl = document.querySelector('.leaflet-control-layers');
@@ -70,37 +56,29 @@ function addClusteredMarkers(map, geojsonData) {
                 map.removeLayer(markers);
             }
         });
-        console.log('Layer control updated');
-    } else {
-        console.log('Layer control not found');
     }
 }
 
-// Wait for the map and GeoJSON data to be available
-function initializeClustering() {
-    console.log('Initializing clustering');
-    if (window.peaksData) {
-        console.log('Peaks data found');
-        // Find the Leaflet map object
-        var map = Object.values(window).find(item => item instanceof L.Map);
-        if (map) {
-            console.log('Map found');
-            addClusteredMarkers(map, window.peaksData);
-        } else {
-            console.log('Map not found, retrying...');
-            setTimeout(initializeClustering, 100);
-        }
-    } else {
-        console.log('Peaks data not found, retrying...');
-        setTimeout(initializeClustering, 100);
-    }
+// Function to load GeoJSON data and initialize clustering
+function loadDataAndInitialize() {
+    fetch('peaks_data.json')
+        .then(response => response.json())
+        .then(data => {
+            var map = Object.values(window).find(item => item instanceof L.Map);
+            if (map) {
+                addClusteredMarkers(map, data);
+            } else {
+                console.error('Map not found');
+            }
+        })
+        .catch(error => console.error('Error loading GeoJSON data:', error));
 }
 
 // Ensure the script runs after the map is fully loaded
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    setTimeout(initializeClustering, 1000);
+    setTimeout(loadDataAndInitialize, 1000);
 } else {
     document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(initializeClustering, 1000);
+        setTimeout(loadDataAndInitialize, 1000);
     });
 }
