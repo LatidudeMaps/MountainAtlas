@@ -49,15 +49,37 @@ function addClusteredMarkers(map, geojsonData) {
     map.addLayer(markers);
     
     // Add markers to the layer control
-    if (map.layersControl) {
-        map.layersControl.addOverlay(markers, 'OSM Peaks');
+    var layerControl = document.querySelector('.leaflet-control-layers');
+    if (layerControl) {
+        var overlaysContainer = layerControl.querySelector('.leaflet-control-layers-overlays');
+        var label = document.createElement('label');
+        var input = document.createElement('input');
+        input.type = 'checkbox';
+        input.checked = true;
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(' OSM Peaks'));
+        overlaysContainer.appendChild(label);
+
+        input.addEventListener('change', function() {
+            if (this.checked) {
+                map.addLayer(markers);
+            } else {
+                map.removeLayer(markers);
+            }
+        });
     }
 }
 
 // Wait for the map and GeoJSON data to be available
 function initializeClustering() {
-    if (window.map && window.peaksData) {
-        addClusteredMarkers(window.map, window.peaksData);
+    if (window.peaksData) {
+        // Folium creates the map with the variable name "map"
+        var map = window.map_e6e51a6fa6b644689f1c4c47e98a0999;
+        if (map) {
+            addClusteredMarkers(map, window.peaksData);
+        } else {
+            setTimeout(initializeClustering, 100);
+        }
     } else {
         setTimeout(initializeClustering, 100);
     }
