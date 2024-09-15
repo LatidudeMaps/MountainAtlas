@@ -3,107 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mountain Atlas Map</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <title>Mountain Atlas Map (OpenLayers)</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/css/ol.css" type="text/css">
     <style>
         html, body, #map {
             height: 100%;
             margin: 0;
             padding: 0;
         }
+        .ol-popup {
+            position: absolute;
+            background-color: white;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #cccccc;
+            bottom: 12px;
+            left: -50px;
+            min-width: 280px;
+        }
+        .ol-popup:after, .ol-popup:before {
+            top: 100%;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+        .ol-popup:after {
+            border-top-color: white;
+            border-width: 10px;
+            left: 48px;
+            margin-left: -10px;
+        }
+        .ol-popup:before {
+            border-top-color: #cccccc;
+            border-width: 11px;
+            left: 48px;
+            margin-left: -11px;
+        }
+        .ol-popup-closer {
+            text-decoration: none;
+            position: absolute;
+            top: 2px;
+            right: 8px;
+        }
+        .ol-popup-closer:after {
+            content: "✖";
+        }
     </style>
 </head>
 <body>
     <div id="map"></div>
+    <div id="popup" class="ol-popup">
+        <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+        <div id="popup-content"></div>
+    </div>
 
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js"></script>
     <script>
-        // Initialize the map
-        var map = L.map('map').setView([39.9, 16.1], 9);
-
-        // Add tile layers
-        var esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-        }).addTo(map);
-
-        var openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        });
-
-        // Create a marker cluster group
-        var markers = L.markerClusterGroup();
-
         // URLs of the GeoJSON files
         var mountainAreasUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/pollino.geojson";
         var osmPeaksUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/peaks_pollino.geojson";
 
-        // Variable to store the mountain areas layer
-        var mountainAreasLayer;
+        // Create the map
+        var map = new ol.Map({
+            target: 'map',
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.XYZ({
+                        attributions: 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer">ArcGIS</a>',
+                        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+                    }),
+                    name: 'Esri World Imagery'
+                })
+            ],
+            view: new ol.View({
+                center: ol.proj.fromLonLat([16.1, 39.9]),
+                zoom: 9
+            })
+        });
 
-        // Load and add mountain areas
-        fetch(mountainAreasUrl)
-            .then(response => response.json())
-            .then(data => {
-                mountainAreasLayer = L.geoJSON(data, {
-                    style: function(feature) {
-                        return {color: "#ff7800", weight: 2, opacity: 0.65};
-                    },
-                    onEachFeature: function(feature, layer) {
-                        if (feature.properties && feature.properties.MapName) {
-                            layer.bindPopup(feature.properties.MapName);
-                        }
-                    }
-                }).addTo(map);
+        // Create a vector source and layer for mountain areas
+        var mountainAreasSource = new ol.source.Vector({
+            url: mountainAreasUrl,
+            format: new ol.format.GeoJSON()
+        });
 
-                updateLayerControl();
-            });
+        var mountainAreasLayer = new ol.layer.Vector({
+            source: mountainAreasSource,
+            style: new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                    color: 'rgba(255,120,0,0.9)',
+                    width: 2
+                }),
+                fill: new ol.style.Fill({
+                    color: 'rgba(255,120,0,0.3)'
+                })
+            })
+        });
 
-        // Load and add OSM peaks
-        fetch(osmPeaksUrl)
-            .then(response => response.json())
-            .then(data => {
-                data.features.forEach(function(feature) {
-                    var lat = feature.geometry.coordinates[1];
-                    var lon = feature.geometry.coordinates[0];
-                    var name = feature.properties.name || "Unnamed Peak";
-                    var elevation = feature.properties.elevation || "Unknown";
+        map.addLayer(mountainAreasLayer);
 
-                    var marker = L.marker([lat, lon]);
-                    marker.bindPopup(name);
-                    marker.bindTooltip(name);
+        // Create a clustered source for OSM peaks
+        var clusterSource = new ol.source.Cluster({
+            distance: 40,
+            source: new ol.source.Vector({
+                url: osmPeaksUrl,
+                format: new ol.format.GeoJSON()
+            })
+        });
 
-                    markers.addLayer(marker);
+        // Create a vector layer for clustered peaks
+        var clusterLayer = new ol.layer.Vector({
+            source: clusterSource,
+            style: function(feature) {
+                var size = feature.get('features').length;
+                return new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: 10,
+                        stroke: new ol.style.Stroke({
+                            color: '#fff'
+                        }),
+                        fill: new ol.style.Fill({
+                            color: '#3399CC'
+                        })
+                    }),
+                    text: new ol.style.Text({
+                        text: size.toString(),
+                        fill: new ol.style.Fill({
+                            color: '#fff'
+                        })
+                    })
                 });
+            }
+        });
 
-                map.addLayer(markers);
-                updateLayerControl();
+        map.addLayer(clusterLayer);
+
+        // Popup overlay
+        var container = document.getElementById('popup');
+        var content = document.getElementById('popup-content');
+        var closer = document.getElementById('popup-closer');
+
+        var overlay = new ol.Overlay({
+            element: container,
+            autoPan: true,
+            autoPanAnimation: {
+                duration: 250
+            }
+        });
+
+        map.addOverlay(overlay);
+
+        closer.onclick = function() {
+            overlay.setPosition(undefined);
+            closer.blur();
+            return false;
+        };
+
+        // Display popup on click
+        map.on('click', function(evt) {
+            var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature) {
+                return feature;
             });
 
-        // Function to update the layer control
-        function updateLayerControl() {
-            if (layerControl) {
-                layerControl.remove();
+            if (feature) {
+                var coordinates = feature.getGeometry().getCoordinates();
+                var properties;
+
+                if (feature.get('features')) {
+                    // It's a cluster
+                    var features = feature.get('features');
+                    if (features.length > 1) {
+                        content.innerHTML = '<p>' + features.length + ' peaks in this area</p>';
+                    } else {
+                        properties = features[0].getProperties();
+                        content.innerHTML = '<h3>' + (properties.name || 'Unnamed Peak') + '</h3>' +
+                                            '<p>Elevation: ' + (properties.elevation || 'Unknown') + ' m</p>';
+                    }
+                } else {
+                    // It's a mountain area
+                    properties = feature.getProperties();
+                    content.innerHTML = '<h3>' + (properties.MapName || 'Unnamed Area') + '</h3>';
+                }
+
+                overlay.setPosition(coordinates);
             }
+        });
 
-            var baseMaps = {
-                "Esri World Imagery": esriWorldImagery,
-                "OpenStreetMap": openStreetMap
-            };
-
-            var overlayMaps = {
-                "Mountain Areas": mountainAreasLayer,
-                "OSM Peaks": markers
-            };
-
-            layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
-        }
-
-        // Initialize layer control
-        var layerControl;
-        updateLayerControl();
+        // Layer switcher
+        var layerSwitcher = new ol.control.LayerSwitcher({
+            tipLabel: 'Legend'
+        });
+        map.addControl(layerSwitcher);
     </script>
 </body>
 </html>
