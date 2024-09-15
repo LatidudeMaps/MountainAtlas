@@ -1,268 +1,90 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    
-        <script>
-            L_NO_TOUCH = false;
-            L_DISABLE_3D = false;
-        </script>
-    
-    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
-    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
-    
-            <meta name="viewport" content="width=device-width,
-                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-            <style>
-                #map_7ad88aaf23230d2fd6394783aa368fcf {
-                    position: relative;
-                    width: 100.0%;
-                    height: 100.0%;
-                    left: 0.0%;
-                    top: 0.0%;
-                }
-                .leaflet-container { font-size: 1rem; }
-            </style>
-        
-    
-                    <style>
-                        .foliumpopup {
-                            margin: auto;
-                        }
-                       .foliumpopup table{
-                            margin: auto;
-                        }
-                        .foliumpopup tr{
-                            text-align: left;
-                        }
-                        .foliumpopup th{
-                            padding: 2px; padding-right: 8px;
-                        }
-                    </style>
-            
-    
-                    <style>
-                        .foliumtooltip {
-                            
-                        }
-                       .foliumtooltip table{
-                            margin: auto;
-                        }
-                        .foliumtooltip tr{
-                            text-align: left;
-                        }
-                        .foliumtooltip th{
-                            padding: 2px; padding-right: 8px;
-                        }
-                    </style>
-            
-    
-                    <style>
-                        .foliumpopup {
-                            margin: auto;
-                        }
-                       .foliumpopup table{
-                            margin: auto;
-                        }
-                        .foliumpopup tr{
-                            text-align: left;
-                        }
-                        .foliumpopup th{
-                            padding: 2px; padding-right: 8px;
-                        }
-                    </style>
-            
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mountain Atlas Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <style>
+        #map { height: 600px; }
+    </style>
 </head>
 <body>
-    
-    
-<script src="../js/script.js" defer></script>
-    
-            <div class="folium-map" id="map_7ad88aaf23230d2fd6394783aa368fcf" ></div>
-        
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([39.9, 16.1], 9);
+
+        // Add tile layers
+        var esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        }).addTo(map);
+
+        var openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+
+        // Create a marker cluster group
+        var markers = L.markerClusterGroup();
+
+        // URLs of the GeoJSON files
+        var mountainAreasUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/pollino.geojson";
+        var osmPeaksUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/peaks_pollino.geojson";
+
+        // Load and add mountain areas
+        fetch(mountainAreasUrl)
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, {
+                    style: function(feature) {
+                        return {color: "#ff7800", weight: 2, opacity: 0.65};
+                    },
+                    onEachFeature: function(feature, layer) {
+                        if (feature.properties && feature.properties.MapName) {
+                            layer.bindPopup(feature.properties.MapName);
+                        }
+                    }
+                }).addTo(map);
+            });
+
+        // Load and add OSM peaks
+        fetch(osmPeaksUrl)
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, {
+                    pointToLayer: function(feature, latlng) {
+                        return L.marker(latlng);
+                    },
+                    onEachFeature: function(feature, layer) {
+                        if (feature.properties) {
+                            var popupContent = "<b>Name:</b> " + (feature.properties.name || "Unnamed Peak") + 
+                                               "<br><b>Elevation:</b> " + (feature.properties.elevation || "Unknown") + " m";
+                            layer.bindPopup(popupContent);
+                            layer.bindTooltip(feature.properties.name || "Unnamed Peak");
+                        }
+                    }
+                }).addTo(markers);
+            });
+
+        // Add the marker cluster group to the map
+        map.addLayer(markers);
+
+        // Add layer control
+        var baseMaps = {
+            "Esri World Imagery": esriWorldImagery,
+            "OpenStreetMap": openStreetMap
+        };
+
+        var overlayMaps = {
+            "OSM Peaks": markers
+        };
+
+        L.control.layers(baseMaps, overlayMaps).addTo(map);
+    </script>
 </body>
-<script>
-    
-    
-            var map_7ad88aaf23230d2fd6394783aa368fcf = L.map(
-                "map_7ad88aaf23230d2fd6394783aa368fcf",
-                {
-                    center: [42.83, 11.82],
-                    crs: L.CRS.EPSG3857,
-                    zoom: 7,
-                    zoomControl: true,
-                    preferCanvas: false,
-                }
-            );
-
-            
-
-        
-    
-            var tile_layer_e8c012925eb9d06c5921a3da22774c7e = L.tileLayer(
-                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-                {"attribution": "Tiles \u0026copy; Esri \u0026mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community", "detectRetina": false, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
-            );
-        
-    
-            tile_layer_e8c012925eb9d06c5921a3da22774c7e.addTo(map_7ad88aaf23230d2fd6394783aa368fcf);
-        
-    
-            var tile_layer_d9c86a2cdf78c5df869a499a6a1099f4 = L.tileLayer(
-                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "detectRetina": false, "maxNativeZoom": 19, "maxZoom": 19, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
-            );
-        
-    
-
-        function geo_json_dbbfcbe403c1a9997997f31d8ecf633d_onEachFeature(feature, layer) {
-            layer.on({
-            });
-        };
-        var geo_json_dbbfcbe403c1a9997997f31d8ecf633d = L.geoJson(null, {
-                onEachFeature: geo_json_dbbfcbe403c1a9997997f31d8ecf633d_onEachFeature,
-            
-        });
-
-        function geo_json_dbbfcbe403c1a9997997f31d8ecf633d_add (data) {
-            geo_json_dbbfcbe403c1a9997997f31d8ecf633d
-                .addData(data);
-        }
-            $.ajax("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/pollino.geojson", {dataType: 'json', async: false})
-                .done(geo_json_dbbfcbe403c1a9997997f31d8ecf633d_add);
-        geo_json_dbbfcbe403c1a9997997f31d8ecf633d.setStyle(function(feature) {return feature.properties.style;});
-
-        
-    
-    geo_json_dbbfcbe403c1a9997997f31d8ecf633d.bindPopup(
-    function(layer){
-    let div = L.DomUtil.create('div');
-    
-    let handleObject = feature=>typeof(feature)=='object' ? JSON.stringify(feature) : feature;
-    let fields = ["MapName"];
-    let aliases = ["MapName"];
-    let table = '<table>' +
-        String(
-        fields.map(
-        (v,i)=>
-        `<tr>
-            <td>${handleObject(layer.feature.properties[v]).toLocaleString()}</td>
-        </tr>`).join(''))
-    +'</table>';
-    div.innerHTML=table;
-    
-    return div
-    }
-    ,{"className": "foliumpopup"});
-                     
-    
-            geo_json_dbbfcbe403c1a9997997f31d8ecf633d.addTo(map_7ad88aaf23230d2fd6394783aa368fcf);
-        
-    
-
-        function geo_json_87c804e8eb54826101d81f0b6c3d3879_onEachFeature(feature, layer) {
-            layer.on({
-            });
-        };
-        var geo_json_87c804e8eb54826101d81f0b6c3d3879 = L.geoJson(null, {
-                onEachFeature: geo_json_87c804e8eb54826101d81f0b6c3d3879_onEachFeature,
-            
-        });
-
-        function geo_json_87c804e8eb54826101d81f0b6c3d3879_add (data) {
-            geo_json_87c804e8eb54826101d81f0b6c3d3879
-                .addData(data);
-        }
-            $.ajax("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/peaks_pollino.geojson", {dataType: 'json', async: false})
-                .done(geo_json_87c804e8eb54826101d81f0b6c3d3879_add);
-        geo_json_87c804e8eb54826101d81f0b6c3d3879.setStyle(function(feature) {return feature.properties.style;});
-
-        
-    
-    geo_json_87c804e8eb54826101d81f0b6c3d3879.bindTooltip(
-    function(layer){
-    let div = L.DomUtil.create('div');
-    
-    let handleObject = feature=>typeof(feature)=='object' ? JSON.stringify(feature) : feature;
-    let fields = ["name"];
-    let aliases = ["name"];
-    let table = '<table>' +
-        String(
-        fields.map(
-        (v,i)=>
-        `<tr>
-            <th>${aliases[i]}</th>
-            
-            <td>${handleObject(layer.feature.properties[v])}</td>
-        </tr>`).join(''))
-    +'</table>';
-    div.innerHTML=table;
-    
-    return div
-    }
-    ,{"className": "foliumtooltip", "sticky": true});
-                     
-    
-    geo_json_87c804e8eb54826101d81f0b6c3d3879.bindPopup(
-    function(layer){
-    let div = L.DomUtil.create('div');
-    
-    let handleObject = feature=>typeof(feature)=='object' ? JSON.stringify(feature) : feature;
-    let fields = ["name", "elevation"];
-    let aliases = ["Name:", "Elevation (m):"];
-    let table = '<table>' +
-        String(
-        fields.map(
-        (v,i)=>
-        `<tr>
-            <th>${aliases[i].toLocaleString()}</th>
-            
-            <td>${handleObject(layer.feature.properties[v]).toLocaleString()}</td>
-        </tr>`).join(''))
-    +'</table>';
-    div.innerHTML=table;
-    
-    return div
-    }
-    ,{"className": "foliumpopup"});
-                     
-    
-            geo_json_87c804e8eb54826101d81f0b6c3d3879.addTo(map_7ad88aaf23230d2fd6394783aa368fcf);
-        
-    
-            map_7ad88aaf23230d2fd6394783aa368fcf.fitBounds(
-                [[39.606111111111105, 15.672841175572898], [40.334195421006854, 16.61589094195014]],
-                {}
-            );
-        
-    
-            var layer_control_d26282e81128953b6cd2f293d65f9e1e_layers = {
-                base_layers : {
-                    "Esri World Imagery" : tile_layer_e8c012925eb9d06c5921a3da22774c7e,
-                    "Open Street Map" : tile_layer_d9c86a2cdf78c5df869a499a6a1099f4,
-                },
-                overlays :  {
-                    "Mountain Areas" : geo_json_dbbfcbe403c1a9997997f31d8ecf633d,
-                    "OSM real Peaks" : geo_json_87c804e8eb54826101d81f0b6c3d3879,
-                },
-            };
-            let layer_control_d26282e81128953b6cd2f293d65f9e1e = L.control.layers(
-                layer_control_d26282e81128953b6cd2f293d65f9e1e_layers.base_layers,
-                layer_control_d26282e81128953b6cd2f293d65f9e1e_layers.overlays,
-                {"autoZIndex": true, "collapsed": false, "position": "topright"}
-            ).addTo(map_7ad88aaf23230d2fd6394783aa368fcf);
-
-        
-</script>
 </html>
