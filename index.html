@@ -22,7 +22,7 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <script>
         // Initialize the map
-        var map = L.map('map').setView([39.9, 16.1], 9);
+        var map = L.map('map').setView([39.9, 16.1], 7);
 
         // Add tile layers
         var esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -40,11 +40,14 @@
         var mountainAreasUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/pollino.geojson";
         var osmPeaksUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/peaks_pollino.geojson";
 
+        // Variable to store the mountain areas layer
+        var mountainAreasLayer;
+
         // Load and add mountain areas
         fetch(mountainAreasUrl)
             .then(response => response.json())
             .then(data => {
-                L.geoJSON(data, {
+                mountainAreasLayer = L.geoJSON(data, {
                     style: function(feature) {
                         return {color: "#ff7800", weight: 2, opacity: 0.65};
                     },
@@ -54,6 +57,8 @@
                         }
                     }
                 }).addTo(map);
+
+                updateLayerControl();
             });
 
         // Load and add OSM peaks
@@ -77,17 +82,28 @@
                 map.addLayer(markers);
             });
 
-        // Add layer control
-        var baseMaps = {
-            "Esri World Imagery": esriWorldImagery,
-            "OpenStreetMap": openStreetMap
-        };
+        // Function to update the layer control
+        function updateLayerControl() {
+            if (layerControl) {
+                layerControl.remove();
+            }
 
-        var overlayMaps = {
-            "OSM Peaks": markers
-        };
+            var baseMaps = {
+                "Esri World Imagery": esriWorldImagery,
+                "OpenStreetMap": openStreetMap
+            };
 
-        L.control.layers(baseMaps, overlayMaps).addTo(map);
+            var overlayMaps = {
+                "Mountain Areas": mountainAreasLayer,
+                "OSM Peaks": markers
+            };
+
+            layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
+        }
+
+        // Initialize layer control
+        var layerControl;
+        updateLayerControl();
     </script>
 </body>
 </html>
