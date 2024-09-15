@@ -60,21 +60,20 @@
         fetch(osmPeaksUrl)
             .then(response => response.json())
             .then(data => {
-                var geoJsonLayer = L.geoJSON(data, {
-                    pointToLayer: function(feature, latlng) {
-                        return L.marker(latlng);
-                    },
-                    onEachFeature: function(feature, layer) {
-                        if (feature.properties) {
-                            var popupContent = "<b>Name:</b> " + (feature.properties.name || "Unnamed Peak") + 
-                                               "<br><b>Elevation:</b> " + (feature.properties.elevation || "Unknown") + " m";
-                            layer.bindPopup(popupContent);
-                            layer.bindTooltip(feature.properties.name || "Unnamed Peak");
-                        }
-                    }
+                data.features.forEach(function(feature) {
+                    var lat = feature.geometry.coordinates[1];
+                    var lon = feature.geometry.coordinates[0];
+                    var name = feature.properties.name || "Unnamed Peak";
+                    var elevation = feature.properties.elevation || "Unknown";
+
+                    var marker = L.marker([lat, lon]);
+                    var popupContent = "<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m";
+                    marker.bindPopup(popupContent);
+                    marker.bindTooltip(name);
+
+                    markers.addLayer(marker);
                 });
-                
-                markers.addLayer(geoJsonLayer);
+
                 map.addLayer(markers);
             });
 
