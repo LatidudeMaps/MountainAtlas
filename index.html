@@ -52,6 +52,15 @@
         .ol-popup-closer:after {
             content: "✖";
         }
+        .layer-switcher {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
@@ -60,6 +69,7 @@
         <a href="#" id="popup-closer" class="ol-popup-closer"></a>
         <div id="popup-content"></div>
     </div>
+    <div id="layer-switcher" class="layer-switcher"></div>
 
     <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js"></script>
     <script>
@@ -67,18 +77,28 @@
         var mountainAreasUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/pollino.geojson";
         var osmPeaksUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/peaks_pollino.geojson";
 
+        // Create base layers
+        var esriWorldImagery = new ol.layer.Tile({
+            title: 'Esri World Imagery',
+            type: 'base',
+            visible: true,
+            source: new ol.source.XYZ({
+                attributions: 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer">ArcGIS</a>',
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+            })
+        });
+
+        var openStreetMap = new ol.layer.Tile({
+            title: 'OpenStreetMap',
+            type: 'base',
+            visible: false,
+            source: new ol.source.OSM()
+        });
+
         // Create the map
         var map = new ol.Map({
             target: 'map',
-            layers: [
-                new ol.layer.Tile({
-                    source: new ol.source.XYZ({
-                        attributions: 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer">ArcGIS</a>',
-                        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-                    }),
-                    name: 'Esri World Imagery'
-                })
-            ],
+            layers: [esriWorldImagery, openStreetMap],
             view: new ol.View({
                 center: ol.proj.fromLonLat([16.1, 39.9]),
                 zoom: 9
@@ -92,6 +112,7 @@
         });
 
         var mountainAreasLayer = new ol.layer.Vector({
+            title: 'Mountain Areas',
             source: mountainAreasSource,
             style: new ol.style.Style({
                 stroke: new ol.style.Stroke({
@@ -117,12 +138,13 @@
 
         // Create a vector layer for clustered peaks
         var clusterLayer = new ol.layer.Vector({
+            title: 'OSM Peaks',
             source: clusterSource,
             style: function(feature) {
                 var size = feature.get('features').length;
                 return new ol.style.Style({
                     image: new ol.style.Circle({
-                        radius: 10,
+                        radius: 10 + Math.min(size, 20),
                         stroke: new ol.style.Stroke({
                             color: '#fff'
                         }),
@@ -163,7 +185,7 @@
             return false;
         };
 
-        // Display popup on click
+        // Display popup on click and handle cluster zoom
         map.on('click', function(evt) {
             var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature) {
                 return feature;
@@ -177,27 +199,48 @@
                     // It's a cluster
                     var features = feature.get('features');
                     if (features.length > 1) {
-                        content.innerHTML = '<p>' + features.length + ' peaks in this area</p>';
+                        // Zoom to the extent of the cluster
+                        var extent = ol.extent.createEmpty();
+                        features.forEach(function(f) {
+                            ol.extent.extend(extent, f.getGeometry().getExtent());
+                        });
+                        map.getView().fit(extent, {duration: 1000, padding: [50, 50, 50, 50]});
                     } else {
                         properties = features[0].getProperties();
                         content.innerHTML = '<h3>' + (properties.name || 'Unnamed Peak') + '</h3>' +
                                             '<p>Elevation: ' + (properties.elevation || 'Unknown') + ' m</p>';
+                        overlay.setPosition(coordinates);
                     }
                 } else {
                     // It's a mountain area
                     properties = feature.getProperties();
                     content.innerHTML = '<h3>' + (properties.MapName || 'Unnamed Area') + '</h3>';
+                    overlay.setPosition(coordinates);
                 }
-
-                overlay.setPosition(coordinates);
             }
         });
 
         // Layer switcher
-        var layerSwitcher = new ol.control.LayerSwitcher({
-            tipLabel: 'Legend'
-        });
-        map.addControl(layerSwitcher);
+        var layerSwitcher = document.getElementById('layer-switcher');
+        function updateLayerSwitcher() {
+            layerSwitcher.innerHTML = '';
+            map.getLayers().forEach(function(layer) {
+                if (layer.get('title')) {
+                    var checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.checked = layer.getVisible();
+                    checkbox.onchange = function() {
+                        layer.setVisible(checkbox.checked);
+                    };
+                    var label = document.createElement('label');
+                    label.appendChild(checkbox);
+                    label.appendChild(document.createTextNode(' ' + layer.get('title')));
+                    layerSwitcher.appendChild(label);
+                    layerSwitcher.appendChild(document.createElement('br'));
+                }
+            });
+        }
+        updateLayerSwitcher();
     </script>
 </body>
 </html>
