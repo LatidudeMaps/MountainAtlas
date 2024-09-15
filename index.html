@@ -40,14 +40,11 @@
         var mountainAreasUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/pollino.geojson";
         var osmPeaksUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/peaks_pollino.geojson";
 
-        // Variable to store the mountain areas layer
-        var mountainAreasLayer;
-
         // Load and add mountain areas
         fetch(mountainAreasUrl)
             .then(response => response.json())
             .then(data => {
-                mountainAreasLayer = L.geoJSON(data, {
+                L.geoJSON(data, {
                     style: function(feature) {
                         return {color: "#ff7800", weight: 2, opacity: 0.65};
                     },
@@ -57,53 +54,40 @@
                         }
                     }
                 }).addTo(map);
-
-                updateLayerControl();
             });
 
         // Load and add OSM peaks
         fetch(osmPeaksUrl)
             .then(response => response.json())
             .then(data => {
-                data.features.forEach(function(feature) {
-                    var lat = feature.geometry.coordinates[1];
-                    var lon = feature.geometry.coordinates[0];
-                    var name = feature.properties.name || "Unnamed Peak";
-                    var elevation = feature.properties.elevation || "Unknown";
-
-                    var marker = L.marker([lat, lon]);
-                    marker.bindPopup(name);
-                    marker.bindTooltip(name);
-
-                    markers.addLayer(marker);
-                });
-
+                L.geoJSON(data, {
+                    pointToLayer: function(feature, latlng) {
+                        return L.marker(latlng);
+                    },
+                    onEachFeature: function(feature, layer) {
+                        if (feature.properties) {
+                            var popupContent = "<b>Name:</b> " + (feature.properties.name || "Unnamed Peak") + 
+                                               "<br><b>Elevation:</b> " + (feature.properties.elevation || "Unknown") + " m";
+                            layer.bindPopup(popupContent);
+                            layer.bindTooltip(feature.properties.name || "Unnamed Peak");
+                        }
+                    }
+                }).addTo(markers);
+                
                 map.addLayer(markers);
-                updateLayerControl();
             });
 
-        // Function to update the layer control
-        function updateLayerControl() {
-            if (layerControl) {
-                layerControl.remove();
-            }
+        // Add layer control
+        var baseMaps = {
+            "Esri World Imagery": esriWorldImagery,
+            "OpenStreetMap": openStreetMap
+        };
 
-            var baseMaps = {
-                "Esri World Imagery": esriWorldImagery,
-                "OpenStreetMap": openStreetMap
-            };
+        var overlayMaps = {
+            "OSM Peaks": markers
+        };
 
-            var overlayMaps = {
-                "Mountain Areas": mountainAreasLayer,
-                "OSM Peaks": markers
-            };
-
-            layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
-        }
-
-        // Initialize layer control
-        var layerControl;
-        updateLayerControl();
+        L.control.layers(baseMaps, overlayMaps).addTo(map);
     </script>
 </body>
 </html>
