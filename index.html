@@ -72,7 +72,7 @@
                     var elevation = feature.properties.elevation || "Unknown";
 
                     var marker = L.marker([lat, lon]);
-                    marker.bindPopup("<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m");
+                    marker.bindPopup(name);
                     marker.bindTooltip(name);
 
                     markers.addLayer(marker);
