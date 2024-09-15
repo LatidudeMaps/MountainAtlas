@@ -58,7 +58,6 @@
                     }
                 }).addTo(map);
 
-                // Update the layer control after adding the mountain areas
                 updateLayerControl();
             });
 
@@ -66,32 +65,29 @@
         fetch(osmPeaksUrl)
             .then(response => response.json())
             .then(data => {
-                L.geoJSON(data, {
-                    pointToLayer: function(feature, latlng) {
-                        return L.marker(latlng);
-                    },
-                    onEachFeature: function(feature, layer) {
-                        if (feature.properties) {
-                            var popupContent = "<b>Name:</b> " + (feature.properties.name || "Unnamed Peak") + 
-                                               "<br><b>Elevation:</b> " + (feature.properties.elevation || "Unknown") + " m";
-                            layer.bindPopup(popupContent);
-                            layer.bindTooltip(feature.properties.name || "Unnamed Peak");
-                        }
-                    }
-                }).addTo(markers);
-            });
+                data.features.forEach(function(feature) {
+                    var lat = feature.geometry.coordinates[1];
+                    var lon = feature.geometry.coordinates[0];
+                    var name = feature.properties.name || "Unnamed Peak";
+                    var elevation = feature.properties.elevation || "Unknown";
 
-        // Add the marker cluster group to the map
-        map.addLayer(markers);
+                    var marker = L.marker([lat, lon]);
+                    marker.bindPopup("<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m");
+                    marker.bindTooltip(name);
+
+                    markers.addLayer(marker);
+                });
+
+                map.addLayer(markers);
+                updateLayerControl();
+            });
 
         // Function to update the layer control
         function updateLayerControl() {
-            // Remove existing layer control if it exists
             if (layerControl) {
                 layerControl.remove();
             }
 
-            // Add layer control
             var baseMaps = {
                 "Esri World Imagery": esriWorldImagery,
                 "OpenStreetMap": openStreetMap
