@@ -25,7 +25,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_d481a79bc9b3d87f06c889aeebc41137 {
+                #map_7ad88aaf23230d2fd6394783aa368fcf {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -35,45 +35,72 @@
                 .leaflet-container { font-size: 1rem; }
             </style>
         
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/leaflet.markercluster.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.Default.css"/>
+    
+                    <style>
+                        .foliumpopup {
+                            margin: auto;
+                        }
+                       .foliumpopup table{
+                            margin: auto;
+                        }
+                        .foliumpopup tr{
+                            text-align: left;
+                        }
+                        .foliumpopup th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    </style>
+            
+    
+                    <style>
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    </style>
+            
+    
+                    <style>
+                        .foliumpopup {
+                            margin: auto;
+                        }
+                       .foliumpopup table{
+                            margin: auto;
+                        }
+                        .foliumpopup tr{
+                            text-align: left;
+                        }
+                        .foliumpopup th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    </style>
+            
 </head>
 <body>
     
     
 <script src="../js/script.js" defer></script>
     
-            <div class="folium-map" id="map_d481a79bc9b3d87f06c889aeebc41137" ></div>
+            <div class="folium-map" id="map_7ad88aaf23230d2fd6394783aa368fcf" ></div>
         
 </body>
 <script>
     
     
-function onEachFeature(feature, layer) {
-    if (feature.properties && feature.properties.name) {
-        layer.bindPopup('<b>Name:</b> ' + feature.properties.name + '<br><b>Elevation:</b> ' + (feature.properties.elevation || 'Unknown') + ' m');
-        layer.bindTooltip(feature.properties.name);
-    }
-}
-
-fetch('https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/peaks_pollino.geojson')
-    .then(response => response.json())
-    .then(data => {
-        L.geoJSON(data, {
-            pointToLayer: function (feature, latlng) {
-                return L.marker(latlng);
-            },
-            onEachFeature: onEachFeature
-        }).addTo(marker_cluster);
-    });
-    
-            var map_d481a79bc9b3d87f06c889aeebc41137 = L.map(
-                "map_d481a79bc9b3d87f06c889aeebc41137",
+            var map_7ad88aaf23230d2fd6394783aa368fcf = L.map(
+                "map_7ad88aaf23230d2fd6394783aa368fcf",
                 {
-                    center: [39.9, 16.1],
+                    center: [42.83, 11.82],
                     crs: L.CRS.EPSG3857,
-                    zoom: 9,
+                    zoom: 7,
                     zoomControl: true,
                     preferCanvas: false,
                 }
@@ -83,67 +110,158 @@ fetch('https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/pe
 
         
     
-            var tile_layer_04945010ecb654e15257aa8abf70d2eb = L.tileLayer(
+            var tile_layer_e8c012925eb9d06c5921a3da22774c7e = L.tileLayer(
                 "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
                 {"attribution": "Tiles \u0026copy; Esri \u0026mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community", "detectRetina": false, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
             );
         
     
-            tile_layer_04945010ecb654e15257aa8abf70d2eb.addTo(map_d481a79bc9b3d87f06c889aeebc41137);
+            tile_layer_e8c012925eb9d06c5921a3da22774c7e.addTo(map_7ad88aaf23230d2fd6394783aa368fcf);
         
     
-            var tile_layer_63886c6b3a61d435b5b3d2159a15b4c1 = L.tileLayer(
+            var tile_layer_d9c86a2cdf78c5df869a499a6a1099f4 = L.tileLayer(
                 "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                 {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "detectRetina": false, "maxNativeZoom": 19, "maxZoom": 19, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
             );
         
     
 
-        function geo_json_dfe49a52c793580e6d10bafd0dbf36b7_onEachFeature(feature, layer) {
+        function geo_json_dbbfcbe403c1a9997997f31d8ecf633d_onEachFeature(feature, layer) {
             layer.on({
             });
         };
-        var geo_json_dfe49a52c793580e6d10bafd0dbf36b7 = L.geoJson(null, {
-                onEachFeature: geo_json_dfe49a52c793580e6d10bafd0dbf36b7_onEachFeature,
+        var geo_json_dbbfcbe403c1a9997997f31d8ecf633d = L.geoJson(null, {
+                onEachFeature: geo_json_dbbfcbe403c1a9997997f31d8ecf633d_onEachFeature,
             
         });
 
-        function geo_json_dfe49a52c793580e6d10bafd0dbf36b7_add (data) {
-            geo_json_dfe49a52c793580e6d10bafd0dbf36b7
+        function geo_json_dbbfcbe403c1a9997997f31d8ecf633d_add (data) {
+            geo_json_dbbfcbe403c1a9997997f31d8ecf633d
                 .addData(data);
         }
             $.ajax("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/pollino.geojson", {dataType: 'json', async: false})
-                .done(geo_json_dfe49a52c793580e6d10bafd0dbf36b7_add);
-        geo_json_dfe49a52c793580e6d10bafd0dbf36b7.setStyle(function(feature) {return feature.properties.style;});
+                .done(geo_json_dbbfcbe403c1a9997997f31d8ecf633d_add);
+        geo_json_dbbfcbe403c1a9997997f31d8ecf633d.setStyle(function(feature) {return feature.properties.style;});
 
         
     
-            geo_json_dfe49a52c793580e6d10bafd0dbf36b7.addTo(map_d481a79bc9b3d87f06c889aeebc41137);
+    geo_json_dbbfcbe403c1a9997997f31d8ecf633d.bindPopup(
+    function(layer){
+    let div = L.DomUtil.create('div');
+    
+    let handleObject = feature=>typeof(feature)=='object' ? JSON.stringify(feature) : feature;
+    let fields = ["MapName"];
+    let aliases = ["MapName"];
+    let table = '<table>' +
+        String(
+        fields.map(
+        (v,i)=>
+        `<tr>
+            <td>${handleObject(layer.feature.properties[v]).toLocaleString()}</td>
+        </tr>`).join(''))
+    +'</table>';
+    div.innerHTML=table;
+    
+    return div
+    }
+    ,{"className": "foliumpopup"});
+                     
+    
+            geo_json_dbbfcbe403c1a9997997f31d8ecf633d.addTo(map_7ad88aaf23230d2fd6394783aa368fcf);
         
     
-            var marker_cluster_aa01ab4c86a1209bdd3abf073297ede7 = L.markerClusterGroup(
+
+        function geo_json_87c804e8eb54826101d81f0b6c3d3879_onEachFeature(feature, layer) {
+            layer.on({
+            });
+        };
+        var geo_json_87c804e8eb54826101d81f0b6c3d3879 = L.geoJson(null, {
+                onEachFeature: geo_json_87c804e8eb54826101d81f0b6c3d3879_onEachFeature,
+            
+        });
+
+        function geo_json_87c804e8eb54826101d81f0b6c3d3879_add (data) {
+            geo_json_87c804e8eb54826101d81f0b6c3d3879
+                .addData(data);
+        }
+            $.ajax("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/peaks_pollino.geojson", {dataType: 'json', async: false})
+                .done(geo_json_87c804e8eb54826101d81f0b6c3d3879_add);
+        geo_json_87c804e8eb54826101d81f0b6c3d3879.setStyle(function(feature) {return feature.properties.style;});
+
+        
+    
+    geo_json_87c804e8eb54826101d81f0b6c3d3879.bindTooltip(
+    function(layer){
+    let div = L.DomUtil.create('div');
+    
+    let handleObject = feature=>typeof(feature)=='object' ? JSON.stringify(feature) : feature;
+    let fields = ["name"];
+    let aliases = ["name"];
+    let table = '<table>' +
+        String(
+        fields.map(
+        (v,i)=>
+        `<tr>
+            <th>${aliases[i]}</th>
+            
+            <td>${handleObject(layer.feature.properties[v])}</td>
+        </tr>`).join(''))
+    +'</table>';
+    div.innerHTML=table;
+    
+    return div
+    }
+    ,{"className": "foliumtooltip", "sticky": true});
+                     
+    
+    geo_json_87c804e8eb54826101d81f0b6c3d3879.bindPopup(
+    function(layer){
+    let div = L.DomUtil.create('div');
+    
+    let handleObject = feature=>typeof(feature)=='object' ? JSON.stringify(feature) : feature;
+    let fields = ["name", "elevation"];
+    let aliases = ["Name:", "Elevation (m):"];
+    let table = '<table>' +
+        String(
+        fields.map(
+        (v,i)=>
+        `<tr>
+            <th>${aliases[i].toLocaleString()}</th>
+            
+            <td>${handleObject(layer.feature.properties[v]).toLocaleString()}</td>
+        </tr>`).join(''))
+    +'</table>';
+    div.innerHTML=table;
+    
+    return div
+    }
+    ,{"className": "foliumpopup"});
+                     
+    
+            geo_json_87c804e8eb54826101d81f0b6c3d3879.addTo(map_7ad88aaf23230d2fd6394783aa368fcf);
+        
+    
+            map_7ad88aaf23230d2fd6394783aa368fcf.fitBounds(
+                [[39.606111111111105, 15.672841175572898], [40.334195421006854, 16.61589094195014]],
                 {}
             );
         
     
-            marker_cluster_aa01ab4c86a1209bdd3abf073297ede7.addTo(map_d481a79bc9b3d87f06c889aeebc41137);
-        
-    
-            var layer_control_f51ba15d48b31840f52497f810ef458f_layers = {
+            var layer_control_d26282e81128953b6cd2f293d65f9e1e_layers = {
                 base_layers : {
-                    "Esri World Imagery" : tile_layer_04945010ecb654e15257aa8abf70d2eb,
-                    "Open Street Map" : tile_layer_63886c6b3a61d435b5b3d2159a15b4c1,
+                    "Esri World Imagery" : tile_layer_e8c012925eb9d06c5921a3da22774c7e,
+                    "Open Street Map" : tile_layer_d9c86a2cdf78c5df869a499a6a1099f4,
                 },
                 overlays :  {
-                    "Mountain Areas" : geo_json_dfe49a52c793580e6d10bafd0dbf36b7,
-                    "OSM Peaks" : marker_cluster_aa01ab4c86a1209bdd3abf073297ede7,
+                    "Mountain Areas" : geo_json_dbbfcbe403c1a9997997f31d8ecf633d,
+                    "OSM real Peaks" : geo_json_87c804e8eb54826101d81f0b6c3d3879,
                 },
             };
-            let layer_control_f51ba15d48b31840f52497f810ef458f = L.control.layers(
-                layer_control_f51ba15d48b31840f52497f810ef458f_layers.base_layers,
-                layer_control_f51ba15d48b31840f52497f810ef458f_layers.overlays,
+            let layer_control_d26282e81128953b6cd2f293d65f9e1e = L.control.layers(
+                layer_control_d26282e81128953b6cd2f293d65f9e1e_layers.base_layers,
+                layer_control_d26282e81128953b6cd2f293d65f9e1e_layers.overlays,
                 {"autoZIndex": true, "collapsed": false, "position": "topright"}
-            ).addTo(map_d481a79bc9b3d87f06c889aeebc41137);
+            ).addTo(map_7ad88aaf23230d2fd6394783aa368fcf);
 
         
 </script>
