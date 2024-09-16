@@ -35,13 +35,6 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         });
 
-        // Create a custom icon for markers
-        var mountainIcon = L.divIcon({
-            html: '<i class="fas fa-mountain mountain-icon"></i>',
-            iconSize: [50, 50],
-            className: 'mountain-marker'
-        });
-
         // Create a marker cluster group
         var markers = L.markerClusterGroup().addTo(map);
 
@@ -85,13 +78,14 @@
             .then(data => {
                 L.geoJSON(data, {
                     pointToLayer: function(feature, latlng) {
-                        var marker = L.marker(latlng, {icon: mountainIcon});
+                        var marker = L.marker(latlng);
                         var name = feature.properties.name || "Unnamed Peak";
                         var elevation = feature.properties.elevation || "Unknown";
                         var popupContent = "<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m";
                         
                         marker.bindPopup(popupContent);
                         marker.bindTooltip(name);
+                        marker.bindLabel(name)
 
                         marker.on('click', function(e) {
                             this.openPopup();
