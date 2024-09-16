@@ -19,67 +19,77 @@
     </style>
 </head>
 <body>
-    <div id="filter-container">
-        <label for="hier-lvl-select">Filter by Hier_lvl:</label>
-        <select id="hier-lvl-select">
-            <option value="all">Show All</option>  <!-- Default option to show all areas -->
-        </select>
-    </div>
     <div id="map"></div>
     
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-    <script src="https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/js/script.js"></script>
     <script>
         // Initialize the map with a default view
         var map = L.map('map');
-    
+
         // Add tile layers (already existing code)
         var CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
             subdomains: 'abcd',
             maxZoom: 20
         }).addTo(map);
-    
+
         var esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Tiles &copy; Esri'
         });
-    
+
         var openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         });
-    
+
         // Create a marker cluster group
         var markers = L.markerClusterGroup().addTo(map);
-    
+
         // URLs of the GeoJSON files
         var mountainAreasUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson";
         var osmPeaksUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/OSM_peaks.geojson";
-    
+
         // Base maps and overlay maps for layer control
         var baseMaps = {
             "Dark Positron": CartoDB_DarkMatter,
             "Esri World Imagery": esriWorldImagery,
             "OpenStreetMap": openStreetMap
         };
-    
+
         var overlayMaps = {
             "Mountain Areas": L.geoJSON().addTo(map),
             "OSM Peaks": markers
         };
-    
+
         // Add layer control
         var layerControl = L.control.layers(baseMaps, overlayMaps, {collapsed: false}).addTo(map);
-    
+
         // Container for the filtered mountain areas layer
         var filteredMountainAreas;
-    
+
+        // Create a custom control for the filter dropdown
+        var filterControl = L.control({position: 'topright'});
+
+        filterControl.onAdd = function(map) {
+            var div = L.DomUtil.create('div', 'filter-control');
+            div.innerHTML = '<label for="hier-lvl-select">Filter by Hier_lvl:</label><br>' +
+                            '<select id="hier-lvl-select">' +
+                            '<option value="all">Show All</option>' +
+                            '</select>';
+            return div;
+        };
+
+        filterControl.addTo(map);
+
+        // Prevent map interactions when using the filter dropdown
+        L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
+
         // Fetch mountain areas and populate the dropdown for "Hier_lvl" filtering
         fetch(mountainAreasUrl)
             .then(response => response.json())
             .then(data => {
                 var uniqueHierLvls = new Set();  // Use a Set to store unique Hier_lvl values
-    
+
                 // Load all mountain areas and store the unique Hier_lvl values
                 var mountainAreasLayer = L.geoJSON(data, {
                     onEachFeature: function (feature, layer) {
@@ -89,7 +99,7 @@
                         layer.bindPopup(feature.properties.MapName);
                     }
                 }).addTo(map);
-    
+
                 // Populate the filter dropdown with unique Hier_lvl values
                 var hierLvlSelect = document.getElementById('hier-lvl-select');
                 uniqueHierLvls.forEach(function (value) {
@@ -98,19 +108,19 @@
                     option.text = "Hier_lvl: " + value;
                     hierLvlSelect.appendChild(option);
                 });
-    
+
                 // Fit the map to the bounds of the mountain areas
                 map.fitBounds(mountainAreasLayer.getBounds());
-    
+
                 // Handle filter changes
                 hierLvlSelect.addEventListener('change', function () {
                     var selectedValue = hierLvlSelect.value;
-    
+
                     // Remove the previous filtered layer if it exists
                     if (filteredMountainAreas) {
                         map.removeLayer(filteredMountainAreas);
                     }
-    
+
                     // If "all" is selected, show all polygons
                     if (selectedValue === "all") {
                         filteredMountainAreas = L.geoJSON(data).addTo(map);
@@ -127,7 +137,7 @@
                     }
                 });
             });
-    
+
         // Load and add OSM peaks (existing code)
         fetch(osmPeaksUrl)
             .then(response => response.json())
@@ -146,7 +156,7 @@
                             offset: [-15, -3],
                             className: 'dark-tooltip'
                         });
-    
+
                         return marker;
                     }
                 }).addTo(markers);
