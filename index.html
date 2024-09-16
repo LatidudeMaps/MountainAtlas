@@ -24,8 +24,8 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <script>
-        // Initialize the map with a default view and use DarkMatter as the default base layer
-        var map = L.map('map');  // Adjust this for your preferred initial view
+        // Initialize the map without setView (we will fit to bounds dynamically)
+        var map = L.map('map');
 
         // Add tile layers
         var CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -112,6 +112,9 @@
                 // Add Mountain Areas to the map by default
                 mountainAreasLayer.addData(data).addTo(map);  // Add the layer to map initially
 
+                // Fit the map bounds to the Mountain Areas layer (dynamic fitting)
+                map.fitBounds(mountainAreasLayer.getBounds());
+
                 // Handle filtering by Hier_lvl
                 hierLvlSelect.addEventListener('change', function () {
                     var selectedValue = hierLvlSelect.value.trim();
@@ -133,7 +136,7 @@
 
                         mountainAreasLayer.addLayer(filteredData);  // Add the filtered data to the layer
 
-                        // Fit bounds to filtered polygons, if you still want the option
+                        // Optionally, fit bounds to filtered polygons
                         if (filteredData.getLayers().length > 0) {
                             map.fitBounds(filteredData.getBounds());
                         }
