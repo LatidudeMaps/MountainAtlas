@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/docs/favicon.png">
     <style>
         html, body, #map {
             height: 100%;
@@ -21,8 +22,8 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <script>
-        // Initialize the map
-        var map = L.map('map').setView([39.9, 16.1], 7);
+        // Initialize the map with a default view
+        var map = L.map('map').setView([39.9, 16.1], 9);
 
         // Add tile layers
         var esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -40,83 +41,62 @@
         var mountainAreasUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/pollino.geojson";
         var osmPeaksUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/peaks_pollino.geojson";
 
+        // Base maps and overlay maps for layer control
+        var baseMaps = {
+            "Esri World Imagery": esriWorldImagery,
+            "OpenStreetMap": openStreetMap
+        };
+
+        var overlayMaps = {
+            "Pollino Area": L.geoJSON().addTo(map),
+            "OSM Peaks": markers
+        };
+
+        // Add layer control
+        var layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
+
         // Load and add mountain areas
         fetch(mountainAreasUrl)
             .then(response => response.json())
             .then(data => {
-                var mountainAreasLayer = L.geoJSON(data, {
-                    style: function(feature) {
-                        return {color: "#ff7800", weight: 2, opacity: 0.65};
-                    },
-                    onEachFeature: function(feature, layer) {
-                        if (feature.properties && feature.properties.MapName) {
-                            layer.bindPopup(feature.properties.MapName);
-                        }
+                overlayMaps["Pollino Area"].addData(data);
+                overlayMaps["Pollino Area"].setStyle({color: "#ff7800", weight: 2, opacity: 0.65});
+                overlayMaps["Pollino Area"].eachLayer(function(layer) {
+                    if (layer.feature.properties && layer.feature.properties.MapName) {
+                        layer.bindPopup(layer.feature.properties.MapName);
                     }
-                }).addTo(map);
+                });
 
                 // Fit the map to the bounds of the mountain areas layer
-                map.fitBounds(mountainAreasLayer.getBounds());
-
-                // Update layer control after adding mountain areas
-                updateLayerControl();
+                map.fitBounds(overlayMaps["Pollino Area"].getBounds());
             });
 
         // Load and add OSM peaks
         fetch(osmPeaksUrl)
             .then(response => response.json())
             .then(data => {
-                data.features.forEach(function(feature) {
-                    var lat = feature.geometry.coordinates[1];
-                    var lon = feature.geometry.coordinates[0];
-                    var name = feature.properties.name || "Unnamed Peak";
-                    var elevation = feature.properties.elevation || "Unknown";
+                L.geoJSON(data, {
+                    pointToLayer: function(feature, latlng) {
+                        var marker = L.marker(latlng);
+                        var name = feature.properties.name || "Unnamed Peak";
+                        var elevation = feature.properties.elevation || "Unknown";
+                        var popupContent = "<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m";
+                        
+                        marker.bindPopup(popupContent);
+                        marker.bindTooltip(name);
 
-                    var marker = L.marker([lat, lon]);
-                    var popupContent = "<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m";
-                    
-                    marker.bindPopup(popupContent);
-                    marker.bindTooltip(name);
+                        marker.on('click', function(e) {
+                            this.openPopup();
+                        });
 
-                    // Add click event listener
-                    marker.on('click', function(e) {
-                        this.openPopup();
-                    });
+                        marker.on('touchstart', function(e) {
+                            this.openPopup();
+                        });
 
-                    // Add touch event listener for mobile devices
-                    marker.on('touchstart', function(e) {
-                        this.openPopup();
-                    });
-
-                    markers.addLayer(marker);
-                });
-
-                map.addLayer(markers);
+                        return marker;
+                    }
+                }).addTo(markers);
             });
-
-
-        // Function to update layer control
-        function updateLayerControl() {
-            if (layerControl) {
-                layerControl.remove();
-            }
-
-            var baseMaps = {
-                "Esri World Imagery": esriWorldImagery,
-                "OpenStreetMap": openStreetMap
-            };
-
-            var overlayMaps = {
-                "Pollino Area": mountainAreasLayer,
-                "OSM Peaks": markers
-            };
-
-            layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
-        }
-
-        // Initialize layer control
-        var layerControl;
-        updateLayerControl();
     </script>
 </body>
 </html>
