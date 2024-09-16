@@ -2,10 +2,10 @@
     background: none !important;  /* Ensure no background */
     border: none !important;      /* Ensure no border */
     padding: 0 !important;        /* Remove padding */
-    color: black;                 /* Set text color */
+    color: white;                 /* Set text color */
     font-size: 12px;              /* Set font size */
     font-weight: bold;            /* Bold the text */
-    text-shadow: 1px 1px 2px white; /* Optional shadow for readability */
+    text-shadow: 1px 1px 2px black; /* Optional shadow for readability */
     pointer-events: none;         /* Ensure the text isn't clickable */
     box-shadow: none !important;  /* Remove any box shadow */
 }
