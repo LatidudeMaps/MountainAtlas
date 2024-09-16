@@ -25,7 +25,7 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <script>
         // Initialize the map with a default view (latitude, longitude, zoom)
-        var map = L.map('map');  // Center at [20, 0] with zoom level 2
+        var map = L.map('map');
     
         // Add tile layers with proper attribution
         var CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -63,12 +63,29 @@
             "OpenStreetMap": openStreetMap
         };
     
-        // Overlay maps for the control
+        // Initialize the mountain areas layer so it can be controlled
+        var mountainAreasLayer = L.geoJSON(null, {
+            style: function () {
+                return {
+                    color: "#ff7800",
+                    weight: 2,
+                    opacity: 1,
+                    fillColor: "#ffcc66",
+                    fillOpacity: 0.65
+                };
+            },
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup(feature.properties.MapName);
+            }
+        });
+    
+        // Overlay maps for the control, now including Mountain Areas
         var overlayMaps = {
+            "Mountain Areas": mountainAreasLayer,
             "OSM Peaks": markers
         };
     
-        // Add layer control to toggle between base maps
+        // Add layer control to toggle between base maps and overlay maps
         var layerControl = L.control.layers(baseMaps, overlayMaps, {collapsed: false}).addTo(map);
     
         // Add a custom control for filtering by "Hier_lvl"
@@ -88,7 +105,7 @@
         // Prevent map interactions when using the filter dropdown
         L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
     
-        // Fetch and load the mountain areas layer
+        // Fetch and load the mountain areas layer and add to the map
         fetch(mountainAreasUrl)
             .then(response => response.json())
             .then(data => {
@@ -115,66 +132,24 @@
                     hierLvlSelect.appendChild(option);
                 });
     
-                // Load the mountain areas with default style
-                var mountainAreasLayer = L.geoJSON(data, {
-                    style: function () {
-                        return {
-                            color: "#ff7800",
-                            weight: 2,
-                            opacity: 1,
-                            fillColor: "#ffcc66",
-                            fillOpacity: 0.65
-                        };
-                    },
-                    onEachFeature: function (feature, layer) {
-                        layer.bindPopup(feature.properties.MapName);
-                    }
-                }).addTo(map);
+                // Add mountain areas layer to the map
+                mountainAreasLayer.addData(data).addTo(map);
     
                 // Handle filtering by Hier_lvl
                 hierLvlSelect.addEventListener('change', function () {
                     var selectedValue = hierLvlSelect.value.trim();
                     if (selectedValue === "all") {
                         // Reset to show all polygons
-                        if (mountainAreasLayer) {
-                            map.removeLayer(mountainAreasLayer);
-                        }
-                        mountainAreasLayer = L.geoJSON(data, {
-                            style: function () {
-                                return {
-                                    color: "#ff7800",
-                                    weight: 2,
-                                    opacity: 1,
-                                    fillColor: "#ffcc66",
-                                    fillOpacity: 0.65
-                                };
-                            },
-                            onEachFeature: function (feature, layer) {
-                                layer.bindPopup(feature.properties.MapName);
-                            }
-                        }).addTo(map);
+                        mountainAreasLayer.clearLayers();
+                        mountainAreasLayer.addData(data);
                     } else {
                         // Filter by selected Hier_lvl
-                        if (mountainAreasLayer) {
-                            map.removeLayer(mountainAreasLayer);
-                        }
-                        mountainAreasLayer = L.geoJSON(data, {
+                        mountainAreasLayer.clearLayers();
+                        mountainAreasLayer.addData(data, {
                             filter: function (feature) {
                                 return String(feature.properties.Hier_lvl).trim() === selectedValue;
-                            },
-                            style: function () {
-                                return {
-                                    color: "#ff7800",
-                                    weight: 2,
-                                    opacity: 1,
-                                    fillColor: "#ffcc66",
-                                    fillOpacity: 0.65
-                                };
-                            },
-                            onEachFeature: function (feature, layer) {
-                                layer.bindPopup(feature.properties.MapName);
                             }
-                        }).addTo(map);
+                        });
                     }
                 });
             });
@@ -200,6 +175,6 @@
                     }
                 }).addTo(markers);
             });
-    </script>                
+    </script>                    
 </body>
 </html>
