@@ -156,13 +156,32 @@
                         var name = feature.properties.name || "Unnamed Peak";
                         var elevation = feature.properties.elevation || "Unknown";
                         var popupContent = "<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m";
+                        
                         marker.bindPopup(popupContent);
+
+                        // Ensure tooltip doesn't block popup
                         marker.bindTooltip(name, { 
                             permanent: true, 
                             direction: 'top', 
                             offset: [-15, -3],
                             className: 'dark-tooltip'
                         });
+
+                        // Handle click events for better Safari support
+                        marker.on('click', function(e) {
+                            marker.openPopup();
+                        });
+
+                        // Close tooltip when popup opens to prevent interference
+                        marker.on('popupopen', function () {
+                            marker.closeTooltip();
+                        });
+
+                        // Reopen tooltip after popup closes
+                        marker.on('popupclose', function () {
+                            marker.openTooltip();
+                        });
+
                         return marker;
                     }
                 }).addTo(markers);
