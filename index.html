@@ -120,6 +120,8 @@
                 hierLvlSelect.addEventListener('change', function () {
                     var selectedValue = hierLvlSelect.value;
     
+                    console.log("Selected Hier_lvl value: ", selectedValue);  // Debugging
+    
                     // Remove the previous filtered layer if it exists
                     if (filteredMountainAreas) {
                         map.removeLayer(filteredMountainAreas);
@@ -132,22 +134,27 @@
                                 layer.bindPopup(feature.properties.MapName);
                             }
                         }).addTo(map);
+                        console.log("Showing all polygons");
                     } else {
                         // Filter the GeoJSON data by Hier_lvl
                         filteredMountainAreas = L.geoJSON(data, {
                             filter: function (feature) {
-                                // Ensure Hier_lvl value is a string match
+                                console.log("Filtering feature with Hier_lvl:", feature.properties.Hier_lvl);  // Debugging
                                 return feature.properties.Hier_lvl === selectedValue;
                             },
                             onEachFeature: function (feature, layer) {
                                 layer.bindPopup(feature.properties.MapName);
                             }
                         }).addTo(map);
-                    }
     
-                    // Zoom to the bounds of the filtered polygons
-                    if (filteredMountainAreas.getLayers().length) {
-                        map.fitBounds(filteredMountainAreas.getBounds());
+                        console.log("Filtered layer count:", filteredMountainAreas.getLayers().length);
+    
+                        // Zoom to the bounds of the filtered polygons
+                        if (filteredMountainAreas.getLayers().length) {
+                            map.fitBounds(filteredMountainAreas.getBounds());
+                        } else {
+                            console.log("No polygons found for this filter.");
+                        }
                     }
                 });
             });
@@ -175,6 +182,6 @@
                     }
                 }).addTo(markers);
             });
-    </script>    
+    </script>     
 </body>
 </html>
