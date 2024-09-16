@@ -14,16 +14,26 @@
             margin: 0;
             padding: 0;
         }
+        
         .permanent-tooltip {
-            background: none;       /* Remove background */
-            border: none;           /* Remove border */
-            padding: 0;             /* Remove padding */
-            color: black;           /* Set text color */
-            font-size: 12px;        /* Set font size */
-            font-weight: bold;      /* Make the text bold */
-            text-shadow: 1px 1px 2px white; /* Add slight shadow for readability */
-            pointer-events: none;   /* Make sure the text is not clickable */
+            background: none !important;  /* Ensure no background */
+            border: none !important;      /* Ensure no border */
+            padding: 0 !important;        /* Remove padding */
+            color: black;                 /* Set text color */
+            font-size: 12px;              /* Set font size */
+            font-weight: bold;            /* Bold the text */
+            text-shadow: 1px 1px 2px white; /* Optional shadow for readability */
+            pointer-events: none;         /* Ensure the text isn't clickable */
+            box-shadow: none !important;  /* Remove any box shadow */
         }
+
+        .leaflet-tooltip-top:before, 
+        .leaflet-tooltip-bottom:before, 
+        .leaflet-tooltip-left:before, 
+        .leaflet-tooltip-right:before {
+            display: none !important;     /* Hide the tooltip's pointer (triangle) */
+        }
+
     </style>
 </head>
 <body>
