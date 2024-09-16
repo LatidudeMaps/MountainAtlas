@@ -32,10 +32,10 @@
             attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
             subdomains: 'abcd',
             maxZoom: 20
-        }).addTo(map);
+        }).addTo(map);  // Add CartoDB_DarkMatter by default to the map
     
         var esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            attribution: 'Tiles &copy; Esri'
         });
     
         var openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -56,14 +56,7 @@
         var mountainAreasUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson";
         var osmPeaksUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/OSM_peaks.geojson";
     
-        // Base maps for the control
-        var baseMaps = {
-            "Dark Positron": CartoDB_DarkMatter,
-            "Esri World Imagery": esriWorldImagery,
-            "OpenStreetMap": openStreetMap
-        };
-    
-        // Initialize the mountain areas layer so it can be controlled
+        // Initialize the mountain areas layer
         var mountainAreasLayer = L.geoJSON(null, {
             style: function () {
                 return {
@@ -79,7 +72,14 @@
             }
         });
     
-        // Overlay maps for the control, now including Mountain Areas
+        // Base maps for the control
+        var baseMaps = {
+            "Dark Positron": CartoDB_DarkMatter,
+            "Esri World Imagery": esriWorldImagery,
+            "OpenStreetMap": openStreetMap
+        };
+    
+        // Overlay maps for the control
         var overlayMaps = {
             "Mountain Areas": mountainAreasLayer,
             "OSM Peaks": markers
@@ -132,7 +132,7 @@
                     hierLvlSelect.appendChild(option);
                 });
     
-                // Add mountain areas layer to the map
+                // Add mountain areas layer to the map by default
                 mountainAreasLayer.addData(data).addTo(map);
     
                 // Handle filtering by Hier_lvl
@@ -175,6 +175,6 @@
                     }
                 }).addTo(markers);
             });
-    </script>                    
+    </script>                        
 </body>
 </html>
