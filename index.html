@@ -84,7 +84,7 @@
                         var popupContent = "<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m";
                         
                         marker.bindPopup(popupContent);
-                        marker.bindTooltip(name);
+                        marker.bindTooltip(name, { permanent: true, direction: 'top', className: 'permanent-tooltip' });
 
                         marker.on('click', function(e) {
                             this.openPopup();
