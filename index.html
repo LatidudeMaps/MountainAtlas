@@ -19,6 +19,12 @@
     </style>
 </head>
 <body>
+    <div id="filter-container">
+        <label for="hier-lvl-select">Filter by Hier_lvl:</label>
+        <select id="hier-lvl-select">
+            <option value="all">Show All</option>  <!-- Default option to show all areas -->
+        </select>
+    </div>
     <div id="map"></div>
     
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -28,19 +34,19 @@
         // Initialize the map with a default view
         var map = L.map('map');
     
-        // Add tile layers
+        // Add tile layers (already existing code)
         var CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
             subdomains: 'abcd',
             maxZoom: 20
         }).addTo(map);
     
         var esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            attribution: 'Tiles &copy; Esri'
         });
     
         var openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution: '&copy; OpenStreetMap contributors'
         });
     
         // Create a marker cluster group
@@ -65,48 +71,64 @@
         // Add layer control
         var layerControl = L.control.layers(baseMaps, overlayMaps, {collapsed: false}).addTo(map);
     
-        // Function to update tooltips based on base map
-        function updateTooltipClass(newClass) {
-            markers.eachLayer(function(layer) {
-                if (layer.getTooltip()) {
-                    var tooltipContent = layer.getTooltip().getContent();
-                    layer.unbindTooltip();  // Unbind the old tooltip
-                    layer.bindTooltip(tooltipContent, {
-                        permanent: true,
-                        direction: 'top',
-                        offset: [-15, -3],
-                        className: newClass  // Bind the new tooltip class
-                    });
-                }
-            });
-        }
+        // Container for the filtered mountain areas layer
+        var filteredMountainAreas;
     
-        // Listen for base layer change to switch tooltip colors
-        map.on('baselayerchange', function(eventLayer) {
-            if (eventLayer.name === "Dark Positron") {
-                updateTooltipClass('dark-tooltip');
-            } else {
-                updateTooltipClass('light-tooltip');
-            }
-        });
-    
-        // Load and add mountain areas
+        // Fetch mountain areas and populate the dropdown for "Hier_lvl" filtering
         fetch(mountainAreasUrl)
             .then(response => response.json())
             .then(data => {
-                overlayMaps["Mountain Areas"].addData(data);
-                overlayMaps["Mountain Areas"].setStyle({color: "#ff7800", weight: 2, opacity: 0.65});
-                overlayMaps["Mountain Areas"].eachLayer(function(layer) {
-                    if (layer.feature.properties && layer.feature.properties.MapName) {
-                        layer.bindPopup(layer.feature.properties.MapName);
+                var uniqueHierLvls = new Set();  // Use a Set to store unique Hier_lvl values
+    
+                // Load all mountain areas and store the unique Hier_lvl values
+                var mountainAreasLayer = L.geoJSON(data, {
+                    onEachFeature: function (feature, layer) {
+                        if (feature.properties.Hier_lvl) {
+                            uniqueHierLvls.add(feature.properties.Hier_lvl);
+                        }
+                        layer.bindPopup(feature.properties.MapName);
                     }
+                }).addTo(map);
+    
+                // Populate the filter dropdown with unique Hier_lvl values
+                var hierLvlSelect = document.getElementById('hier-lvl-select');
+                uniqueHierLvls.forEach(function (value) {
+                    var option = document.createElement('option');
+                    option.value = value;
+                    option.text = "Hier_lvl: " + value;
+                    hierLvlSelect.appendChild(option);
                 });
     
-                // Fit the map to the bounds of the mountain areas layer
-                map.fitBounds(overlayMaps["Mountain Areas"].getBounds());
+                // Fit the map to the bounds of the mountain areas
+                map.fitBounds(mountainAreasLayer.getBounds());
+    
+                // Handle filter changes
+                hierLvlSelect.addEventListener('change', function () {
+                    var selectedValue = hierLvlSelect.value;
+    
+                    // Remove the previous filtered layer if it exists
+                    if (filteredMountainAreas) {
+                        map.removeLayer(filteredMountainAreas);
+                    }
+    
+                    // If "all" is selected, show all polygons
+                    if (selectedValue === "all") {
+                        filteredMountainAreas = L.geoJSON(data).addTo(map);
+                    } else {
+                        // Filter the GeoJSON data by Hier_lvl
+                        filteredMountainAreas = L.geoJSON(data, {
+                            filter: function (feature) {
+                                return feature.properties.Hier_lvl === selectedValue;
+                            },
+                            onEachFeature: function (feature, layer) {
+                                layer.bindPopup(feature.properties.MapName);
+                            }
+                        }).addTo(map);
+                    }
+                });
             });
     
-        // Load and add OSM peaks
+        // Load and add OSM peaks (existing code)
         fetch(osmPeaksUrl)
             .then(response => response.json())
             .then(data => {
@@ -118,31 +140,11 @@
                         var popupContent = "<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m";
                         
                         marker.bindPopup(popupContent);
-                        
-                        // Initially use the dark tooltip if Dark Positron is the default
                         marker.bindTooltip(name, { 
                             permanent: true, 
                             direction: 'top', 
-                            offset: [-15, -3],  // Centering the tooltip
-                            className: 'dark-tooltip'  // Start with dark-tooltip for the Dark Positron layer
-                        });
-    
-                        // Hide tooltip when popup is opened
-                        marker.on('popupopen', function () {
-                            marker.closeTooltip();
-                        });
-    
-                        // Show tooltip again when popup is closed
-                        marker.on('popupclose', function () {
-                            marker.openTooltip();
-                        });
-    
-                        marker.on('click', function(e) {
-                            this.openPopup();
-                        });
-    
-                        marker.on('touchstart', function(e) {
-                            this.openPopup();
+                            offset: [-15, -3],
+                            className: 'dark-tooltip'
                         });
     
                         return marker;
@@ -150,4 +152,4 @@
                 }).addTo(markers);
             });
     </script>
-    
+</body>
