@@ -1,9 +1,3 @@
-html, body, #map {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-}
-
 .permanent-tooltip {
     background: none !important;  /* Ensure no background */
     border: none !important;      /* Ensure no border */
