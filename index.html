@@ -50,9 +50,8 @@
 
         // Add marker cluster group with smoother zoom handling
         var markers = L.markerClusterGroup({
-            animate: true,               // Enable animation when clusters expand/collapse
             spiderfyOnMaxZoom: false,     // Avoid immediate zoom to individual markers on max zoom
-            disableClusteringAtZoom: 16,  // Stop clustering at this zoom level
+            disableClusteringAtZoom: 18,  // Stop clustering at this zoom level
             zoomToBoundsOnClick: true     // Enable zoom to bounds when clicking a cluster
         }).addTo(map);
 
@@ -167,11 +166,6 @@
                         var popupContent = "<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m";
                         
                         marker.bindPopup(popupContent);
-
-                        // Ensure smoother cluster transitions
-                        marker.on('click', function() {
-                            map.setView(latlng, map.getZoom() + 1, {animate: true, duration: 0.5});  // Smooth zoom into individual marker
-                        });
 
                         // Ensure tooltip doesn't block popup
                         marker.bindTooltip(name, { 
