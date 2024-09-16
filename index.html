@@ -37,8 +37,8 @@
         var markers = L.markerClusterGroup().addTo(map);
 
         // URLs of the GeoJSON files
-        var mountainAreasUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/pollino.geojson";
-        var osmPeaksUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/peaks_pollino.geojson";
+        var mountainAreasUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson";
+        var osmPeaksUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/OSM_peaks.geojson";
 
         // Base maps and overlay maps for layer control
         var baseMaps = {
@@ -47,7 +47,7 @@
         };
 
         var overlayMaps = {
-            "Pollino Area": L.geoJSON().addTo(map),
+            "Mountain Areas": L.geoJSON().addTo(map),
             "OSM Peaks": markers
         };
 
@@ -58,16 +58,16 @@
         fetch(mountainAreasUrl)
             .then(response => response.json())
             .then(data => {
-                overlayMaps["Pollino Area"].addData(data);
-                overlayMaps["Pollino Area"].setStyle({color: "#ff7800", weight: 2, opacity: 0.65});
-                overlayMaps["Pollino Area"].eachLayer(function(layer) {
+                overlayMaps["Mountain Areas"].addData(data);
+                overlayMaps["Mountain Areas"].setStyle({color: "#ff7800", weight: 2, opacity: 0.65});
+                overlayMaps["Mountain Areas"].eachLayer(function(layer) {
                     if (layer.feature.properties && layer.feature.properties.MapName) {
                         layer.bindPopup(layer.feature.properties.MapName);
                     }
                 });
 
                 // Fit the map to the bounds of the mountain areas layer
-                map.fitBounds(overlayMaps["Pollino Area"].getBounds());
+                map.fitBounds(overlayMaps["Mountain Areas"].getBounds());
             });
 
         // Load and add OSM peaks
