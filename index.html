@@ -35,7 +35,7 @@
         });
 
         // Create a marker cluster group
-        var markers = L.markerClusterGroup();
+        var markers = L.markerClusterGroup().addTo(map);
 
         // URLs of the GeoJSON files
         var mountainAreasUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/pollino.geojson";
