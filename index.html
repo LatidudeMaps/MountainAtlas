@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mountain Atlas</title>
+    <title>Mountain Atlas Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
@@ -13,31 +13,11 @@
             margin: 0;
             padding: 0;
         }
-        #filter-control {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 1000;
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.65);
-        }
-        #filter-control select {
-            width: 100%;
-            padding: 5px;
-            margin-top: 5px;
-        }
     </style>
 </head>
 <body>
     <div id="map"></div>
     
-    <div id="filter-control">
-        <label for="hier-level">Filter by Hierarchy Level:</label>
-        <select id="hier-level"></select>
-    </div>
-
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <script src="https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/js/script.js"></script>
