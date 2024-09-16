@@ -22,7 +22,7 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <script>
         // Initialize the map
-        var map = L.map('map').setView([39.9, 16.1], 9);
+        var map = L.map('map').setView([39.9, 16.1], 7);
 
         // Add tile layers
         var esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -44,7 +44,7 @@
         fetch(mountainAreasUrl)
             .then(response => response.json())
             .then(data => {
-                L.geoJSON(data, {
+                var mountainAreasLayer = L.geoJSON(data, {
                     style: function(feature) {
                         return {color: "#ff7800", weight: 2, opacity: 0.65};
                     },
@@ -54,6 +54,9 @@
                         }
                     }
                 }).addTo(map);
+
+                // Fit the map to the bounds of the mountain areas layer
+                map.fitBounds(mountainAreasLayer.getBounds());
             });
 
         // Load and add OSM peaks
