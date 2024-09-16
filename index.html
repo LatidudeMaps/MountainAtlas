@@ -11,11 +11,13 @@
     <link rel="icon" href="https://latidudemaps.github.io/MountainAtlas/img/favicon.ico" type="image/x-icon" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
     <style>
+        /* Ensure the map takes full height of the page */
         html, body, #map {
             height: 100%;
             margin: 0;
             padding: 0;
         }
+
     </style>
 </head>
 <body>
@@ -24,7 +26,7 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <script>
-        // Initialize the map without setView (we will fit to bounds dynamically)
+        // Initialize the map
         var map = L.map('map');
 
         // Add tile layers

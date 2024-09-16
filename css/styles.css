@@ -31,13 +31,39 @@
     display: none !important;     /* Hide the tooltip's pointer (triangle) */
 }
 
-.filter-control {
-    background: white;
-    padding: 10px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.2);
-    font-size: 14px;
-}
 .filter-control select {
     width: 150px;
     padding: 4px;
+}
+
+/* Responsive filter control */
+.filter-control {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 10px;
+    border-radius: 5px;
+    max-width: 250px;
+    font-size: 14px;
+}
+
+/* Add responsiveness using media queries */
+@media only screen and (max-width: 768px) {
+    /* On smaller screens, adjust the filter control size */
+    .filter-control {
+        max-width: 90%;
+        font-size: 12px;
+    }
+
+    /* Make the map height smaller on small devices */
+    html, body, #map {
+        height: 100vh;  /* Viewport height on mobile */
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    /* Further adjustments for smaller devices like phones */
+    .filter-control {
+        font-size: 10px;
+        padding: 5px;
+        max-width: 80%;
+    }
 }
