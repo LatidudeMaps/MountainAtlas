@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="main/favicon.ico">    <style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+    <style>
         html, body, #map {
             height: 100%;
             margin: 0;
@@ -32,6 +33,13 @@
 
         var openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+
+        // Create a custom icon for markers
+        var mountainIcon = L.divIcon({
+            html: '<i class="fas fa-mountain mountain-icon"></i>',
+            iconSize: [30, 30],
+            className: 'mountain-marker'
         });
 
         // Create a marker cluster group
@@ -77,7 +85,7 @@
             .then(data => {
                 L.geoJSON(data, {
                     pointToLayer: function(feature, latlng) {
-                        var marker = L.marker(latlng);
+                        var marker = L.marker(latlng, {icon: mountainIcon});
                         var name = feature.properties.name || "Unnamed Peak";
                         var elevation = feature.properties.elevation || "Unknown";
                         var popupContent = "<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m";
