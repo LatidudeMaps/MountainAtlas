@@ -29,9 +29,8 @@
         // Initialize the map
         var map = L.map('map', {
             zoomAnimation: true,   // Enable zoom animation
-            zoomSnap: 0.25,        // Allows for more granular zoom steps
-            zoomDelta: 0.25,        // Makes the zoom transition smoother with mouse scroll
-            preferCanvas: true
+            zoomSnap: 0.5,        // Allows for more granular zoom steps
+            zoomDelta: 0.5        // Makes the zoom transition smoother with mouse scroll
         });
 
         // Add tile layers
@@ -53,7 +52,8 @@
         var markers = L.markerClusterGroup({
             spiderfyOnMaxZoom: false,     // Avoid immediate zoom to individual markers on max zoom
             disableClusteringAtZoom: 18,  // Stop clustering at this zoom level
-            zoomToBoundsOnClick: true     // Enable zoom to bounds when clicking a cluster
+            zoomToBoundsOnClick: true,     // Enable zoom to bounds when clicking a cluster
+            showCoverageOnHover: false
         }).addTo(map);
 
         // URLs of the GeoJSON files
