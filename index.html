@@ -53,7 +53,7 @@
         };
 
         // Add layer control
-        var layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
+        var layerControl = L.control.layers(baseMaps, overlayMaps, {collapsed: false}).addTo(map);
 
         // Load and add mountain areas
         fetch(mountainAreasUrl)
