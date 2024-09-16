@@ -67,7 +67,7 @@
         // Container for the filtered mountain areas layer
         var filteredMountainAreas;
     
-        // Define default polygon style for matching polygons
+        // Define default polygon style for visibility
         function defaultPolygonStyle() {
             return {
                 color: "#ff7800",  // Orange border
@@ -75,17 +75,6 @@
                 opacity: 1,        // Border opacity
                 fillColor: "#ffcc66",  // Light orange fill color
                 fillOpacity: 0.65   // Fill opacity
-            };
-        }
-
-        // Define transparent polygon style for non-matching polygons
-        function transparentPolygonStyle() {
-            return {
-                color: "transparent",    // No border color
-                weight: 0,               // No border thickness
-                opacity: 0,              // Border opacity set to 0
-                fillColor: "transparent",// No fill color
-                fillOpacity: 0           // Fully transparent fill
             };
         }
     
@@ -142,15 +131,15 @@
                 // Handle filter changes
                 hierLvlSelect.addEventListener('change', function () {
                     var selectedValue = hierLvlSelect.value.trim();  // Trim any extra spaces
-
+    
                     console.log("Selected Hier_lvl value: ", selectedValue);  // Debugging
-
+    
                     // Remove the previous filtered layer if it exists
                     if (filteredMountainAreas) {
-                    map.removeLayer(filteredMountainAreas);
+                        map.removeLayer(filteredMountainAreas);
                     }
     
-                    // If "all" is selected, show all polygons with default style
+                    // If "all" is selected, show all polygons
                     if (selectedValue === "all") {
                         filteredMountainAreas = L.geoJSON(data, {
                             style: defaultPolygonStyle,  // Apply default style
@@ -162,30 +151,28 @@
                     } else {
                         // Filter the GeoJSON data by Hier_lvl
                         filteredMountainAreas = L.geoJSON(data, {
-                            style: function (feature) {
+                            style: defaultPolygonStyle,  // Apply default style
+                            filter: function (feature) {
                                 var hierLvl = String(feature.properties.Hier_lvl).trim();  // Convert to string and trim
-                                if (hierLvl === selectedValue) {
-                                    return defaultPolygonStyle();  // Matching polygons get the default style
-                                } else {
-                                    return transparentPolygonStyle();  // Non-matching polygons become fully transparent
+                                console.log("Comparing feature Hier_lvl:", hierLvl, "with selected value:", selectedValue);  // Debugging
+                                return hierLvl === selectedValue;  // Compare strings
+                            },
+                            onEachFeature: function (feature, layer) {
+                                layer.bindPopup(feature.properties.MapName);
                             }
-                        },
-                        onEachFeature: function (feature, layer) {
-                            layer.bindPopup(feature.properties.MapName);
-                        }
-                    }).addTo(map);
+                        }).addTo(map);
     
-                    console.log("Filtered layer count:", filteredMountainAreas.getLayers().length);
-
-                    // Zoom to the bounds of the filtered polygons
-                    if (filteredMountainAreas.getLayers().length) {
-                        map.fitBounds(filteredMountainAreas.getBounds());
-                    } else {
-                        console.log("No polygons found for this filter.");
+                        console.log("Filtered layer count:", filteredMountainAreas.getLayers().length);
+    
+                        // Zoom to the bounds of the filtered polygons
+                        if (filteredMountainAreas.getLayers().length) {
+                            map.fitBounds(filteredMountainAreas.getBounds());
+                        } else {
+                            console.log("No polygons found for this filter.");
+                        }
                     }
-                }
+                });
             });
-        });
     
         // Load and add OSM peaks (existing code)
         fetch(osmPeaksUrl)
