@@ -30,3 +30,14 @@
 .leaflet-tooltip-right:before {
     display: none !important;     /* Hide the tooltip's pointer (triangle) */
 }
+
+.filter-control {
+    background: white;
+    padding: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    font-size: 14px;
+}
+.filter-control select {
+    width: 150px;
+    padding: 4px;
+}
