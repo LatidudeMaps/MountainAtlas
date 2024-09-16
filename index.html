@@ -84,7 +84,24 @@
                         var popupContent = "<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m";
                         
                         marker.bindPopup(popupContent);
-                        marker.bindTooltip(name, { permanent: true, direction: 'top', className: 'permanent-tooltip' });
+                        
+                        // Bind permanent tooltips showing the name, centered exactly on top of the marker
+                        var tooltip = marker.bindTooltip(name, { 
+                            permanent: true, 
+                            direction: 'top', 
+                            offset: [0, -20],  // Adjust the offset to center the tooltip
+                            className: 'permanent-tooltip'
+                        });
+
+                        // Hide tooltip when popup is opened
+                        marker.on('popupopen', function () {
+                        marker.closeTooltip();
+                        });
+
+                        // Show tooltip again when popup is closed
+                        marker.on('popupclose', function () {
+                        marker.openTooltip();
+                        });
 
                         marker.on('click', function(e) {
                             this.openPopup();
