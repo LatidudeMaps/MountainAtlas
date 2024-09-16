@@ -18,13 +18,13 @@ function loadMountainAreas() {
         .then(data => {
             console.log("GeoJSON data loaded:", data);
             geojsonLayer = L.geoJSON(data, {
-                style: feature => ({
-                    fillColor: getColorByHierLevel(feature.properties.Hier_lvl),
+                style: {
+                    fillColor: 'blue',
                     weight: 1,
                     opacity: 1,
                     color: 'white',
                     fillOpacity: 0.7
-                })
+                }
             }).addTo(map);
 
             map.fitBounds(geojsonLayer.getBounds());
