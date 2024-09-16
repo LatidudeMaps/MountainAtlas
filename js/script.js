@@ -8,6 +8,9 @@ function initMap() {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
+    // Move layer control to top right
+    map.addControl(L.control.layers({}, {}, { position: 'topright' }));
+
     loadMountainAreas();
 }
 
@@ -25,9 +28,9 @@ function loadMountainAreas() {
                 })
             }).addTo(map);
 
-            // Fit the map to the bounds of the GeoJSON data
             map.fitBounds(geojsonLayer.getBounds());
-        });
+        })
+        .catch(error => console.error("Error loading GeoJSON:", error));
 }
 
 function getColorByHierLevel(hierLevel) {
@@ -40,7 +43,7 @@ function getColorByHierLevel(hierLevel) {
 function filterByHierLevel(level) {
     geojsonLayer.eachLayer(layer => {
         if (level === 'all' || layer.feature.properties.Hier_lvl === parseInt(level)) {
-            layer.addTo(map);
+            map.addLayer(layer);
         } else {
             map.removeLayer(layer);
         }
