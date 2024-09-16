@@ -68,14 +68,26 @@
 
                     var marker = L.marker([lat, lon]);
                     var popupContent = "<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m";
+                    
                     marker.bindPopup(popupContent);
                     marker.bindTooltip(name);
+
+                    // Add click event listener
+                    marker.on('click', function(e) {
+                        this.openPopup();
+                    });
+
+                    // Add touch event listener for mobile devices
+                    marker.on('touchstart', function(e) {
+                        this.openPopup();
+                    });
 
                     markers.addLayer(marker);
                 });
 
                 map.addLayer(markers);
             });
+
 
         // Add layer control
         var baseMaps = {
