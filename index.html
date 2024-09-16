@@ -29,8 +29,8 @@
         // Initialize the map
         var map = L.map('map', {
             zoomAnimation: true,   // Enable zoom animation
-            zoomSnap: 0.5,        // Allows for more granular zoom steps
-            zoomDelta: 0.5        // Makes the zoom transition smoother with mouse scroll
+            zoomSnap: 1,        // Allows for more granular zoom steps
+            zoomDelta: 1        // Makes the zoom transition smoother with mouse scroll
         });
 
         // Add tile layers
@@ -167,6 +167,19 @@
                         var popupContent = "<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m";
                         
                         marker.bindPopup(popupContent);
+
+                        // Custom zoom behavior when clicking on a marker cluster
+                        markers.on('clusterclick', function(event) {
+                            // Get bounds of the clicked cluster
+                            var clusterBounds = event.layer.getBounds();
+
+                            // Smooth zoom with a slower animation (set duration)
+                            map.flyToBounds(clusterBounds, {
+                                padding: [50, 50],    // Optional padding for the view
+                                animate: true,
+                                duration: 1.5  // Set duration in seconds for slower zoom (increase this value to slow it down more)
+                            });
+                        });
 
                         // Ensure tooltip doesn't block popup
                         marker.bindTooltip(name, { 
