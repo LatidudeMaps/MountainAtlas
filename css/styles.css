@@ -1,13 +1,27 @@
-.permanent-tooltip {
-    background: none !important;  /* Ensure no background */
-    border: none !important;      /* Ensure no border */
-    padding: 0 !important;        /* Remove padding */
-    color: white;                 /* Set text color */
-    font-size: 12px;              /* Set font size */
-    font-weight: bold;            /* Bold the text */
-    text-shadow: 1px 1px 2px black; /* Optional shadow for readability */
-    pointer-events: none;         /* Ensure the text isn't clickable */
-    box-shadow: none !important;  /* Remove any box shadow */
+/* Tooltip styling for Dark Positron layer (white text) */
+.dark-tooltip {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    color: white;  /* White text for dark background */
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px black; /* Black shadow for better readability */
+    pointer-events: none;
+    box-shadow: none !important;
+}
+
+/* Tooltip styling for light basemaps (black text) */
+.light-tooltip {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    color: black;  /* Black text for light background */
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px white; /* White shadow for readability */
+    pointer-events: none;
+    box-shadow: none !important;
 }
 
 .leaflet-tooltip-top:before, 

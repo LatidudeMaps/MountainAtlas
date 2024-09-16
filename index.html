@@ -23,7 +23,6 @@
     
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-    <script src="https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/js/script.js"></script>
     <script>
         // Initialize the map with a default view
         var map = L.map('map');
@@ -65,6 +64,27 @@
         // Add layer control
         var layerControl = L.control.layers(baseMaps, overlayMaps, {collapsed: false}).addTo(map);
 
+        // Change tooltip text color based on the active basemap
+        map.on('baselayerchange', function(eventLayer) {
+            var tooltipClass;
+
+            // Set the tooltip class based on the selected base layer
+            if (eventLayer.name === "Dark Positron") {
+                tooltipClass = 'dark-tooltip';
+            } else {
+                tooltipClass = 'light-tooltip';
+            }
+
+            // Update the tooltips on all markers
+            markers.eachLayer(function(layer) {
+                if (layer.getTooltip()) {
+                    layer.getTooltip().options.className = tooltipClass;
+                    layer.closeTooltip(); // Close the tooltip to apply the new style
+                    layer.openTooltip();  // Reopen it to see the style change
+                }
+            });
+        });
+
         // Load and add mountain areas
         fetch(mountainAreasUrl)
             .then(response => response.json())
@@ -94,22 +114,22 @@
                         
                         marker.bindPopup(popupContent);
                         
-                        // Bind permanent tooltips showing the name, centered exactly on top of the marker
+                        // Initially use the dark tooltip if Dark Positron is the default
                         var tooltip = marker.bindTooltip(name, { 
                             permanent: true, 
                             direction: 'top', 
-                            offset: [-15, -3],  // Adjust the offset to center the tooltip
-                            className: 'permanent-tooltip'
+                            offset: [-15, -3],  // Centering the tooltip
+                            className: 'dark-tooltip'  // Start with dark-tooltip for the Dark Positron layer
                         });
 
                         // Hide tooltip when popup is opened
                         marker.on('popupopen', function () {
-                        marker.closeTooltip();
+                            marker.closeTooltip();
                         });
 
                         // Show tooltip again when popup is closed
                         marker.on('popupclose', function () {
-                        marker.openTooltip();
+                            marker.openTooltip();
                         });
 
                         marker.on('click', function(e) {
