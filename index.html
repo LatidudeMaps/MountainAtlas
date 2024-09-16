@@ -40,8 +40,8 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <script>
-        // Initialize the map with a default view and use OpenStreetMap as a lighter fallback base layer
-        var map = L.map('map');
+        // Initialize the map with a default view and use OpenStreetMap as the default base layer
+        var map = L.map('map').setView([20, 0], 2);  // Center at [20, 0] with zoom level 2
 
         var openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
@@ -57,13 +57,6 @@
             attribution: 'Tiles &copy; Esri'
         });
 
-        // Base maps for the control
-        var baseMaps = {
-            "OpenStreetMap": openStreetMap,  // Set OpenStreetMap as the default
-            "Dark Positron": CartoDB_DarkMatter,
-            "Esri World Imagery": esriWorldImagery
-        };
-
         // Create a marker cluster group
         var markers = L.markerClusterGroup().addTo(map);
 
@@ -72,9 +65,24 @@
         var osmPeaksUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/OSM_peaks.geojson";
 
         // Layer control for base maps and overlays
+        var mountainAreasLayer = L.geoJSON(null, {  // Mountain areas layer added to control
+            style: defaultPolygonStyle,
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup(feature.properties.MapName);
+            }
+        });
+
+        var baseMaps = {
+            "OpenStreetMap": openStreetMap,
+            "Dark Positron": CartoDB_DarkMatter,
+            "Esri World Imagery": esriWorldImagery
+        };
+
         var overlayMaps = {
+            "Mountain Areas": mountainAreasLayer,   // Add Mountain Areas to control panel
             "OSM Peaks": markers
         };
+
         var layerControl = L.control.layers(baseMaps, overlayMaps, {collapsed: false}).addTo(map);
 
         // Add custom filter dropdown
@@ -119,15 +127,10 @@
                     hierLvlSelect.appendChild(option);
                 });
 
-                // Load Mountain Areas to the map and handle filter changes
-                var mountainAreasLayer = L.geoJSON(data, {
-                    style: defaultPolygonStyle,  // Use the default style
-                    onEachFeature: function (feature, layer) {
-                        layer.bindPopup(feature.properties.MapName);
-                    }
-                }).addTo(map);
+                // Add Mountain Areas to the map by default
+                mountainAreasLayer.addData(data).addTo(map);  // Add the layer to map initially
 
-                // Handle filtering
+                // Handle filtering by Hier_lvl
                 hierLvlSelect.addEventListener('change', function () {
                     var selectedValue = hierLvlSelect.value.trim();
                     mountainAreasLayer.clearLayers();  // Clear before filtering
