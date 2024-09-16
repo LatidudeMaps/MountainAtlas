@@ -12,9 +12,11 @@ function initMap() {
 }
 
 function loadMountainAreas() {
+    console.log("Loading MountainAreas.geojson...");
     fetch('MountainAreas.geojson')
         .then(response => response.json())
         .then(data => {
+            console.log("GeoJSON data loaded:", data);
             geojsonLayer = L.geoJSON(data, {
                 style: feature => ({
                     fillColor: getColorByHierLevel(feature.properties.Hier_lvl),
@@ -32,12 +34,14 @@ function loadMountainAreas() {
 }
 
 function populateFilterOptions(data) {
+    console.log("Populating filter options...");
     const hierLevels = new Set();
     data.features.forEach(feature => {
         if (feature.properties && feature.properties.Hier_lvl !== undefined) {
             hierLevels.add(feature.properties.Hier_lvl);
         }
     });
+    console.log("Unique Hier_lvl values:", Array.from(hierLevels));
 
     const filterSelect = document.getElementById('hier-level');
     filterSelect.innerHTML = '<option value="all">All Levels</option>';
@@ -49,16 +53,22 @@ function populateFilterOptions(data) {
     });
 
     filterSelect.addEventListener('change', (e) => {
+        console.log("Filter changed to:", e.target.value);
         filterByHierLevel(e.target.value);
     });
 }
 
 function filterByHierLevel(level) {
+    console.log("Filtering by level:", level);
     geojsonLayer.eachLayer(layer => {
-        if (level === 'all' || layer.feature.properties.Hier_lvl === parseInt(level)) {
+        const layerHierLevel = layer.feature.properties.Hier_lvl;
+        console.log("Layer Hier_lvl:", layerHierLevel);
+        if (level === 'all' || layerHierLevel === parseInt(level)) {
             map.addLayer(layer);
+            console.log("Showing layer with Hier_lvl:", layerHierLevel);
         } else {
             map.removeLayer(layer);
+            console.log("Hiding layer with Hier_lvl:", layerHierLevel);
         }
     });
 }
