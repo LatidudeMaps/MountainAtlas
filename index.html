@@ -24,10 +24,10 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <script>
-        // Initialize the map with a default view
-        var map = L.map('map');
-
-        // Add tile layers
+        // Initialize the map with a default view (latitude, longitude, zoom)
+        var map = L.map('map');  // Center at [20, 0] with zoom level 2
+    
+        // Add tile layers with proper attribution
         var CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
             subdomains: 'abcd',
@@ -35,60 +35,43 @@
         }).addTo(map);
     
         var esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles &copy; Esri'
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
         });
     
         var openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         });
     
-        // Create a marker cluster group
+        // Check if the base layer is being loaded correctly
+        CartoDB_DarkMatter.on('load', function() {
+            console.log('CartoDB DarkMatter loaded successfully');
+        }).on('tileerror', function(e) {
+            console.error('Error loading CartoDB DarkMatter tiles', e);
+        });
+    
+        // Create a marker cluster group for OSM peaks
         var markers = L.markerClusterGroup().addTo(map);
     
         // URLs of the GeoJSON files
         var mountainAreasUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson";
         var osmPeaksUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/OSM_peaks.geojson";
     
-        // Base maps and overlay maps for layer control
+        // Base maps for the control
         var baseMaps = {
             "Dark Positron": CartoDB_DarkMatter,
             "Esri World Imagery": esriWorldImagery,
             "OpenStreetMap": openStreetMap
         };
     
+        // Overlay maps for the control
         var overlayMaps = {
-            "Mountain Areas": L.geoJSON().addTo(map),
             "OSM Peaks": markers
         };
     
-        // Add layer control
+        // Add layer control to toggle between base maps
         var layerControl = L.control.layers(baseMaps, overlayMaps, {collapsed: false}).addTo(map);
     
-        // Container for the filtered mountain areas layer
-        var filteredMountainAreas;
-    
-        // Define default polygon style for visible polygons
-        function visiblePolygonStyle() {
-            return {
-                color: "#ff7800",  // Orange border
-                weight: 2,         // Border thickness
-                opacity: 1,        // Border opacity
-                fillColor: "#ffcc66",  // Light orange fill color
-                fillOpacity: 0.65   // Fill opacity
-            };
-        }
-    
-        // Define style for transparent and uninteractive polygons
-        function transparentPolygonStyle() {
-            return {
-                color: "#000000",  // Black border (for better visibility)
-                weight: 1,         // Border thickness
-                opacity: 0,        // Border opacity (fully transparent)
-                fillOpacity: 0     // No fill (fully transparent)
-            };
-        }
-    
-        // Create a custom control for the filter dropdown
+        // Add a custom control for filtering by "Hier_lvl"
         var filterControl = L.control({position: 'topright'});
     
         filterControl.onAdd = function(map) {
@@ -105,25 +88,25 @@
         // Prevent map interactions when using the filter dropdown
         L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
     
-        // Fetch mountain areas and populate the dropdown for "Hier_lvl" filtering
+        // Fetch and load the mountain areas layer
         fetch(mountainAreasUrl)
             .then(response => response.json())
             .then(data => {
-                var uniqueHierLvls = new Set();  // Use a Set to store unique Hier_lvl values
+                var uniqueHierLvls = new Set();
     
-                // Loop through the GeoJSON features to find unique Hier_lvl values
+                // Get unique Hier_lvl values
                 data.features.forEach(function (feature) {
                     if (feature.properties && feature.properties.Hier_lvl) {
                         uniqueHierLvls.add(feature.properties.Hier_lvl);
                     }
                 });
     
-                // Sort the Hier_lvl values in ascending order
+                // Sort Hier_lvl values
                 var sortedHierLvls = Array.from(uniqueHierLvls).sort(function(a, b) {
-                    return a - b;  // Sort numerically in ascending order
+                    return a - b;
                 });
     
-                // Populate the filter dropdown with sorted Hier_lvl values
+                // Populate the dropdown
                 var hierLvlSelect = document.getElementById('hier-lvl-select');
                 sortedHierLvls.forEach(function (value) {
                     var option = document.createElement('option');
@@ -132,49 +115,71 @@
                     hierLvlSelect.appendChild(option);
                 });
     
-                // Load all mountain areas initially
+                // Load the mountain areas with default style
                 var mountainAreasLayer = L.geoJSON(data, {
-                    style: visiblePolygonStyle,  // Apply visible style initially
+                    style: function () {
+                        return {
+                            color: "#ff7800",
+                            weight: 2,
+                            opacity: 1,
+                            fillColor: "#ffcc66",
+                            fillOpacity: 0.65
+                        };
+                    },
                     onEachFeature: function (feature, layer) {
                         layer.bindPopup(feature.properties.MapName);
                     }
                 }).addTo(map);
     
-                // Handle filter changes
+                // Handle filtering by Hier_lvl
                 hierLvlSelect.addEventListener('change', function () {
-                    var selectedValue = hierLvlSelect.value.trim();  // Trim any extra spaces
-    
-                    console.log("Selected Hier_lvl value: ", selectedValue);  // Debugging
-    
-                    // Remove the previous filtered layer if it exists
-                    if (filteredMountainAreas) {
-                        map.removeLayer(filteredMountainAreas);
-                    }
-    
-                    // Filter the GeoJSON data based on the selected value
-                    filteredMountainAreas = L.geoJSON(data, {
-                        style: function (feature) {
-                            var hierLvl = String(feature.properties.Hier_lvl).trim();  // Convert to string and trim
-                            // If Hier_lvl matches the selected value, use the visible style; otherwise, use the transparent style
-                            return hierLvl === selectedValue || selectedValue === "all" ? visiblePolygonStyle() : transparentPolygonStyle();
-                        },
-                        onEachFeature: function (feature, layer) {
-                            var hierLvl = String(feature.properties.Hier_lvl).trim();
-                            // Only bind popups if the polygon matches the selected Hier_lvl value or if "all" is selected
-                            if (hierLvl === selectedValue || selectedValue === "all") {
-                                layer.bindPopup(feature.properties.MapName);
-                            } else {
-                                // Make the layer non-interactive (no popups, no events)
-                                layer.off();
-                            }
+                    var selectedValue = hierLvlSelect.value.trim();
+                    if (selectedValue === "all") {
+                        // Reset to show all polygons
+                        if (mountainAreasLayer) {
+                            map.removeLayer(mountainAreasLayer);
                         }
-                    }).addTo(map);
-    
-                    console.log("Filtered layer count:", filteredMountainAreas.getLayers().length);
+                        mountainAreasLayer = L.geoJSON(data, {
+                            style: function () {
+                                return {
+                                    color: "#ff7800",
+                                    weight: 2,
+                                    opacity: 1,
+                                    fillColor: "#ffcc66",
+                                    fillOpacity: 0.65
+                                };
+                            },
+                            onEachFeature: function (feature, layer) {
+                                layer.bindPopup(feature.properties.MapName);
+                            }
+                        }).addTo(map);
+                    } else {
+                        // Filter by selected Hier_lvl
+                        if (mountainAreasLayer) {
+                            map.removeLayer(mountainAreasLayer);
+                        }
+                        mountainAreasLayer = L.geoJSON(data, {
+                            filter: function (feature) {
+                                return String(feature.properties.Hier_lvl).trim() === selectedValue;
+                            },
+                            style: function () {
+                                return {
+                                    color: "#ff7800",
+                                    weight: 2,
+                                    opacity: 1,
+                                    fillColor: "#ffcc66",
+                                    fillOpacity: 0.65
+                                };
+                            },
+                            onEachFeature: function (feature, layer) {
+                                layer.bindPopup(feature.properties.MapName);
+                            }
+                        }).addTo(map);
+                    }
                 });
             });
     
-        // Load and add OSM peaks (existing code)
+        // Load and add OSM peaks
         fetch(osmPeaksUrl)
             .then(response => response.json())
             .then(data => {
@@ -184,15 +189,13 @@
                         var name = feature.properties.name || "Unnamed Peak";
                         var elevation = feature.properties.elevation || "Unknown";
                         var popupContent = "<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m";
-                        
                         marker.bindPopup(popupContent);
                         marker.bindTooltip(name, { 
-                            permanent: true, 
-                            direction: 'top', 
+                            permanent: true,
+                            direction: 'top',
                             offset: [-15, -3],
                             className: 'dark-tooltip'
                         });
-    
                         return marker;
                     }
                 }).addTo(markers);
