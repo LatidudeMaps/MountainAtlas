@@ -27,44 +27,69 @@
     <script>
         // Initialize the map with a default view
         var map = L.map('map');
-
+    
         // Add tile layers
         var CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-	        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-	        subdomains: 'abcd',
-	        maxZoom: 20
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20
         }).addTo(map);
-
+    
         var esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
         });
-
+    
         var openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         });
-
+    
         // Create a marker cluster group
         var markers = L.markerClusterGroup().addTo(map);
-
+    
         // URLs of the GeoJSON files
         var mountainAreasUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson";
         var osmPeaksUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/OSM_peaks.geojson";
-
+    
         // Base maps and overlay maps for layer control
         var baseMaps = {
             "Dark Positron": CartoDB_DarkMatter,
             "Esri World Imagery": esriWorldImagery,
             "OpenStreetMap": openStreetMap
         };
-
+    
         var overlayMaps = {
             "Mountain Areas": L.geoJSON().addTo(map),
             "OSM Peaks": markers
         };
-
+    
         // Add layer control
         var layerControl = L.control.layers(baseMaps, overlayMaps, {collapsed: false}).addTo(map);
-
+    
+        // Function to update tooltips based on base map
+        function updateTooltipClass(newClass) {
+            markers.eachLayer(function(layer) {
+                if (layer.getTooltip()) {
+                    var tooltipContent = layer.getTooltip().getContent();
+                    layer.unbindTooltip();  // Unbind the old tooltip
+                    layer.bindTooltip(tooltipContent, {
+                        permanent: true,
+                        direction: 'top',
+                        offset: [-15, -3],
+                        className: newClass  // Bind the new tooltip class
+                    });
+                }
+            });
+        }
+    
+        // Listen for base layer change to switch tooltip colors
+        map.on('baselayerchange', function(eventLayer) {
+            if (eventLayer.name === "Dark Positron") {
+                updateTooltipClass('dark-tooltip');
+            } else {
+                updateTooltipClass('light-tooltip');
+            }
+        });
+    
         // Load and add mountain areas
         fetch(mountainAreasUrl)
             .then(response => response.json())
@@ -76,11 +101,11 @@
                         layer.bindPopup(layer.feature.properties.MapName);
                     }
                 });
-
+    
                 // Fit the map to the bounds of the mountain areas layer
                 map.fitBounds(overlayMaps["Mountain Areas"].getBounds());
             });
-
+    
         // Load and add OSM peaks
         fetch(osmPeaksUrl)
             .then(response => response.json())
@@ -94,36 +119,35 @@
                         
                         marker.bindPopup(popupContent);
                         
-                        // Bind permanent tooltips showing the name, centered exactly on top of the marker
-                        var tooltip = marker.bindTooltip(name, { 
+                        // Initially use the dark tooltip if Dark Positron is the default
+                        marker.bindTooltip(name, { 
                             permanent: true, 
                             direction: 'top', 
-                            offset: [-15, -3],  // Adjust the offset to center the tooltip
-                            className: 'permanent-tooltip'
+                            offset: [-15, -3],  // Centering the tooltip
+                            className: 'dark-tooltip'  // Start with dark-tooltip for the Dark Positron layer
                         });
-
+    
                         // Hide tooltip when popup is opened
                         marker.on('popupopen', function () {
-                        marker.closeTooltip();
+                            marker.closeTooltip();
                         });
-
+    
                         // Show tooltip again when popup is closed
                         marker.on('popupclose', function () {
-                        marker.openTooltip();
+                            marker.openTooltip();
                         });
-
+    
                         marker.on('click', function(e) {
                             this.openPopup();
                         });
-
+    
                         marker.on('touchstart', function(e) {
                             this.openPopup();
                         });
-
+    
                         return marker;
                     }
                 }).addTo(markers);
             });
     </script>
-</body>
-</html>
+    
