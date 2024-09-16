@@ -27,7 +27,11 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <script>
         // Initialize the map
-        var map = L.map('map');
+        var map = L.map('map', {
+            zoomAnimation: true,   // Enable zoom animation
+            zoomSnap: 0.25,        // Allows for more granular zoom steps
+            zoomDelta: 0.25        // Makes the zoom transition smoother with mouse scroll
+        });
 
         // Add tile layers
         var CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -44,8 +48,13 @@
             attribution: 'Tiles &copy; Esri'
         });
 
-        // Create a marker cluster group
-        var markers = L.markerClusterGroup().addTo(map);
+        // Add marker cluster group with smoother zoom handling
+        var markers = L.markerClusterGroup({
+            animate: true,               // Enable animation when clusters expand/collapse
+            spiderfyOnMaxZoom: false,     // Avoid immediate zoom to individual markers on max zoom
+            disableClusteringAtZoom: 16,  // Stop clustering at this zoom level
+            zoomToBoundsOnClick: true     // Enable zoom to bounds when clicking a cluster
+        }).addTo(map);
 
         // URLs of the GeoJSON files
         var mountainAreasUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson";
@@ -158,6 +167,11 @@
                         var popupContent = "<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m";
                         
                         marker.bindPopup(popupContent);
+
+                        // Ensure smoother cluster transitions
+                        marker.on('click', function() {
+                            map.setView(latlng, map.getZoom() + 1, {animate: true, duration: 0.5});  // Smooth zoom into individual marker
+                        });
 
                         // Ensure tooltip doesn't block popup
                         marker.bindTooltip(name, { 
