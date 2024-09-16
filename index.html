@@ -41,7 +41,7 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <script>
         // Initialize the map with a default view and use OpenStreetMap as the default base layer
-        var map = L.map('map').setView([20, 0], 2);  // Center at [20, 0] with zoom level 2
+        var map = L.map('map');
 
         var CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
