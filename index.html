@@ -95,17 +95,28 @@
             });
 
 
-        // Add layer control
-        var baseMaps = {
-            "Esri World Imagery": esriWorldImagery,
-            "OpenStreetMap": openStreetMap
-        };
+        // Function to update layer control
+        function updateLayerControl() {
+            if (layerControl) {
+                layerControl.remove();
+            }
 
-        var overlayMaps = {
-            "OSM Peaks": markers
-        };
+            var baseMaps = {
+                "Esri World Imagery": esriWorldImagery,
+                "OpenStreetMap": openStreetMap
+            };
 
-        L.control.layers(baseMaps, overlayMaps).addTo(map);
+            var overlayMaps = {
+                "Pollino Area": mountainAreasLayer,
+                "OSM Peaks": markers
+            };
+
+            layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
+        }
+
+        // Initialize layer control
+        var layerControl;
+        updateLayerControl();
     </script>
 </body>
 </html>
