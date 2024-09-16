@@ -168,19 +168,6 @@
                         
                         marker.bindPopup(popupContent);
 
-                        // Custom zoom behavior when clicking on a marker cluster
-                        markers.on('clusterclick', function(event) {
-                            // Get bounds of the clicked cluster
-                            var clusterBounds = event.layer.getBounds();
-
-                            // Smooth zoom with a slower animation (set duration)
-                            map.flyToBounds(clusterBounds, {
-                                padding: [50, 50],    // Optional padding for the view
-                                animate: true,
-                                duration: 1.5  // Set duration in seconds for slower zoom (increase this value to slow it down more)
-                            });
-                        });
-
                         // Ensure tooltip doesn't block popup
                         marker.bindTooltip(name, { 
                             permanent: true, 
