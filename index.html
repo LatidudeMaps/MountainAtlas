@@ -57,6 +57,9 @@
 
                 // Fit the map to the bounds of the mountain areas layer
                 map.fitBounds(mountainAreasLayer.getBounds());
+
+                // Update layer control after adding mountain areas
+                updateLayerControl();
             });
 
         // Load and add OSM peaks
