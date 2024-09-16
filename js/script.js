@@ -8,9 +8,6 @@ function initMap() {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Move layer control to top right
-    map.addControl(L.control.layers({}, {}, { position: 'topright' }));
-
     loadMountainAreas();
 }
 
@@ -29,15 +26,31 @@ function loadMountainAreas() {
             }).addTo(map);
 
             map.fitBounds(geojsonLayer.getBounds());
+            populateFilterOptions(data);
         })
         .catch(error => console.error("Error loading GeoJSON:", error));
 }
 
-function getColorByHierLevel(hierLevel) {
-    return hierLevel === 1 ? '#ff0000' :
-           hierLevel === 2 ? '#00ff00' :
-           hierLevel === 3 ? '#0000ff' :
-                             '#999999';
+function populateFilterOptions(data) {
+    const hierLevels = new Set();
+    data.features.forEach(feature => {
+        if (feature.properties && feature.properties.Hier_lvl !== undefined) {
+            hierLevels.add(feature.properties.Hier_lvl);
+        }
+    });
+
+    const filterSelect = document.getElementById('hier-level');
+    filterSelect.innerHTML = '<option value="all">All Levels</option>';
+    Array.from(hierLevels).sort((a, b) => a - b).forEach(level => {
+        const option = document.createElement('option');
+        option.value = level;
+        option.textContent = `Level ${level}`;
+        filterSelect.appendChild(option);
+    });
+
+    filterSelect.addEventListener('change', (e) => {
+        filterByHierLevel(e.target.value);
+    });
 }
 
 function filterByHierLevel(level) {
@@ -50,10 +63,4 @@ function filterByHierLevel(level) {
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    initMap();
-    
-    document.getElementById('hier-level').addEventListener('change', (e) => {
-        filterByHierLevel(e.target.value);
-    });
-});
+document.addEventListener('DOMContentLoaded', initMap);
