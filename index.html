@@ -118,7 +118,7 @@
     
                 // Handle filter changes
                 hierLvlSelect.addEventListener('change', function () {
-                    var selectedValue = hierLvlSelect.value;
+                    var selectedValue = hierLvlSelect.value.trim();  // Trim any extra spaces
     
                     console.log("Selected Hier_lvl value: ", selectedValue);  // Debugging
     
@@ -139,8 +139,9 @@
                         // Filter the GeoJSON data by Hier_lvl
                         filteredMountainAreas = L.geoJSON(data, {
                             filter: function (feature) {
-                                console.log("Filtering feature with Hier_lvl:", feature.properties.Hier_lvl);  // Debugging
-                                return feature.properties.Hier_lvl === selectedValue;
+                                var hierLvl = String(feature.properties.Hier_lvl).trim();  // Convert to string and trim
+                                console.log("Comparing feature Hier_lvl:", hierLvl, "with selected value:", selectedValue);  // Debugging
+                                return hierLvl === selectedValue;  // Compare strings
                             },
                             onEachFeature: function (feature, layer) {
                                 layer.bindPopup(feature.properties.MapName);
