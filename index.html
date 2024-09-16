@@ -14,22 +14,6 @@
             margin: 0;
             padding: 0;
         }
-        .mountain-icon {
-            color: #4a4a4a;
-            font-size: 24px;
-        }
-        .marker-label {
-            background-color: rgba(255, 255, 255, 0.7);
-            border-radius: 4px;
-            padding: 2px 4px;
-            font-size: 12px;
-            white-space: nowrap;
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
-        }
     </style>
 </head>
 <body>
@@ -52,17 +36,11 @@
         });
 
         // Create a custom icon for markers
-        function createCustomIcon(name) {
-            return L.divIcon({
-                html: `
-                    <div class="marker-label">${name}</div>
-                    <i class="fas fa-mountain mountain-icon"></i>
-                `,
-                iconSize: [30, 30],
-                iconAnchor: [15, 30],
-                className: 'custom-marker'
-            });
-        }
+        var mountainIcon = L.divIcon({
+            html: '<i class="fas fa-mountain mountain-icon"></i>',
+            iconSize: [50, 50],
+            className: 'mountain-marker'
+        });
 
         // Create a marker cluster group
         var markers = L.markerClusterGroup().addTo(map);
@@ -107,7 +85,7 @@
             .then(data => {
                 L.geoJSON(data, {
                     pointToLayer: function(feature, latlng) {
-                        var marker = L.marker(latlng, {icon: customIcon});
+                        var marker = L.marker(latlng, {icon: mountainIcon});
                         var name = feature.properties.name || "Unnamed Peak";
                         var elevation = feature.properties.elevation || "Unknown";
                         var popupContent = "<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m";
