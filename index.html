@@ -67,14 +67,24 @@
         // Container for the filtered mountain areas layer
         var filteredMountainAreas;
     
-        // Define default polygon style for visibility
-        function defaultPolygonStyle() {
+        // Define default polygon style for visible polygons
+        function visiblePolygonStyle() {
             return {
                 color: "#ff7800",  // Orange border
                 weight: 2,         // Border thickness
                 opacity: 1,        // Border opacity
                 fillColor: "#ffcc66",  // Light orange fill color
                 fillOpacity: 0.65   // Fill opacity
+            };
+        }
+    
+        // Define style for transparent and uninteractive polygons
+        function transparentPolygonStyle() {
+            return {
+                color: "#000000",  // Black border (for better visibility)
+                weight: 1,         // Border thickness
+                opacity: 0,        // Border opacity (fully transparent)
+                fillOpacity: 0     // No fill (fully transparent)
             };
         }
     
@@ -108,9 +118,14 @@
                     }
                 });
     
-                // Populate the filter dropdown with unique Hier_lvl values
+                // Sort the Hier_lvl values in ascending order
+                var sortedHierLvls = Array.from(uniqueHierLvls).sort(function(a, b) {
+                    return a - b;  // Sort numerically in ascending order
+                });
+    
+                // Populate the filter dropdown with sorted Hier_lvl values
                 var hierLvlSelect = document.getElementById('hier-lvl-select');
-                uniqueHierLvls.forEach(function (value) {
+                sortedHierLvls.forEach(function (value) {
                     var option = document.createElement('option');
                     option.value = value;
                     option.text = "Hier_lvl: " + value;
@@ -119,14 +134,11 @@
     
                 // Load all mountain areas initially
                 var mountainAreasLayer = L.geoJSON(data, {
-                    style: defaultPolygonStyle,  // Apply default style
+                    style: visiblePolygonStyle,  // Apply visible style initially
                     onEachFeature: function (feature, layer) {
                         layer.bindPopup(feature.properties.MapName);
                     }
                 }).addTo(map);
-    
-                // Fit the map to the bounds of the mountain areas
-                map.fitBounds(mountainAreasLayer.getBounds());
     
                 // Handle filter changes
                 hierLvlSelect.addEventListener('change', function () {
@@ -139,38 +151,26 @@
                         map.removeLayer(filteredMountainAreas);
                     }
     
-                    // If "all" is selected, show all polygons
-                    if (selectedValue === "all") {
-                        filteredMountainAreas = L.geoJSON(data, {
-                            style: defaultPolygonStyle,  // Apply default style
-                            onEachFeature: function (feature, layer) {
+                    // Filter the GeoJSON data based on the selected value
+                    filteredMountainAreas = L.geoJSON(data, {
+                        style: function (feature) {
+                            var hierLvl = String(feature.properties.Hier_lvl).trim();  // Convert to string and trim
+                            // If Hier_lvl matches the selected value, use the visible style; otherwise, use the transparent style
+                            return hierLvl === selectedValue || selectedValue === "all" ? visiblePolygonStyle() : transparentPolygonStyle();
+                        },
+                        onEachFeature: function (feature, layer) {
+                            var hierLvl = String(feature.properties.Hier_lvl).trim();
+                            // Only bind popups if the polygon matches the selected Hier_lvl value or if "all" is selected
+                            if (hierLvl === selectedValue || selectedValue === "all") {
                                 layer.bindPopup(feature.properties.MapName);
+                            } else {
+                                // Make the layer non-interactive (no popups, no events)
+                                layer.off();
                             }
-                        }).addTo(map);
-                        console.log("Showing all polygons");
-                    } else {
-                        // Filter the GeoJSON data by Hier_lvl
-                        filteredMountainAreas = L.geoJSON(data, {
-                            style: defaultPolygonStyle,  // Apply default style
-                            filter: function (feature) {
-                                var hierLvl = String(feature.properties.Hier_lvl).trim();  // Convert to string and trim
-                                console.log("Comparing feature Hier_lvl:", hierLvl, "with selected value:", selectedValue);  // Debugging
-                                return hierLvl === selectedValue;  // Compare strings
-                            },
-                            onEachFeature: function (feature, layer) {
-                                layer.bindPopup(feature.properties.MapName);
-                            }
-                        }).addTo(map);
-    
-                        console.log("Filtered layer count:", filteredMountainAreas.getLayers().length);
-    
-                        // Zoom to the bounds of the filtered polygons
-                        if (filteredMountainAreas.getLayers().length) {
-                            map.fitBounds(filteredMountainAreas.getBounds());
-                        } else {
-                            console.log("No polygons found for this filter.");
                         }
-                    }
+                    }).addTo(map);
+    
+                    console.log("Filtered layer count:", filteredMountainAreas.getLayers().length);
                 });
             });
     
@@ -197,6 +197,6 @@
                     }
                 }).addTo(markers);
             });
-    </script>         
+    </script>            
 </body>
 </html>
