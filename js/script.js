@@ -189,7 +189,7 @@ fetch(mountainAreasUrl)
             }
         });
     });
-
+///
 // Load OSM Peaks
 fetch(osmPeaksUrl)
     .then(response => response.json())
