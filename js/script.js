@@ -143,8 +143,15 @@ fetch(mountainAreasUrl)
                 var polygonFeatures = [];
                 filteredPolygons.eachLayer(function (layer) {
                     var polygon = layer.toGeoJSON();
-                    polygonFeatures.push(polygon);
+                    if (polygon.geometry && polygon.geometry.type === "Polygon" || polygon.geometry.type === "MultiPolygon") {
+                        polygonFeatures.push(polygon);  // Ensure only valid polygons are pushed
+                    }
                 });
+
+                if (polygonFeatures.length === 0) {
+                    console.error("No valid polygon features available for this Hier_lvl.");
+                    return;
+                }
 
                 var polygonCollection = turf.featureCollection(polygonFeatures);
 
@@ -189,7 +196,7 @@ fetch(mountainAreasUrl)
             }
         });
     });
-///
+
 // Load OSM Peaks
 fetch(osmPeaksUrl)
     .then(response => response.json())
