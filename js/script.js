@@ -101,13 +101,13 @@ fetch(mountainAreasUrl)
         // Handle filtering by Hier_lvl
         hierLvlSelect.addEventListener('change', function () {
             var selectedValue = hierLvlSelect.value.trim();
-            mountainAreasLayer.clearLayers();  // Clear before filtering
+            mountainAreasLayer.clearLayers();  // Clear polygons before filtering
             markers.clearLayers();  // Clear the marker cluster layer
 
             if (selectedValue === "all") {
                 // Show all polygons and points if "Show All" is selected
                 mountainAreasLayer.addData(mountainAreasData);  // Show all polygons
-                markers.addLayer(osmPeaksLayer);  // Show all OSM peaks points
+                markers.addLayer(L.geoJSON(osmPeaksData));  // Show all OSM peaks points
             } else {
                 // Filter the polygons by Hier_lvl
                 var filteredPolygons = L.geoJSON(mountainAreasData, {
@@ -130,6 +130,11 @@ fetch(mountainAreasUrl)
                     }
                 });
 
+                if (polygonBounds.length === 0) {
+                    console.error("No polygons found for Hier_lvl: " + selectedValue);
+                    return;
+                }
+
                 // Now filter the OSM_peaks points based on whether they fall inside the polygon bounds
                 var filteredPoints = L.geoJSON(osmPeaksData, {
                     filter: function (feature) {
@@ -151,6 +156,7 @@ fetch(mountainAreasUrl)
                 markers.addLayer(filteredPoints);  // Add the filtered points to the marker cluster layer
             }
         });
+
 
     });
 
