@@ -213,7 +213,7 @@ fetch(osmPeaksUrl)
             }
         }).addTo(markers);
     });
-
+//
 // Define default polygon style
 function defaultPolygonStyle() {
     return {
