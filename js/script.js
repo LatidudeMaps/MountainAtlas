@@ -106,14 +106,20 @@ fetch(mountainAreasUrl)
         // Handle filtering by Hier_lvl
         hierLvlSelect.addEventListener('change', function () {
             var selectedValue = hierLvlSelect.value.trim();
-            mountainAreasLayer.clearLayers();  // Clear polygons before filtering
-            markers.clearLayers();  // Clear the marker cluster layer
+            console.log("Selected Hier_lvl: ", selectedValue);
+
+            // Clear layers
+            mountainAreasLayer.clearLayers();
+            markers.clearLayers();
 
             if (selectedValue === "all") {
+                console.log("Showing all polygons and points");
                 // Show all polygons and points if "Show All" is selected
                 mountainAreasLayer.addData(mountainAreasData);  // Show all polygons
                 markers.addLayer(L.geoJSON(osmPeaksData));  // Show all OSM peaks points
             } else {
+                console.log("Filtering polygons and points for Hier_lvl: " + selectedValue);
+
                 // Filter the polygons by Hier_lvl
                 var filteredPolygons = L.geoJSON(mountainAreasData, {
                     filter: function (feature) {
@@ -125,6 +131,12 @@ fetch(mountainAreasUrl)
                     }
                 });
 
+                // Check if any polygons are filtered
+                if (!filteredPolygons.getLayers().length) {
+                    console.log("No polygons found for this Hier_lvl");
+                    return;
+                }
+
                 mountainAreasLayer.addLayer(filteredPolygons);  // Add the filtered polygons to the map
 
                 // Get the bounds of the filtered polygons
@@ -134,11 +146,6 @@ fetch(mountainAreasUrl)
                         polygonBounds.push(layer.getBounds());
                     }
                 });
-
-                if (polygonBounds.length === 0) {
-                    console.error("No polygons found for Hier_lvl: " + selectedValue);
-                    return;
-                }
 
                 // Now filter the OSM_peaks points based on whether they fall inside the polygon bounds
                 var filteredPoints = L.geoJSON(osmPeaksData, {
@@ -159,6 +166,7 @@ fetch(mountainAreasUrl)
                 });
 
                 markers.addLayer(filteredPoints);  // Add the filtered points to the marker cluster layer
+                console.log("Filtered polygons and points added to the map.");
             }
         });
     });
