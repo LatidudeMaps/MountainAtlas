@@ -139,21 +139,14 @@ fetch(mountainAreasUrl)
 
                 mountainAreasLayer.addLayer(filteredPolygons);  // Add the filtered polygons to the map
 
-                // Get the bounds of the filtered polygons
-                var polygonBounds = [];
-                filteredPolygons.eachLayer(function (layer) {
-                    if (layer instanceof L.Polygon) {
-                        polygonBounds.push(layer.getBounds());
-                    }
-                });
-
-                // Now filter the OSM_peaks points based on whether they fall inside the polygon bounds
+                // Now filter the OSM_peaks points based on whether they fall inside the actual polygon shapes
                 var filteredPoints = L.geoJSON(osmPeaksData, {
                     filter: function (feature) {
-                        var latlng = L.latLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
-                        return polygonBounds.some(function(bounds) {
-                            return bounds.contains(latlng);  // Check if the point is inside any polygon bounds
-                        });
+                        var latlng = [feature.geometry.coordinates[1], feature.geometry.coordinates[0]];
+                        
+                        // Check if the point is within any of the polygon geometries (not just bounding boxes)
+                        var pointInPolygons = leafletPip.pointInLayer(latlng, filteredPolygons);
+                        return pointInPolygons.length > 0;  // Return true if point is inside any polygon
                     },
                     pointToLayer: function (feature, latlng) {
                         var marker = L.marker(latlng);
@@ -161,6 +154,24 @@ fetch(mountainAreasUrl)
                         var elevation = feature.properties.elevation || "Unknown";
                         var popupContent = "<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m";
                         marker.bindPopup(popupContent);
+
+                        // Restore persistent tooltip for peaks
+                        marker.bindTooltip(name, { 
+                            permanent: true, 
+                            direction: 'top', 
+                            offset: [-15, -3],
+                            className: 'dark-tooltip'
+                        });
+
+                        // Handle popup interactions
+                        marker.on('popupopen', function () {
+                            marker.closeTooltip();
+                        });
+
+                        marker.on('popupclose', function () {
+                            marker.openTooltip();
+                        });
+
                         return marker;
                     }
                 });
