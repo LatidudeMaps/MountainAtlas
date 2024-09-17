@@ -146,6 +146,8 @@ fetch(mountainAreasUrl)
                     // Ensure the geometry is valid and is a Polygon or MultiPolygon
                     if (polygon.geometry && (polygon.geometry.type === "Polygon" || polygon.geometry.type === "MultiPolygon")) {
                         polygonFeatures.push(polygon);
+                    } else {
+                        console.warn("Invalid or undefined polygon geometry:", polygon);
                     }
                 });
 
@@ -158,7 +160,7 @@ fetch(mountainAreasUrl)
                 var polygonCollection = turf.featureCollection(polygonFeatures);
 
                 // Log the polygon collection to ensure it's correctly formed
-                console.log("Polygon Collection:", polygonCollection);
+                console.log("Polygon Collection:", JSON.stringify(polygonCollection, null, 2));
 
                 // Now filter the OSM_peaks points based on whether they fall inside the actual polygon shapes
                 var filteredPoints = L.geoJSON(osmPeaksData, {
@@ -173,7 +175,7 @@ fetch(mountainAreasUrl)
                         }
 
                         // Log the point being checked
-                        console.log("Checking point:", point);
+                        console.log("Checking point:", JSON.stringify(point, null, 2));
 
                         // Check if the point is inside any of the filtered polygons
                         try {
@@ -181,10 +183,10 @@ fetch(mountainAreasUrl)
 
                             // Log the result of the point-in-polygon check
                             console.log("Is point inside polygon:", isInsidePolygon);
-                            
+
                             return isInsidePolygon;
                         } catch (error) {
-                            console.error("Error checking point-in-polygon:", error);
+                            console.error("Error during point-in-polygon check:", error);
                             return false;  // Skip this point if an error occurs
                         }
                     },
