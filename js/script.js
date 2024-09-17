@@ -67,10 +67,15 @@ filterControl.addTo(map);
 
 L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
 
+var mountainAreasData;  // Define mountain areas data variable
+var osmPeaksData;  // Define OSM peaks data variable
+
 // Fetch Mountain Areas (add spinner handling)
 fetch(mountainAreasUrl)
     .then(response => response.json())
     .then(data => {
+        mountainAreasData = data;  // Store the data for later use
+
         var uniqueHierLvls = new Set();
         data.features.forEach(function (feature) {
             if (feature.properties && feature.properties.Hier_lvl) {
@@ -93,7 +98,7 @@ fetch(mountainAreasUrl)
         });
 
         // Add Mountain Areas to the map by default
-        mountainAreasLayer.addData(data).addTo(map);  // Add the layer to map initially
+        mountainAreasLayer.addData(mountainAreasData).addTo(map);  // Add the layer to map initially
 
         // Fit the map bounds to the Mountain Areas layer (dynamic fitting)
         map.fitBounds(mountainAreasLayer.getBounds());
@@ -156,15 +161,15 @@ fetch(mountainAreasUrl)
                 markers.addLayer(filteredPoints);  // Add the filtered points to the marker cluster layer
             }
         });
-
-
     });
 
 // Load OSM Peaks
 fetch(osmPeaksUrl)
     .then(response => response.json())
     .then(data => {
-        L.geoJSON(data, {
+        osmPeaksData = data;  // Store the data for later use
+
+        L.geoJSON(osmPeaksData, {
             pointToLayer: function(feature, latlng) {
                 var marker = L.marker(latlng);
                 var name = feature.properties.name || "Unnamed Peak";
