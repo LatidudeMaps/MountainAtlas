@@ -102,12 +102,15 @@ fetch(mountainAreasUrl)
         hierLvlSelect.addEventListener('change', function () {
             var selectedValue = hierLvlSelect.value.trim();
             mountainAreasLayer.clearLayers();  // Clear before filtering
+            markers.clearLayers();  // Clear the marker cluster layer
 
             if (selectedValue === "all") {
-                mountainAreasLayer.addData(data);  // Show all if "Show All" is selected
+                // Show all polygons and points if "Show All" is selected
+                mountainAreasLayer.addData(mountainAreasData);  // Show all polygons
+                markers.addLayer(osmPeaksLayer);  // Show all OSM peaks points
             } else {
-                // Filter the GeoJSON data by Hier_lvl
-                var filteredData = L.geoJSON(data, {
+                // Filter the polygons by Hier_lvl
+                var filteredPolygons = L.geoJSON(mountainAreasData, {
                     filter: function (feature) {
                         return String(feature.properties.Hier_lvl).trim() === selectedValue;
                     },
@@ -117,14 +120,38 @@ fetch(mountainAreasUrl)
                     }
                 });
 
-                mountainAreasLayer.addLayer(filteredData);  // Add the filtered data to the layer
+                mountainAreasLayer.addLayer(filteredPolygons);  // Add the filtered polygons to the map
 
-                // Optionally, fit bounds to filtered polygons
-                /* if (filteredData.getLayers().length > 0) {
-                    map.fitBounds(filteredData.getBounds());
-                } */
+                // Get the bounds of the filtered polygons
+                var polygonBounds = [];
+                filteredPolygons.eachLayer(function (layer) {
+                    if (layer instanceof L.Polygon) {
+                        polygonBounds.push(layer.getBounds());
+                    }
+                });
+
+                // Now filter the OSM_peaks points based on whether they fall inside the polygon bounds
+                var filteredPoints = L.geoJSON(osmPeaksData, {
+                    filter: function (feature) {
+                        var latlng = L.latLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
+                        return polygonBounds.some(function(bounds) {
+                            return bounds.contains(latlng);  // Check if the point is inside any polygon bounds
+                        });
+                    },
+                    pointToLayer: function (feature, latlng) {
+                        var marker = L.marker(latlng);
+                        var name = feature.properties.name || "Unnamed Peak";
+                        var elevation = feature.properties.elevation || "Unknown";
+                        var popupContent = "<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m";
+                        marker.bindPopup(popupContent);
+                        return marker;
+                    }
+                });
+
+                markers.addLayer(filteredPoints);  // Add the filtered points to the marker cluster layer
             }
         });
+
     });
 
 // Load OSM Peaks
