@@ -154,6 +154,7 @@ fetch(mountainAreasUrl)
                     return;
                 }
 
+                // Construct a feature collection for the polygons
                 var polygonCollection = turf.featureCollection(polygonFeatures);
 
                 // Log the polygon collection to ensure it's correctly formed
@@ -162,19 +163,30 @@ fetch(mountainAreasUrl)
                 // Now filter the OSM_peaks points based on whether they fall inside the actual polygon shapes
                 var filteredPoints = L.geoJSON(osmPeaksData, {
                     filter: function (feature) {
-                        // Create a point from the OSM peaks coordinates
-                        var point = turf.point([feature.geometry.coordinates[0], feature.geometry.coordinates[1]]);
-                        
+                        var point;
+                        try {
+                            // Create a point from the OSM peaks coordinates
+                            point = turf.point([feature.geometry.coordinates[0], feature.geometry.coordinates[1]]);
+                        } catch (error) {
+                            console.error("Error creating point for feature: ", feature, error);
+                            return false;  // Skip this point if it can't be created
+                        }
+
                         // Log the point being checked
                         console.log("Checking point:", point);
 
                         // Check if the point is inside any of the filtered polygons
-                        var isInsidePolygon = turf.booleanPointInPolygon(point, polygonCollection);
+                        try {
+                            var isInsidePolygon = turf.booleanPointInPolygon(point, polygonCollection);
 
-                        // Log the result of the point-in-polygon check
-                        console.log("Is point inside polygon:", isInsidePolygon);
-
-                        return isInsidePolygon;
+                            // Log the result of the point-in-polygon check
+                            console.log("Is point inside polygon:", isInsidePolygon);
+                            
+                            return isInsidePolygon;
+                        } catch (error) {
+                            console.error("Error checking point-in-polygon:", error);
+                            return false;  // Skip this point if an error occurs
+                        }
                     },
                     pointToLayer: function (feature, latlng) {
                         var marker = L.marker(latlng);
