@@ -139,18 +139,22 @@ fetch(mountainAreasUrl)
 
                 mountainAreasLayer.addLayer(filteredPolygons);  // Add the filtered polygons to the map
 
-                // Get the filtered polygon layers as geometries
-                var polygonLayers = filteredPolygons.getLayers();
+                // Collect the polygon geometries for Turf.js point-in-polygon check
+                var polygonFeatures = [];
+                filteredPolygons.eachLayer(function (layer) {
+                    var polygon = layer.toGeoJSON();
+                    polygonFeatures.push(polygon);
+                });
 
-                // Now filter the OSM_peaks points based on whether they fall inside any polygon
+                var polygonCollection = turf.featureCollection(polygonFeatures);
+
+                // Now filter the OSM_peaks points based on whether they fall inside the actual polygon shapes
                 var filteredPoints = L.geoJSON(osmPeaksData, {
                     filter: function (feature) {
-                        var latlng = L.latLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
+                        var point = turf.point([feature.geometry.coordinates[0], feature.geometry.coordinates[1]]);
                         
                         // Check if the point is inside any of the filtered polygons
-                        return polygonLayers.some(function(layer) {
-                            return layer.getBounds().contains(latlng) && layer.contains(latlng);  // Directly use contains method
-                        });
+                        return turf.booleanPointInPolygon(point, polygonCollection);
                     },
                     pointToLayer: function (feature, latlng) {
                         var marker = L.marker(latlng);
@@ -184,7 +188,6 @@ fetch(mountainAreasUrl)
                 console.log("Filtered polygons and points added to the map.");
             }
         });
-
     });
 
 // Load OSM Peaks
