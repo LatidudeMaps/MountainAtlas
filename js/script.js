@@ -139,14 +139,18 @@ fetch(mountainAreasUrl)
 
                 mountainAreasLayer.addLayer(filteredPolygons);  // Add the filtered polygons to the map
 
-                // Now filter the OSM_peaks points based on whether they fall inside the actual polygon shapes
+                // Get the filtered polygon layers as geometries
+                var polygonLayers = filteredPolygons.getLayers();
+
+                // Now filter the OSM_peaks points based on whether they fall inside any polygon
                 var filteredPoints = L.geoJSON(osmPeaksData, {
                     filter: function (feature) {
-                        var latlng = [feature.geometry.coordinates[1], feature.geometry.coordinates[0]];
+                        var latlng = L.latLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
                         
-                        // Check if the point is within any of the polygon geometries (not just bounding boxes)
-                        var pointInPolygons = leafletPip.pointInLayer(latlng, filteredPolygons);
-                        return pointInPolygons.length > 0;  // Return true if point is inside any polygon
+                        // Check if the point is inside any of the filtered polygons
+                        return polygonLayers.some(function(layer) {
+                            return layer.getBounds().contains(latlng) && layer.contains(latlng);  // Directly use contains method
+                        });
                     },
                     pointToLayer: function (feature, latlng) {
                         var marker = L.marker(latlng);
@@ -155,7 +159,7 @@ fetch(mountainAreasUrl)
                         var popupContent = "<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m";
                         marker.bindPopup(popupContent);
 
-                        // Restore persistent tooltip for peaks
+                        // Re-add persistent tooltip
                         marker.bindTooltip(name, { 
                             permanent: true, 
                             direction: 'top', 
@@ -165,11 +169,11 @@ fetch(mountainAreasUrl)
 
                         // Handle popup interactions
                         marker.on('popupopen', function () {
-                            marker.closeTooltip();
+                            marker.closeTooltip();  // Close the tooltip when the popup opens
                         });
 
                         marker.on('popupclose', function () {
-                            marker.openTooltip();
+                            marker.openTooltip();  // Reopen the tooltip after the popup closes
                         });
 
                         return marker;
@@ -180,6 +184,7 @@ fetch(mountainAreasUrl)
                 console.log("Filtered polygons and points added to the map.");
             }
         });
+
     });
 
 // Load OSM Peaks
