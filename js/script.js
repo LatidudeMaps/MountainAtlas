@@ -139,56 +139,21 @@ fetch(mountainAreasUrl)
 
                 mountainAreasLayer.addLayer(filteredPolygons);  // Add the filtered polygons to the map
 
-                // Collect the polygon geometries for Turf.js point-in-polygon check
-                var polygonFeatures = [];
+                // Get the bounds of the filtered polygons
+                var polygonBounds = [];
                 filteredPolygons.eachLayer(function (layer) {
-                    var polygon = layer.toGeoJSON();
-                    // Ensure the geometry is valid and is a Polygon or MultiPolygon
-                    if (polygon.geometry && (polygon.geometry.type === "Polygon" || polygon.geometry.type === "MultiPolygon")) {
-                        polygonFeatures.push(polygon);
-                    } else {
-                        console.warn("Invalid or undefined polygon geometry:", polygon);
+                    if (layer instanceof L.Polygon) {
+                        polygonBounds.push(layer.getBounds());
                     }
                 });
 
-                if (polygonFeatures.length === 0) {
-                    console.error("No valid polygon features available for this Hier_lvl.");
-                    return;
-                }
-
-                // Construct a feature collection for the polygons
-                var polygonCollection = turf.featureCollection(polygonFeatures);
-
-                // Log the polygon collection to ensure it's correctly formed
-                console.log("Polygon Collection:", JSON.stringify(polygonCollection, null, 2));
-
-                // Now filter the OSM_peaks points based on whether they fall inside the actual polygon shapes
+                // Now filter the OSM_peaks points based on whether they fall inside the polygon bounds
                 var filteredPoints = L.geoJSON(osmPeaksData, {
                     filter: function (feature) {
-                        var point;
-                        try {
-                            // Create a point from the OSM peaks coordinates
-                            point = turf.point([feature.geometry.coordinates[0], feature.geometry.coordinates[1]]);
-                        } catch (error) {
-                            console.error("Error creating point for feature: ", feature, error);
-                            return false;  // Skip this point if it can't be created
-                        }
-
-                        // Log the point being checked
-                        console.log("Checking point:", JSON.stringify(point, null, 2));
-
-                        // Check if the point is inside any of the filtered polygons
-                        try {
-                            var isInsidePolygon = turf.booleanPointInPolygon(point, polygonCollection);
-
-                            // Log the result of the point-in-polygon check
-                            console.log("Is point inside polygon:", isInsidePolygon);
-
-                            return isInsidePolygon;
-                        } catch (error) {
-                            console.error("Error during point-in-polygon check:", error);
-                            return false;  // Skip this point if an error occurs
-                        }
+                        var latlng = L.latLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
+                        return polygonBounds.some(function(bounds) {
+                            return bounds.contains(latlng);  // Check if the point is inside any polygon bounds
+                        });
                     },
                     pointToLayer: function (feature, latlng) {
                         var marker = L.marker(latlng);
@@ -196,24 +161,6 @@ fetch(mountainAreasUrl)
                         var elevation = feature.properties.elevation || "Unknown";
                         var popupContent = "<b>Name:</b> " + name + "<br><b>Elevation:</b> " + elevation + " m";
                         marker.bindPopup(popupContent);
-
-                        // Re-add persistent tooltip
-                        marker.bindTooltip(name, { 
-                            permanent: true, 
-                            direction: 'top', 
-                            offset: [-15, -3],
-                            className: 'dark-tooltip'
-                        });
-
-                        // Handle popup interactions
-                        marker.on('popupopen', function () {
-                            marker.closeTooltip();  // Close the tooltip when the popup opens
-                        });
-
-                        marker.on('popupclose', function () {
-                            marker.openTooltip();  // Reopen the tooltip after the popup closes
-                        });
-
                         return marker;
                     }
                 });
