@@ -143,8 +143,9 @@ fetch(mountainAreasUrl)
                 var polygonFeatures = [];
                 filteredPolygons.eachLayer(function (layer) {
                     var polygon = layer.toGeoJSON();
-                    if (polygon.geometry && polygon.geometry.type === "Polygon" || polygon.geometry.type === "MultiPolygon") {
-                        polygonFeatures.push(polygon);  // Ensure only valid polygons are pushed
+                    // Ensure the geometry is valid and is a Polygon or MultiPolygon
+                    if (polygon.geometry && (polygon.geometry.type === "Polygon" || polygon.geometry.type === "MultiPolygon")) {
+                        polygonFeatures.push(polygon);
                     }
                 });
 
@@ -155,13 +156,25 @@ fetch(mountainAreasUrl)
 
                 var polygonCollection = turf.featureCollection(polygonFeatures);
 
+                // Log the polygon collection to ensure it's correctly formed
+                console.log("Polygon Collection:", polygonCollection);
+
                 // Now filter the OSM_peaks points based on whether they fall inside the actual polygon shapes
                 var filteredPoints = L.geoJSON(osmPeaksData, {
                     filter: function (feature) {
+                        // Create a point from the OSM peaks coordinates
                         var point = turf.point([feature.geometry.coordinates[0], feature.geometry.coordinates[1]]);
                         
+                        // Log the point being checked
+                        console.log("Checking point:", point);
+
                         // Check if the point is inside any of the filtered polygons
-                        return turf.booleanPointInPolygon(point, polygonCollection);
+                        var isInsidePolygon = turf.booleanPointInPolygon(point, polygonCollection);
+
+                        // Log the result of the point-in-polygon check
+                        console.log("Is point inside polygon:", isInsidePolygon);
+
+                        return isInsidePolygon;
                     },
                     pointToLayer: function (feature, latlng) {
                         var marker = L.marker(latlng);
