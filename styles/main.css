@@ -68,14 +68,6 @@
     }
 }
 
-/* Remove borders or gaps between map tiles */
-.leaflet-tile {
-    border: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background-clip: content-box;  /* Prevent background leakage */
-}
-
 .leaflet-container img {
     image-rendering: auto;         /* Let the browser handle image smoothing */
     image-rendering: crisp-edges;  /* For older browsers */
