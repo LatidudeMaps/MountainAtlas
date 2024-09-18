@@ -65,7 +65,7 @@ filterControl.addTo(map);
 L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
 
 let mountainAreasData, osmPeaksData;  // Declare variables
-let allMountainPolygons = [];  // Store all polygon geometries
+let allMountainPolygons = [];  // Store all polygon bounds
 
 // Fetch GeoJSON data with async/await
 async function loadMountainAreas() {
@@ -87,7 +87,7 @@ async function loadMountainAreas() {
 
         // Add all Mountain Areas data to the map initially
         mountainAreasLayer.addData(mountainAreasData).addTo(map);
-        allMountainPolygons = mountainAreasLayer.getLayers().map(layer => layer.getLatLngs());
+        allMountainPolygons = mountainAreasLayer.getLayers().map(layer => layer.getBounds());  // Get polygon bounds
 
         hierLvlSelect.addEventListener('change', handleFilterChange);
     } catch (error) {
@@ -118,7 +118,7 @@ function handleFilterChange() {
     if (selectedValue === "all") {
         // Show all mountain areas and peaks
         mountainAreasLayer.addData(mountainAreasData);  // Show all mountain areas
-        allMountainPolygons = mountainAreasLayer.getLayers().map(layer => layer.getLatLngs());  // Reset polygons
+        allMountainPolygons = mountainAreasLayer.getLayers().map(layer => layer.getBounds());  // Reset polygons
         addOsmPeaksToMap(osmPeaksData);  // Show all OSM Peaks
     } else {
         // Filter mountain areas based on selected Hier_lvl
@@ -130,7 +130,7 @@ function handleFilterChange() {
             }
         });
         mountainAreasLayer.addLayer(filteredMountainAreas);
-        allMountainPolygons = filteredMountainAreas.getLayers().map(layer => layer.getLatLngs());  // Update visible polygon geometries
+        allMountainPolygons = filteredMountainAreas.getLayers().map(layer => layer.getBounds());  // Update visible polygon geometries
 
         // Filter OSM Peaks based on whether they fall inside visible polygons
         addOsmPeaksToMap(osmPeaksData);  // Re-add peaks, hiding those outside polygons
@@ -164,7 +164,7 @@ function addOsmPeaksToMap(peaksData) {
             if (document.getElementById('hier-lvl-select').value.trim() === "all") return true;
             
             // Otherwise, only show peaks inside the visible polygons
-            return allMountainPolygons.some(polygon => L.polygon(polygon).contains(latlng));
+            return allMountainPolygons.some(bounds => bounds.contains(latlng));
         }
     }).addTo(markers);
 }
