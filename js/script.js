@@ -32,6 +32,9 @@ const markers = L.markerClusterGroup({
 // Function to load the map and GeoJSON simultaneously
 async function loadMapAndData() {
     try {
+        // Show spinner while loading
+        document.getElementById('loading-spinner').style.display = 'block';
+
         // Load map tiles
         const tileLayerPromise = new Promise((resolve, reject) => {
             CartoDB_DarkMatter.addTo(map);
@@ -54,6 +57,10 @@ async function loadMapAndData() {
 
         // Wait for both the map tiles and mountain areas data to load
         await Promise.all([tileLayerPromise, mountainAreasPromise]);
+
+        // Hide spinner and show the map
+        document.getElementById('loading-spinner').style.display = 'none';
+        document.getElementById('map').style.display = 'block';
 
         // Add layers to map only after both have loaded
         mountainAreasLayer.addTo(map);
