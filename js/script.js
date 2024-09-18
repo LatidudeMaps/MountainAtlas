@@ -10,23 +10,16 @@ const map = L.map('map', {
 const CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
     subdomains: 'abcd',
-    maxZoom: 20,
-    tileSize: 256,
-    zoomOffset: 0,
     detectRetina: true,          // Support high-DPI displays
 }).addTo(map);
 
 const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors',
-    tileSize: 256,
-    zoomOffset: 0,
     detectRetina: true,          // Retina support
 });
 
 const esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri',
-    tileSize: 256,
-    zoomOffset: 0,
     detectRetina: true,          // Retina support
 });
 
