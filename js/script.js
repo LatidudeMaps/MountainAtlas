@@ -53,9 +53,6 @@ map.on('load', function() {
     // Set max bounds to limit panning outside the initial bounds
     map.setMaxBounds(initialBounds);
 
-    // Optionally, set minimum and maximum zoom levels to prevent excessive zooming
-    map.setMinZoom(map.getZoom() - 1);  // Prevent zooming out too much
-    map.setMaxZoom(map.getZoom() + 3);  // Prevent zooming in too much
 });
 
 // Add marker cluster group
