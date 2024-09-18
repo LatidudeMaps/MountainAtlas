@@ -23,7 +23,12 @@ const esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/res
     detectRetina: true,          // Retina support
 });
 
-// Add marker cluster group
+const baseMaps = {
+    "Dark Positron": CartoDB_DarkMatter,
+    "OpenStreetMap": openStreetMap,
+    "Esri World Imagery": esriWorldImagery
+};
+
 const markers = L.markerClusterGroup({
     spiderfyOnMaxZoom: false,
     disableClusteringAtZoom: 18,
