@@ -23,7 +23,6 @@ const esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/res
     detectRetina: true,          // Retina support
 });
 
-
 // Add marker cluster group
 const markers = L.markerClusterGroup({
     spiderfyOnMaxZoom: false,
@@ -116,7 +115,7 @@ function updateSearchSuggestions() {
     });
 }
 
-// Function to handle search by MapName
+// Function to handle search by MapName when "Enter" is pressed or suggestion is selected
 function handleSearch() {
     const searchValue = document.getElementById('search-input').value.trim().toLowerCase();
 
@@ -157,10 +156,10 @@ function handleSearch() {
     }
 }
 
-// Attach the search function to the search input
-document.getElementById('search-input').addEventListener('input', handleSearch);
+// Attach the search function to the search input, only trigger search on "Enter" or autocomplete selection
+document.getElementById('search-input').addEventListener('change', handleSearch);
 
-// Modify handleFilterChange to update search suggestions
+// Modify handleFilterChange to update search suggestions based on filtered polygons
 function handleFilterChange() {
     const selectedValue = document.getElementById('hier-lvl-select').value.trim();
     mountainAreasLayer.clearLayers();
@@ -178,7 +177,7 @@ function handleFilterChange() {
         mountainAreasLayer.addLayer(filteredData);
     }
 
-    // Update search suggestions based on the visible features
+    // Update search suggestions based on the visible features after applying the filter
     updateSearchSuggestions();
 }
 
