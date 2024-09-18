@@ -1,23 +1,32 @@
-// Initialize the map with zoom settings (no need for setView)
+// Initialize the map with zoom settings
 const map = L.map('map', {
     zoomAnimation: true,
     zoomSnap: 1,
     zoomDelta: 1
 });
 
-// Add tile layers
+// Add tile layers with options to avoid tile borders
 const CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
     subdomains: 'abcd',
-    maxZoom: 20
+    maxZoom: 20,
+    tileSize: 256,
+    zoomOffset: 0,
+    edgeBufferTiles: 2
 }).addTo(map);
 
 const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
+    attribution: '&copy; OpenStreetMap contributors',
+    tileSize: 256,
+    zoomOffset: 0,
+    edgeBufferTiles: 2
 });
 
 const esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Tiles &copy; Esri'
+    attribution: 'Tiles &copy; Esri',
+    tileSize: 256,
+    zoomOffset: 0,
+    edgeBufferTiles: 2
 });
 
 // Add marker cluster group
@@ -113,7 +122,7 @@ async function loadMountainAreas() {
     }
 }
 
-// Function to handle filter changes without refitting bounds
+// Function to handle filter changes without adjusting the map bounds
 function handleFilterChange() {
     const selectedValue = document.getElementById('hier-lvl-select').value.trim();
     mountainAreasLayer.clearLayers();
@@ -131,8 +140,7 @@ function handleFilterChange() {
         mountainAreasLayer.addLayer(filteredData);
     }
 
-    // Refit map bounds after filtering
-    fitMapToBounds();
+    // No need to refit the bounds when filtering
 }
 
 // Load OSM Peaks data

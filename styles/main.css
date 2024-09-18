@@ -67,3 +67,8 @@
         max-width: 80%;
     }
 }
+
+.leaflet-tile {
+    border: none !important;  /* Remove borders */
+    background-clip: content-box;  /* Ensure no background leaks */
+}
