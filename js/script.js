@@ -65,19 +65,6 @@ filterControl.addTo(map);
 L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
 
 let mountainAreasData, osmPeaksData;  // Declare variables
-let allBounds = null;  // Variable to store the combined global bounds
-
-// Function to update map max bounds globally
-function updateMaxBounds(bounds) {
-    if (!allBounds) {
-        allBounds = bounds;
-    } else {
-        allBounds.extend(bounds);
-    }
-    map.setMaxBounds(allBounds);  // Set global max bounds for the map
-    map.fitBounds(allBounds);     // Initially fit map to the largest extent
-    map.setMinZoom(map.getBoundsZoom(allBounds));  // Restrict zooming out beyond the global max bounds
-}
 
 // Fetch GeoJSON data with async/await
 async function loadMountainAreas() {
@@ -97,10 +84,8 @@ async function loadMountainAreas() {
             hierLvlSelect.appendChild(option);
         });
 
-        // Add data to the map and set the global bounds
+        // Add data to the map
         mountainAreasLayer.addData(mountainAreasData).addTo(map);
-        const mountainBounds = mountainAreasLayer.getBounds();
-        updateMaxBounds(mountainBounds);  // Set max bounds based on this layer's extent
 
         hierLvlSelect.addEventListener('change', handleFilterChange);
     } catch (error) {
@@ -155,10 +140,6 @@ async function loadOsmPeaks() {
                 return marker;
             }
         }).addTo(markers);
-
-        // Get bounds for OSM Peaks layer and update global max bounds
-        const osmBounds = markers.getBounds();
-        updateMaxBounds(osmBounds);  // Set global max bounds
     } catch (error) {
         console.error('Error loading OSM Peaks:', error);
     }
