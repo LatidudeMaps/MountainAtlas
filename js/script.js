@@ -55,7 +55,7 @@ const overlayMaps = {
 
 L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
 
-// Custom filter dropdown with search bar and autocomplete suggestions
+// Custom filter dropdown with search bar, clear button, and autocomplete suggestions
 const filterControl = L.control({ position: 'topright' });
 filterControl.onAdd = function () {
     const div = L.DomUtil.create('div', 'filter-control');
@@ -67,6 +67,7 @@ filterControl.onAdd = function () {
         <label for="search-input">Search by MapName:</label><br>
         <input type="text" id="search-input" placeholder="Search..." style="width: 150px;" list="search-suggestions">
         <datalist id="search-suggestions"></datalist> <!-- This will hold autocomplete suggestions -->
+        <button id="clear-search" style="margin-left:5px;">Clear</button> <!-- Clear button -->
     `;
     return div;
 };
@@ -121,6 +122,7 @@ function handleSearch() {
     if (searchValue) {
         let matchingLayers = [];
 
+        // Search only the filtered mountain areas (visible polygons)
         mountainAreasLayer.eachLayer(layer => {
             const mapName = layer.feature.properties.MapName.trim().toLowerCase();
 
@@ -152,6 +154,14 @@ function handleSearch() {
 
 // Attach the search function to the search input, only trigger search on "Enter" or autocomplete selection
 document.getElementById('search-input').addEventListener('change', handleSearch);
+
+// Add a clear button functionality to reset the search input
+document.getElementById('clear-search').addEventListener('click', function () {
+    document.getElementById('search-input').value = '';
+    mountainAreasLayer.eachLayer(layer => {
+        mountainAreasLayer.resetStyle(layer); // Reset styles on all layers when clearing search
+    });
+});
 
 // Modify handleFilterChange to update search suggestions based on filtered polygons
 function handleFilterChange() {
