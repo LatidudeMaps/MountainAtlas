@@ -1,4 +1,4 @@
-// Initialize the map with zoom settings
+// Initialize the map
 const map = L.map('map', {
     zoomAnimation: false,
     zoomSnap: 1,
@@ -6,35 +6,32 @@ const map = L.map('map', {
     preferCanvas: true
 });
 
-/// Add tile layers with additional settings to avoid tile borders
+// Tile layers
 const CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
     subdomains: 'abcd',
-    detectRetina: true,          // Support high-DPI displays
+    detectRetina: true
 }).addTo(map);
 
 const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors',
-    detectRetina: true,          // Retina support
+    detectRetina: true
 });
 
 const esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri',
-    detectRetina: true,          // Retina support
+    detectRetina: true
 });
 
-// Add marker cluster group
+// Marker cluster group for OSM peaks
 const markers = L.markerClusterGroup({
     spiderfyOnMaxZoom: false,
     disableClusteringAtZoom: 18,
     zoomToBoundsOnClick: true,
-    showCoverageOnHover: false,
-    chunkedLoading: true,
-    chunkInterval: 200,
-    chunkDelay: 50
+    chunkedLoading: true
 }).addTo(map);
 
-// Layer control for base maps and overlays
+// Base map and overlay controls
 const baseMaps = {
     "Dark Positron": CartoDB_DarkMatter,
     "OpenStreetMap": openStreetMap,
@@ -43,9 +40,7 @@ const baseMaps = {
 
 const mountainAreasLayer = L.geoJSON(null, {
     style: defaultPolygonStyle,
-    onEachFeature: (feature, layer) => {
-        layer.bindPopup(feature.properties.MapName);
-    }
+    onEachFeature: (feature, layer) => layer.bindPopup(feature.properties.MapName)
 }).addTo(map);
 
 const overlayMaps = {
@@ -55,167 +50,95 @@ const overlayMaps = {
 
 L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
 
-// Custom filter dropdown with search bar, clear button, and autocomplete suggestions
-const filterControl = L.control({ position: 'topright' });
-filterControl.onAdd = function () {
+// Custom filter dropdown with search bar and clear button
+L.control({ position: 'topright', onAdd: () => {
     const div = L.DomUtil.create('div', 'filter-control');
     div.innerHTML = `
-        <label for="hier-lvl-select">Choose hierarchy level:</label><br>
-        <select id="hier-lvl-select">
-            <option value="all">Show All</option>
-        </select><br><br>
-        <label for="search-input">Search by MapName:</label><br>
-        <input type="text" id="search-input" placeholder="Search..." style="width: 150px;" list="search-suggestions">
-        <datalist id="search-suggestions"></datalist> <!-- This will hold autocomplete suggestions -->
-        <button id="clear-search" style="margin-left:5px;">Clear</button> <!-- Clear button -->
-    `;
+        <label>Choose hierarchy level:</label><br>
+        <select id="hier-lvl-select"><option value="all">Show All</option></select><br><br>
+        <label>Search by MapName:</label><br>
+        <input id="search-input" placeholder="Search..." list="search-suggestions">
+        <datalist id="search-suggestions"></datalist><button id="clear-search">Clear</button>`;
     return div;
-};
-filterControl.addTo(map);
+}}).addTo(map);
 
 L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
 
-let mountainAreasData, filteredMountainAreas = []; // Declare variables for original and filtered data
+let mountainAreasData, filteredMountainAreas = [];
 
-// Function to fit map to the bounds of both mountain areas and OSM peaks
+// Fit map to bounds
 function fitMapToBounds() {
-    const bounds = L.latLngBounds([]);
-
-    if (mountainAreasLayer.getLayers().length > 0) {
-        bounds.extend(mountainAreasLayer.getBounds()); // Extend bounds to include mountain areas
-    }
-
-    if (markers.getLayers().length > 0) {
-        bounds.extend(markers.getBounds()); // Extend bounds to include OSM peaks
-    }
-
-    if (bounds.isValid()) {
-        map.fitBounds(bounds); // Fit the map view to the combined bounds
-    }
+    const bounds = L.latLngBounds();
+    if (mountainAreasLayer.getLayers().length) bounds.extend(mountainAreasLayer.getBounds());
+    if (markers.getLayers().length) bounds.extend(markers.getBounds());
+    if (bounds.isValid()) map.fitBounds(bounds);
 }
 
-// Function to update search suggestions based on the visible polygons
+// Update search suggestions
 function updateSearchSuggestions() {
     const searchSuggestions = document.getElementById('search-suggestions');
-    searchSuggestions.innerHTML = ''; // Clear previous suggestions
-
-    // Collect visible "MapName" values from filtered layers
-    const mapNames = filteredMountainAreas.map(feature => feature.properties.MapName);
-
-    // Populate the datalist with unique "MapName" values
-    mapNames.forEach(name => {
+    searchSuggestions.innerHTML = ''; 
+    filteredMountainAreas.forEach(({ properties: { MapName } }) => {
         const option = document.createElement('option');
-        option.value = name;
+        option.value = MapName;
         searchSuggestions.appendChild(option);
     });
 }
 
-// Function to handle search by MapName when "Enter" is pressed or suggestion is selected
+// Handle search by MapName
 function handleSearch() {
     const searchValue = document.getElementById('search-input').value.trim().toLowerCase();
+    mountainAreasLayer.eachLayer(layer => mountainAreasLayer.resetStyle(layer));
+    if (!searchValue) return;
 
-    // Clear any previous style (e.g., highlighted)
+    let matchingLayers = [];
     mountainAreasLayer.eachLayer(layer => {
-        mountainAreasLayer.resetStyle(layer); // Reset style for all layers
+        if (layer.feature?.properties?.MapName?.toLowerCase().includes(searchValue)) matchingLayers.push(layer);
     });
 
-    if (searchValue) {
-        let matchingLayers = [];
-
-        // Search only the currently visible layers in the mountainAreasLayer (filtered polygons)
-        mountainAreasLayer.eachLayer(layer => {
-            // Ensure that the layer has feature and properties
-            if (layer.feature && layer.feature.properties) {
-                const mapName = layer.feature.properties.MapName.trim().toLowerCase();
-
-                if (mapName.includes(searchValue)) {
-                    matchingLayers.push(layer);
-                }
-            }
+    if (matchingLayers.length) {
+        const bounds = L.latLngBounds();
+        matchingLayers.forEach(layer => {
+            layer.setStyle({ color: 'yellow', weight: 4 });
+            bounds.extend(layer.getBounds());
         });
-
-        if (matchingLayers.length > 0) {
-            const bounds = L.latLngBounds([]);
-
-            matchingLayers.forEach(layer => {
-                // Highlight the matching polygons
-                layer.setStyle({
-                    color: 'yellow', // Highlight with yellow border
-                    weight: 4
-                });
-
-                bounds.extend(layer.getBounds()); // Add to the bounds to zoom to it
-            });
-
-            // Zoom to the matching layers' bounds
-            map.fitBounds(bounds);
-        } else {
-            alert('No matching polygons found.');
-        }
+        map.fitBounds(bounds);
+    } else {
+        alert('No matching polygons found.');
     }
 }
 
-// Attach the search function to the search input, only trigger search on "Enter" or autocomplete selection
-document.getElementById('search-input').addEventListener('change', handleSearch);
-
-// Add a clear button functionality to reset the search input
-document.getElementById('clear-search').addEventListener('click', function () {
+// Clear search input and reset styles
+document.getElementById('clear-search').addEventListener('click', () => {
     document.getElementById('search-input').value = '';
-    mountainAreasLayer.eachLayer(layer => {
-        mountainAreasLayer.resetStyle(layer); // Reset styles on all layers when clearing search
-    });
+    mountainAreasLayer.eachLayer(layer => mountainAreasLayer.resetStyle(layer));
 });
 
-// Modify handleFilterChange to update search suggestions and display only the filtered polygons
+// Apply filter change and update visible polygons
 function handleFilterChange() {
     const selectedValue = document.getElementById('hier-lvl-select').value.trim();
-    mountainAreasLayer.clearLayers(); // Clear the current layers on the map
-    filteredMountainAreas = []; // Reset filtered features array
-
-    if (selectedValue === "all") {
-        mountainAreasLayer.addData(mountainAreasData); // Add all features if "all" is selected
-        filteredMountainAreas = mountainAreasData.features; // All features are visible
-    } else {
-        const filteredData = {
-            type: "FeatureCollection",
-            features: mountainAreasData.features.filter(feature => String(feature.properties.Hier_lvl).trim() === selectedValue)
-        };
-
-        mountainAreasLayer.addData(filteredData); // Add filtered data to the map
-        filteredMountainAreas = filteredData.features; // Update the filteredMountainAreas with the filtered features
-    }
-
-    // Update search suggestions based on the visible features after applying the filter
+    mountainAreasLayer.clearLayers();
+    filteredMountainAreas = selectedValue === "all" ? mountainAreasData.features : mountainAreasData.features.filter(f => f.properties.Hier_lvl.trim() === selectedValue);
+    mountainAreasLayer.addData({ type: "FeatureCollection", features: filteredMountainAreas });
     updateSearchSuggestions();
 }
 
-// Fetch GeoJSON data with async/await
+// Load mountain areas data
 async function loadMountainAreas() {
     try {
         const response = await fetch(mountainAreasUrl);
-        const data = await response.json();
-        mountainAreasData = data;
-
-        // Extract unique hierarchy levels and populate dropdown
-        const uniqueHierLvls = [...new Set(data.features.map(feature => feature.properties?.Hier_lvl))].sort((a, b) => a - b);
-
-        const hierLvlSelect = document.getElementById('hier-lvl-select');
+        mountainAreasData = await response.json();
+        const uniqueHierLvls = [...new Set(mountainAreasData.features.map(f => f.properties?.Hier_lvl))].sort();
         uniqueHierLvls.forEach(value => {
             const option = document.createElement('option');
             option.value = value;
             option.text = `Hier_lvl: ${value}`;
-            hierLvlSelect.appendChild(option);
+            document.getElementById('hier-lvl-select').appendChild(option);
         });
-
-        // Add data to the map initially (all data)
         mountainAreasLayer.addData(mountainAreasData);
-        filteredMountainAreas = mountainAreasData.features; // Initially, all features are visible
-
-        // Update search suggestions initially
+        filteredMountainAreas = mountainAreasData.features;
         updateSearchSuggestions();
-
-        // Add event listener for filter change
-        hierLvlSelect.addEventListener('change', handleFilterChange);
+        document.getElementById('hier-lvl-select').addEventListener('change', handleFilterChange);
     } catch (error) {
         console.error('Error loading Mountain Areas:', error);
     }
@@ -225,47 +148,21 @@ async function loadMountainAreas() {
 async function loadOsmPeaks() {
     try {
         const response = await fetch(osmPeaksUrl);
-        const data = await response.json();
-        osmPeaksData = data;
-
-        const osmPeaksLayer = L.geoJSON(osmPeaksData, {
-            pointToLayer: (feature, latlng) => {
-                const marker = L.marker(latlng);
-                const name = feature.properties.name || "Unnamed Peak";
-                const elevation = feature.properties.elevation || "Unknown";
-                const popupContent = `<b>Name:</b> ${name}<br><b>Elevation:</b> ${elevation} m`;
-
-                marker.bindPopup(popupContent)
-                    .bindTooltip(name, {
-                        permanent: true,
-                        direction: 'top',
-                        offset: [-15, -3],
-                        className: 'dark-tooltip'
-                    })
-                    .on('click', () => marker.openPopup())
-                    .on('popupopen', () => marker.closeTooltip())
-                    .on('popupclose', () => marker.openTooltip());
-
-                return marker;
-            }
+        const osmPeaksData = await response.json();
+        L.geoJSON(osmPeaksData, {
+            pointToLayer: (feature, latlng) => L.marker(latlng).bindPopup(`<b>Name:</b> ${feature.properties.name || "Unnamed Peak"}<br><b>Elevation:</b> ${feature.properties.elevation || "Unknown"} m`)
         }).addTo(markers);
-
-        // Fit map to the bounds of the mountain areas and peaks
         fitMapToBounds();
     } catch (error) {
         console.error('Error loading OSM Peaks:', error);
     }
 }
 
-// Default polygon style
+document.getElementById('search-input').addEventListener('change', handleSearch);
+
+// Polygon style
 function defaultPolygonStyle() {
-    return {
-        color: "#ff7800",
-        weight: 2,
-        opacity: 1,
-        fillColor: "#ffcc66",
-        fillOpacity: 0.65
-    };
+    return { color: "#ff7800", weight: 2, fillColor: "#ffcc66", fillOpacity: 0.65 };
 }
 
 // Load data
