@@ -6,30 +6,38 @@ const map = L.map('map', {
     preferCanvas: true          // Use canvas rendering for better performance
 });
 
-// Add tile layers with optimized settings to avoid tile borders
+// Add optimized settings for Dark Positron basemap to avoid tile borders
 const CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
     subdomains: 'abcd',
     detectRetina: true,          // Support high-DPI displays
     noWrap: true,                // Avoid white borders at tile edges
-    continuousWorld: true,       // Avoid wrapping the tiles in a continuous world
+    continuousWorld: true,       // Prevent tile wrapping
     updateWhenZooming: false,    // Avoid re-rendering tiles during zoom
-    tileSize: 256,               // Smaller tile size to speed up loading
-    keepBuffer: 2                // Preload surrounding tiles for smoother zoom transitions
+    tileSize: 256,               // Smaller tile size for faster loading
+    keepBuffer: 2,               // Preload surrounding tiles for smooth transitions
+    tilePadding: 50,             // Fetch extra tiles to prevent gaps
+    edgeBufferTiles: 2,          // Fetch edge tiles earlier for smoother transitions
+    errorTileUrl: 'path/to/fallback_tile.png' // Optional fallback image for failed tile loading
 }).addTo(map);
 
-const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors',
+// Add optimized settings for Esri World Imagery basemap
+const esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri',
     detectRetina: true,
     noWrap: true,
     continuousWorld: true,
     updateWhenZooming: false,
     tileSize: 256,
-    keepBuffer: 2
+    keepBuffer: 2,
+    tilePadding: 50,            // Fetch extra tiles to avoid gaps
+    edgeBufferTiles: 2,         // Buffer extra tiles around the edges
+    errorTileUrl: 'path/to/fallback_tile.png'
 });
 
-const esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Tiles &copy; Esri',
+// OpenStreetMap layer with regular settings (already working fine)
+const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
     detectRetina: true,
     noWrap: true,
     continuousWorld: true,
