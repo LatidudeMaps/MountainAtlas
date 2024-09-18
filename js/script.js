@@ -64,19 +64,16 @@ filterControl.addTo(map);
 
 L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
 
-let mountainAreasData, osmPeaksData;  // Declare variables
-let globalBounds = null;  // Variable to store the global bounds
+let globalBounds = null;  // Variable to store the global bounds that will NEVER change
 
-// Function to update map max bounds globally (keep this fixed)
-function updateGlobalBounds(bounds) {
+// Function to update map max bounds only ONCE globally
+function setGlobalMaxBounds(bounds) {
     if (!globalBounds) {
         globalBounds = bounds;
-    } else {
-        globalBounds.extend(bounds);
+        map.setMaxBounds(globalBounds);  // Set global max bounds ONCE for the map
+        map.fitBounds(globalBounds);     // Initially fit map to the global extent
+        map.setMinZoom(map.getBoundsZoom(globalBounds));  // Restrict zooming out beyond the global max bounds
     }
-    map.setMaxBounds(globalBounds);  // Set global max bounds for the map
-    map.fitBounds(globalBounds);     // Initially fit map to the global extent
-    map.setMinZoom(map.getBoundsZoom(globalBounds));  // Restrict zooming out beyond the global max bounds
 }
 
 // Fetch GeoJSON data with async/await
@@ -84,11 +81,14 @@ async function loadMountainAreas() {
     try {
         const response = await fetch(mountainAreasUrl);
         const data = await response.json();
-        mountainAreasData = data;
 
-        // Extract unique hierarchy levels and populate dropdown
+        // Add data to the map and set the global bounds ONCE
+        mountainAreasLayer.addData(data).addTo(map);
+        const mountainBounds = mountainAreasLayer.getBounds();
+        setGlobalMaxBounds(mountainBounds);  // Set global bounds based on this layer's extent ONCE
+
+        // Populate dropdown
         const uniqueHierLvls = [...new Set(data.features.map(feature => feature.properties?.Hier_lvl))].sort((a, b) => a - b);
-
         const hierLvlSelect = document.getElementById('hier-lvl-select');
         uniqueHierLvls.forEach(value => {
             const option = document.createElement('option');
@@ -97,18 +97,13 @@ async function loadMountainAreas() {
             hierLvlSelect.appendChild(option);
         });
 
-        // Add data to the map and set the global bounds
-        mountainAreasLayer.addData(mountainAreasData).addTo(map);
-        const mountainBounds = mountainAreasLayer.getBounds();
-        updateGlobalBounds(mountainBounds);  // Set global bounds based on this layer's extent
-
         hierLvlSelect.addEventListener('change', handleFilterChange);
     } catch (error) {
         console.error('Error loading Mountain Areas:', error);
     }
 }
 
-// Function to handle filter changes without restricting the panning
+// Function to handle filter changes without changing the max bounds
 function handleFilterChange() {
     const selectedValue = document.getElementById('hier-lvl-select').value.trim();
     mountainAreasLayer.clearLayers();
@@ -116,7 +111,7 @@ function handleFilterChange() {
     if (selectedValue === "all") {
         // Reset to show all mountain areas
         mountainAreasLayer.addData(mountainAreasData);
-        map.fitBounds(globalBounds);  // Reset view to global bounds
+        map.fitBounds(globalBounds);  // Fit the view to the global bounds without changing max bounds
     } else {
         const filteredData = L.geoJSON(mountainAreasData, {
             filter: feature => String(feature.properties.Hier_lvl).trim() === selectedValue,
@@ -127,20 +122,19 @@ function handleFilterChange() {
         });
         mountainAreasLayer.addLayer(filteredData);
 
-        // Fit the view to the filtered data but don't restrict panning
+        // Fit the view to the filtered data, but the global bounds remain unchanged
         const filteredBounds = mountainAreasLayer.getBounds();
         map.fitBounds(filteredBounds);  // Zoom to the filtered features
     }
 }
 
-// Load OSM Peaks data
+// Load OSM Peaks data and set global bounds only ONCE
 async function loadOsmPeaks() {
     try {
         const response = await fetch(osmPeaksUrl);
         const data = await response.json();
-        osmPeaksData = data;
 
-        const osmPeaksLayer = L.geoJSON(osmPeaksData, {
+        const osmPeaksLayer = L.geoJSON(data, {
             pointToLayer: (feature, latlng) => {
                 const marker = L.marker(latlng);
                 const name = feature.properties.name || "Unnamed Peak";
@@ -162,9 +156,9 @@ async function loadOsmPeaks() {
             }
         }).addTo(markers);
 
-        // Get bounds for OSM Peaks layer and update global bounds
+        // Get bounds for OSM Peaks layer and set global bounds ONCE
         const osmBounds = markers.getBounds();
-        updateGlobalBounds(osmBounds);  // Set global bounds based on OSM peaks
+        setGlobalMaxBounds(osmBounds);  // Set global bounds based on OSM peaks, but only ONCE
     } catch (error) {
         console.error('Error loading OSM Peaks:', error);
     }
