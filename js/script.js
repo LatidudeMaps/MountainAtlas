@@ -71,15 +71,17 @@ const overlayMaps = {
 
 L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
 
-// Custom filter dropdown with search bar, clear button, and autocomplete suggestions
+// Custom filter dropdown with search bar, clear button, and "Show All" button
 const filterControl = L.control({ position: 'topright' });
 filterControl.onAdd = function () {
     const div = L.DomUtil.create('div', 'filter-control');
     div.innerHTML = `
         <label for="hier-lvl-select">Choose hierarchy level:</label><br>
         <select id="hier-lvl-select">
-            <option value="all">Show All</option>
-        </select><br><br>
+            <!-- Removed the "Show All" option from the dropdown -->
+        </select>
+        <button id="show-all-btn" style="margin-left:5px;">Show All</button> <!-- New Show All button -->
+        <br><br>
         <label for="search-input">Search by MapName:</label><br>
         <input type="text" id="search-input" placeholder="Search..." style="width: 150px;" list="search-suggestions">
         <datalist id="search-suggestions"></datalist> <!-- This will hold autocomplete suggestions -->
@@ -88,6 +90,11 @@ filterControl.onAdd = function () {
     return div;
 };
 filterControl.addTo(map);
+
+// Event listener for the "Show All" button
+document.getElementById('show-all-btn').addEventListener('click', function () {
+    handleFilterChange("all");  // Pass "all" to show all polygons
+});
 
 L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
 
@@ -205,14 +212,14 @@ function handleFilterChange() {
     updateSearchSuggestions();
 }
 
-// Fetch GeoJSON data with async/await
+// Fetch GeoJSON data with async/await (updated to preselect hier_lvl 4 on load)
 async function loadMountainAreas() {
     try {
         const response = await fetch(mountainAreasUrl);
         const data = await response.json();
         mountainAreasData = data;
 
-        // Extract unique hierarchy levels and populate dropdown
+        // Extract unique hierarchy levels and populate dropdown (excluding "Show All")
         const uniqueHierLvls = [...new Set(data.features.map(feature => feature.properties?.Hier_lvl))].sort((a, b) => a - b);
 
         const hierLvlSelect = document.getElementById('hier-lvl-select');
@@ -223,15 +230,14 @@ async function loadMountainAreas() {
             hierLvlSelect.appendChild(option);
         });
 
-        // Add data to the map initially (all data)
-        mountainAreasLayer.addData(mountainAreasData);
-        filteredMountainAreas = mountainAreasData.features; // Initially, all features are visible
-
-        // Update search suggestions initially
-        updateSearchSuggestions();
+        // Preselect hier_lvl 4 by default
+        hierLvlSelect.value = "4";
+        handleFilterChange("4"); // Apply the filter for hier_lvl 4
 
         // Add event listener for filter change
-        hierLvlSelect.addEventListener('change', handleFilterChange);
+        hierLvlSelect.addEventListener('change', function () {
+            handleFilterChange(this.value);
+        });
     } catch (error) {
         console.error('Error loading Mountain Areas:', error);
     }
