@@ -65,6 +65,7 @@ filterControl.addTo(map);
 L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
 
 let mountainAreasData, osmPeaksData;  // Declare variables
+let allMountainPolygons = [];  // Store all polygon geometries
 
 // Fetch GeoJSON data with async/await
 async function loadMountainAreas() {
@@ -86,6 +87,7 @@ async function loadMountainAreas() {
 
         // Add data to the map
         mountainAreasLayer.addData(mountainAreasData).addTo(map);
+        allMountainPolygons = mountainAreasLayer.getLayers().map(layer => layer.getLatLngs());
 
         hierLvlSelect.addEventListener('change', handleFilterChange);
     } catch (error) {
@@ -100,8 +102,8 @@ async function loadOsmPeaks() {
         const data = await response.json();
         osmPeaksData = data;
 
-        // Add initial data to markers
-        addOsmPeaksToMap(osmPeaksData, "all");  // Load all peaks by default
+        // Add OSM Peaks to map
+        addOsmPeaksToMap(osmPeaksData);  // Show all peaks by default
     } catch (error) {
         console.error('Error loading OSM Peaks:', error);
     }
@@ -115,7 +117,8 @@ function handleFilterChange() {
 
     if (selectedValue === "all") {
         mountainAreasLayer.addData(mountainAreasData);  // Show all mountain areas
-        addOsmPeaksToMap(osmPeaksData, "all");  // Show all OSM Peaks
+        allMountainPolygons = mountainAreasLayer.getLayers().map(layer => layer.getLatLngs());
+        addOsmPeaksToMap(osmPeaksData);  // Show all OSM Peaks
     } else {
         // Filter mountain areas based on selected Hier_lvl
         const filteredMountainAreas = L.geoJSON(mountainAreasData, {
@@ -126,22 +129,15 @@ function handleFilterChange() {
             }
         });
         mountainAreasLayer.addLayer(filteredMountainAreas);
+        allMountainPolygons = filteredMountainAreas.getLayers().map(layer => layer.getLatLngs());  // Update visible polygon geometries
 
-        // Filter OSM Peaks based on the corresponding level field
-        addOsmPeaksToMap(osmPeaksData, selectedValue);  // Pass the selected Hier_lvl to filter OSM Peaks
+        // Filter OSM Peaks based on whether they fall inside visible polygons
+        addOsmPeaksToMap(osmPeaksData);  // Re-add peaks, hiding those outside polygons
     }
 }
 
-// Function to add OSM Peaks to the map based on the selected Hier_lvl
-function addOsmPeaksToMap(peaksData, hierLvl) {
-    const fieldMap = {
-        "4": "Level_04",
-        "5": "Level_05",
-        "6": "Level_06",
-        "7": "Level_07",
-        "8": "Level_08"
-    };
-
+// Function to add OSM Peaks to the map based on visibility within polygons
+function addOsmPeaksToMap(peaksData) {
     L.geoJSON(peaksData, {
         pointToLayer: (feature, latlng) => {
             const marker = L.marker(latlng);
@@ -162,10 +158,9 @@ function addOsmPeaksToMap(peaksData, hierLvl) {
 
             return marker;
         },
-        filter: function(feature) {
-            if (hierLvl === "all") return true;  // Show all peaks if "all" is selected
-            const levelField = fieldMap[hierLvl.padStart(2, '0')];  // Map Hier_lvl to the corresponding Level field
-            return feature.properties[levelField] !== null;  // Only show peaks where the field is not null
+        filter: function(feature, latlng) {
+            if (allMountainPolygons.length === 0) return true;  // Show all peaks if no polygons are set
+            return allMountainPolygons.some(polygon => L.polygon(polygon).contains(latlng));  // Check if point is inside any polygon
         }
     }).addTo(markers);
 }
