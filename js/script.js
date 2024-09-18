@@ -1,4 +1,4 @@
-// Initialize the map
+// Initialize the map with zoom settings
 const map = L.map('map', {
     zoomAnimation: true,
     zoomSnap: 1,
@@ -65,6 +65,19 @@ filterControl.addTo(map);
 L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
 
 let mountainAreasData, osmPeaksData;  // Declare variables
+let allBounds = null;  // Variable to store the combined global bounds
+
+// Function to update map max bounds globally
+function updateMaxBounds(bounds) {
+    if (!allBounds) {
+        allBounds = bounds;
+    } else {
+        allBounds.extend(bounds);
+    }
+    map.setMaxBounds(allBounds);  // Set global max bounds for the map
+    map.fitBounds(allBounds);     // Initially fit map to the largest extent
+    map.setMinZoom(map.getBoundsZoom(allBounds));  // Restrict zooming out beyond the global max bounds
+}
 
 // Fetch GeoJSON data with async/await
 async function loadMountainAreas() {
@@ -84,8 +97,10 @@ async function loadMountainAreas() {
             hierLvlSelect.appendChild(option);
         });
 
+        // Add data to the map and set the global bounds
         mountainAreasLayer.addData(mountainAreasData).addTo(map);
-        map.fitBounds(mountainAreasLayer.getBounds());
+        const mountainBounds = mountainAreasLayer.getBounds();
+        updateMaxBounds(mountainBounds);  // Set max bounds based on this layer's extent
 
         hierLvlSelect.addEventListener('change', handleFilterChange);
     } catch (error) {
@@ -93,6 +108,7 @@ async function loadMountainAreas() {
     }
 }
 
+// Function to handle filter changes without refitting bounds
 function handleFilterChange() {
     const selectedValue = document.getElementById('hier-lvl-select').value.trim();
     mountainAreasLayer.clearLayers();
@@ -111,13 +127,14 @@ function handleFilterChange() {
     }
 }
 
+// Load OSM Peaks data
 async function loadOsmPeaks() {
     try {
         const response = await fetch(osmPeaksUrl);
         const data = await response.json();
         osmPeaksData = data;
 
-        L.geoJSON(osmPeaksData, {
+        const osmPeaksLayer = L.geoJSON(osmPeaksData, {
             pointToLayer: (feature, latlng) => {
                 const marker = L.marker(latlng);
                 const name = feature.properties.name || "Unnamed Peak";
@@ -138,6 +155,10 @@ async function loadOsmPeaks() {
                 return marker;
             }
         }).addTo(markers);
+
+        // Get bounds for OSM Peaks layer and update global max bounds
+        const osmBounds = markers.getBounds();
+        updateMaxBounds(osmBounds);  // Set global max bounds
     } catch (error) {
         console.error('Error loading OSM Peaks:', error);
     }
