@@ -2,7 +2,8 @@
 const map = L.map('map', {
     zoomAnimation: true,
     zoomSnap: 1,
-    zoomDelta: 1
+    zoomDelta: 1,
+    preferCanvas: true
 });
 
 /// Add tile layers with additional settings to avoid tile borders
@@ -41,7 +42,13 @@ const markers = L.markerClusterGroup({
     spiderfyOnMaxZoom: false,
     disableClusteringAtZoom: 18,
     zoomToBoundsOnClick: true,
-    showCoverageOnHover: false
+    showCoverageOnHover: false,
+    chunkedLoading: true,           // Enable chunked loading
+    chunkInterval: 200,             // Time interval between chunk loads (milliseconds)
+    chunkDelay: 50,                 // Delay between chunks
+    chunkProgress: (processed, total, elapsed) => {
+        console.log(`Processing markers: ${processed} of ${total} (${elapsed}ms elapsed)`);
+    }
 }).addTo(map);
 
 // Layer control for base maps and overlays
