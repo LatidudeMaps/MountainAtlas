@@ -10,9 +10,8 @@ const CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_a
     attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
     subdomains: 'abcd',
     maxZoom: 20
-});
+}).addTo(map);
 
-// Other tile layers
 const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
 });
@@ -27,64 +26,21 @@ const markers = L.markerClusterGroup({
     disableClusteringAtZoom: 18,
     zoomToBoundsOnClick: true,
     showCoverageOnHover: false
-});
+}).addTo(map);
 
-// Function to load the map and GeoJSON simultaneously
-async function loadMapAndData() {
-    try {
-        // Show spinner while loading
-        document.getElementById('loading-spinner').style.display = 'block';
+// Layer control for base maps and overlays
+const baseMaps = {
+    "Dark Positron": CartoDB_DarkMatter,
+    "OpenStreetMap": openStreetMap,
+    "Esri World Imagery": esriWorldImagery
+};
 
-        // Load map tiles
-        const tileLayerPromise = new Promise((resolve, reject) => {
-            CartoDB_DarkMatter.addTo(map);
-            map.on('layeradd', () => resolve(true));
-            map.on('tileerror', () => reject('Error loading tiles'));
-        });
-
-        // Load mountain areas GeoJSON data
-        const mountainAreasPromise = fetch(mountainAreasUrl)
-            .then(response => response.json())
-            .then(data => {
-                mountainAreasData = data;
-
-                // Add mountain areas to the map
-                mountainAreasLayer.addData(mountainAreasData);
-
-                // Fit the map to the bounds of the data
-                map.fitBounds(mountainAreasLayer.getBounds());
-            });
-
-        // Wait for both the map tiles and mountain areas data to load
-        await Promise.all([tileLayerPromise, mountainAreasPromise]);
-
-        // Hide spinner and show the map
-        document.getElementById('loading-spinner').style.display = 'none';
-        document.getElementById('map').style.display = 'block';
-
-        // Add layers to map only after both have loaded
-        mountainAreasLayer.addTo(map);
-        markers.addTo(map);
-
-    } catch (error) {
-        console.error('Error loading map or data:', error);
-    }
-}
-
-// Load the map and data on page load
 const mountainAreasLayer = L.geoJSON(null, {
     style: defaultPolygonStyle,
     onEachFeature: (feature, layer) => {
         layer.bindPopup(feature.properties.MapName);
     }
 });
-
-// Layer control
-const baseMaps = {
-    "Dark Positron": CartoDB_DarkMatter,
-    "OpenStreetMap": openStreetMap,
-    "Esri World Imagery": esriWorldImagery
-};
 
 const overlayMaps = {
     "Mountain Areas": mountainAreasLayer,
@@ -93,13 +49,75 @@ const overlayMaps = {
 
 L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
 
-// Fetch and display peaks (same as before)
+// Custom filter dropdown
+const filterControl = L.control({ position: 'topright' });
+filterControl.onAdd = function() {
+    const div = L.DomUtil.create('div', 'filter-control');
+    div.innerHTML = `
+        <label for="hier-lvl-select">Choose hierarchy level:</label><br>
+        <select id="hier-lvl-select">
+            <option value="all">Show All</option>
+        </select>`;
+    return div;
+};
+filterControl.addTo(map);
+
+L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
+
+let mountainAreasData, osmPeaksData;  // Declare variables
+
+// Fetch GeoJSON data with async/await
+async function loadMountainAreas() {
+    try {
+        const response = await fetch(mountainAreasUrl);
+        const data = await response.json();
+        mountainAreasData = data;
+
+        // Extract unique hierarchy levels and populate dropdown
+        const uniqueHierLvls = [...new Set(data.features.map(feature => feature.properties?.Hier_lvl))].sort((a, b) => a - b);
+
+        const hierLvlSelect = document.getElementById('hier-lvl-select');
+        uniqueHierLvls.forEach(value => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.text = `Hier_lvl: ${value}`;
+            hierLvlSelect.appendChild(option);
+        });
+
+        mountainAreasLayer.addData(mountainAreasData).addTo(map);
+        map.fitBounds(mountainAreasLayer.getBounds());
+
+        hierLvlSelect.addEventListener('change', handleFilterChange);
+    } catch (error) {
+        console.error('Error loading Mountain Areas:', error);
+    }
+}
+
+function handleFilterChange() {
+    const selectedValue = document.getElementById('hier-lvl-select').value.trim();
+    mountainAreasLayer.clearLayers();
+
+    if (selectedValue === "all") {
+        mountainAreasLayer.addData(mountainAreasData);
+    } else {
+        const filteredData = L.geoJSON(mountainAreasData, {
+            filter: feature => String(feature.properties.Hier_lvl).trim() === selectedValue,
+            style: defaultPolygonStyle,
+            onEachFeature: (feature, layer) => {
+                layer.bindPopup(feature.properties.MapName);
+            }
+        });
+        mountainAreasLayer.addLayer(filteredData);
+    }
+}
+
 async function loadOsmPeaks() {
     try {
         const response = await fetch(osmPeaksUrl);
         const data = await response.json();
+        osmPeaksData = data;
 
-        L.geoJSON(data, {
+        L.geoJSON(osmPeaksData, {
             pointToLayer: (feature, latlng) => {
                 const marker = L.marker(latlng);
                 const name = feature.properties.name || "Unnamed Peak";
@@ -125,7 +143,7 @@ async function loadOsmPeaks() {
     }
 }
 
-// Define default polygon style
+// Default polygon style
 function defaultPolygonStyle() {
     return {
         color: "#ff7800",
@@ -136,10 +154,9 @@ function defaultPolygonStyle() {
     };
 }
 
-// URLs
+// Load data
 const mountainAreasUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson";
 const osmPeaksUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/OSM_peaks.geojson";
 
-// Load map and data
-loadMapAndData();
+loadMountainAreas();
 loadOsmPeaks();
