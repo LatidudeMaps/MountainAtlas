@@ -8,10 +8,10 @@ const map = L.map('map', {
 const CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
     subdomains: 'abcd',
-    tileSize: 512,              // Use 256px tiles
-    updateWhenZooming: true,    // Keep tiles during zoom transitions
-    keepBuffer: 2,              // Keep extra tiles around the edges to avoid flicker
-    zoomAnimationThreshold: 4,  // Use zoom animation up to zoom level 4
+    detectRetina: true,         // Enable Retina support for higher resolution displays
+    tileSize: 256,              // Keep the tile size to 256px for better performance
+    updateWhenZooming: false,   // Don't update tiles during zoom animations
+    keepBuffer: 4,              // Keep a buffer of tiles around the map to preload surrounding areas
 }).addTo(map);
 
 // Add optimized settings for Esri World Imagery basemap
