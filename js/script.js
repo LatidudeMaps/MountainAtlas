@@ -5,29 +5,36 @@ const map = L.map('map', {
     zoomDelta: 1
 });
 
-// Add tile layers with options to avoid tile borders
+/// Add tile layers with additional settings to avoid tile borders
 const CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
     subdomains: 'abcd',
     maxZoom: 20,
     tileSize: 256,
     zoomOffset: 0,
-    edgeBufferTiles: 2
+    edgeBufferTiles: 2,          // Extra tiles to avoid gaps
+    detectRetina: true,          // Support high-DPI displays
+    opacity: 0.99                // Slight reduction in opacity to help blend tiles
 }).addTo(map);
 
 const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors',
     tileSize: 256,
     zoomOffset: 0,
-    edgeBufferTiles: 2
+    edgeBufferTiles: 2,
+    detectRetina: true,          // Retina support
+    opacity: 0.99                // Slight reduction in opacity
 });
 
 const esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri',
     tileSize: 256,
     zoomOffset: 0,
-    edgeBufferTiles: 2
+    edgeBufferTiles: 2,
+    detectRetina: true,          // Retina support
+    opacity: 0.99                // Slight reduction in opacity
 });
+
 
 // Add marker cluster group
 const markers = L.markerClusterGroup({
