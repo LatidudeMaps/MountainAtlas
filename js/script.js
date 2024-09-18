@@ -85,7 +85,7 @@ async function loadMountainAreas() {
             hierLvlSelect.appendChild(option);
         });
 
-        // Add data to the map
+        // Add all Mountain Areas data to the map initially
         mountainAreasLayer.addData(mountainAreasData).addTo(map);
         allMountainPolygons = mountainAreasLayer.getLayers().map(layer => layer.getLatLngs());
 
@@ -102,8 +102,8 @@ async function loadOsmPeaks() {
         const data = await response.json();
         osmPeaksData = data;
 
-        // Add OSM Peaks to map
-        addOsmPeaksToMap(osmPeaksData);  // Show all peaks by default
+        // Initially load all peaks
+        addOsmPeaksToMap(osmPeaksData);  
     } catch (error) {
         console.error('Error loading OSM Peaks:', error);
     }
@@ -116,8 +116,9 @@ function handleFilterChange() {
     markers.clearLayers();  // Clear the current marker cluster
 
     if (selectedValue === "all") {
+        // Show all mountain areas and peaks
         mountainAreasLayer.addData(mountainAreasData);  // Show all mountain areas
-        allMountainPolygons = mountainAreasLayer.getLayers().map(layer => layer.getLatLngs());
+        allMountainPolygons = mountainAreasLayer.getLayers().map(layer => layer.getLatLngs());  // Reset polygons
         addOsmPeaksToMap(osmPeaksData);  // Show all OSM Peaks
     } else {
         // Filter mountain areas based on selected Hier_lvl
@@ -158,9 +159,12 @@ function addOsmPeaksToMap(peaksData) {
 
             return marker;
         },
-        filter: function(feature) {
-            // Just show all peaks for now (no filtering for simplicity)
-            return true;
+        filter: function(feature, latlng) {
+            // If "Show All" is selected, return all peaks
+            if (document.getElementById('hier-lvl-select').value.trim() === "all") return true;
+            
+            // Otherwise, only show peaks inside the visible polygons
+            return allMountainPolygons.some(polygon => L.polygon(polygon).contains(latlng));
         }
     }).addTo(markers);
 }
