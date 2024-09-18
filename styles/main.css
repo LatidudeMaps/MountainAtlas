@@ -19,12 +19,19 @@
     100% { transform: rotate(360deg); }
 }
 
-/* Hide map until everything is loaded */
+/* Map container */
 #map {
-    display: none;
-    height: 100%;
-    width: 100%;
-    position: relative;
+    display: none; /* Initially hide the map until it's loaded */
+    height: 100vh; /* Full height */
+    width: 100vw; /* Full width */
+}
+
+/* Responsive filter dropdown */
+@media only screen and (max-width: 768px) {
+    .filter-control {
+        max-width: 90%;
+        font-size: 12px;
+    }
 }
 
 /* Tooltip styling for Dark Positron layer (white text) */
