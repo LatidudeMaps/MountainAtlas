@@ -57,7 +57,7 @@ var layerControl = L.control.layers(baseMaps, overlayMaps, {collapsed: false}).a
 var filterControl = L.control({position: 'topright'});
 filterControl.onAdd = function(map) {
     var div = L.DomUtil.create('div', 'filter-control');
-    div.innerHTML = '<label for="hier-lvl-select">Filter by Hier_lvl:</label><br>' +
+    div.innerHTML = '<label for="hier-lvl-select">Choose hierarchy level:</label><br>' +
                     '<select id="hier-lvl-select">' +
                     '<option value="all">Show All</option>' +
                     '</select>';
