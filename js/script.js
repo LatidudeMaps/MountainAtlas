@@ -64,9 +64,9 @@ filterControl.addTo(map);
 
 L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
 
-let globalBounds = null;  // Variable to store the global bounds that will NEVER change
+let globalBounds = null;  // Variable to store the global bounds ONLY based on Mountain Areas
 
-// Function to update map max bounds only ONCE globally
+// Function to set the global max bounds based only on Mountain Areas
 function setGlobalMaxBounds(bounds) {
     if (!globalBounds) {
         globalBounds = bounds;
@@ -76,16 +76,16 @@ function setGlobalMaxBounds(bounds) {
     }
 }
 
-// Fetch GeoJSON data with async/await
+// Fetch GeoJSON data for Mountain Areas
 async function loadMountainAreas() {
     try {
         const response = await fetch(mountainAreasUrl);
         const data = await response.json();
 
-        // Add data to the map and set the global bounds ONCE
+        // Add data to the map and set the global bounds based only on Mountain Areas
         mountainAreasLayer.addData(data).addTo(map);
         const mountainBounds = mountainAreasLayer.getBounds();
-        setGlobalMaxBounds(mountainBounds);  // Set global bounds based on this layer's extent ONCE
+        setGlobalMaxBounds(mountainBounds);  // Set global bounds based on Mountain Areas ONLY
 
         // Populate dropdown
         const uniqueHierLvls = [...new Set(data.features.map(feature => feature.properties?.Hier_lvl))].sort((a, b) => a - b);
@@ -128,7 +128,7 @@ function handleFilterChange() {
     }
 }
 
-// Load OSM Peaks data and set global bounds only ONCE
+// Load OSM Peaks data but DO NOT affect max bounds
 async function loadOsmPeaks() {
     try {
         const response = await fetch(osmPeaksUrl);
@@ -156,9 +156,7 @@ async function loadOsmPeaks() {
             }
         }).addTo(markers);
 
-        // Get bounds for OSM Peaks layer and set global bounds ONCE
-        const osmBounds = markers.getBounds();
-        setGlobalMaxBounds(osmBounds);  // Set global bounds based on OSM peaks, but only ONCE
+        // OSM Peaks are added, but DO NOT modify the max bounds
     } catch (error) {
         console.error('Error loading OSM Peaks:', error);
     }
