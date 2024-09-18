@@ -1,9 +1,9 @@
-// Initialize the map with zoom settings
+// Initialize the map with a default view (center coordinates and zoom level)
 const map = L.map('map', {
     zoomAnimation: true,
     zoomSnap: 1,
     zoomDelta: 1
-});
+}).setView([40, -100], 4);  // Adjust the coordinates and zoom level as needed
 
 // Add tile layers
 const CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -40,7 +40,7 @@ const mountainAreasLayer = L.geoJSON(null, {
     onEachFeature: (feature, layer) => {
         layer.bindPopup(feature.properties.MapName);
     }
-});
+}).addTo(map);  // Ensure the mountain areas layer is visible by default
 
 const overlayMaps = {
     "Mountain Areas": mountainAreasLayer,
@@ -84,7 +84,7 @@ async function loadMountainAreas() {
             hierLvlSelect.appendChild(option);
         });
 
-        // Add data to the map
+        // Add data to the map and set the global bounds
         mountainAreasLayer.addData(mountainAreasData).addTo(map);
 
         hierLvlSelect.addEventListener('change', handleFilterChange);
