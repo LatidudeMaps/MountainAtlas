@@ -1,26 +1,41 @@
 // Initialize the map with zoom settings
 const map = L.map('map', {
-    zoomAnimation: false,
-    zoomSnap: 1,
-    zoomDelta: 1,
-    preferCanvas: true
+    zoomAnimation: true,        // Enable smooth zoom animations
+    zoomSnap: 0.25,             // Allow fractional zoom levels
+    zoomDelta: 0.5,             // Smaller zoom delta for smoother zooming
+    preferCanvas: true          // Use canvas rendering for better performance
 });
 
-/// Add tile layers with additional settings to avoid tile borders
+// Add tile layers with optimized settings to avoid tile borders
 const CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
     subdomains: 'abcd',
     detectRetina: true,          // Support high-DPI displays
+    noWrap: true,                // Avoid white borders at tile edges
+    continuousWorld: true,       // Avoid wrapping the tiles in a continuous world
+    updateWhenZooming: false,    // Avoid re-rendering tiles during zoom
+    tileSize: 256,               // Smaller tile size to speed up loading
+    keepBuffer: 2                // Preload surrounding tiles for smoother zoom transitions
 }).addTo(map);
 
 const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors',
-    detectRetina: true,          // Retina support
+    detectRetina: true,
+    noWrap: true,
+    continuousWorld: true,
+    updateWhenZooming: false,
+    tileSize: 256,
+    keepBuffer: 2
 });
 
 const esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri',
-    detectRetina: true,          // Retina support
+    detectRetina: true,
+    noWrap: true,
+    continuousWorld: true,
+    updateWhenZooming: false,
+    tileSize: 256,
+    keepBuffer: 2
 });
 
 // Add marker cluster group
