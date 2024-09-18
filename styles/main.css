@@ -19,9 +19,12 @@
     100% { transform: rotate(360deg); }
 }
 
-/* Hide spinner once the map has loaded */
+/* Hide map until everything is loaded */
 #map {
-    display: none; /* Hide the map initially until everything is loaded */
+    display: none;
+    height: 100%;
+    width: 100%;
+    position: relative;
 }
 
 /* Tooltip styling for Dark Positron layer (white text) */

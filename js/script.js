@@ -1,4 +1,47 @@
-// Initialize the map
+// Function to load the map and GeoJSON simultaneously
+async function loadMapAndData() {
+    try {
+        // Load map tiles
+        const tileLayerPromise = new Promise((resolve, reject) => {
+            CartoDB_DarkMatter.addTo(map);
+            map.on('load', () => resolve(true));  // Resolve when the tiles are ready
+            map.on('tileerror', () => reject('Error loading tiles'));
+        });
+
+        // Load mountain areas GeoJSON data
+        const mountainAreasPromise = fetch(mountainAreasUrl)
+            .then(response => response.json())
+            .then(data => {
+                mountainAreasData = data;
+                mountainAreasLayer.addData(mountainAreasData);
+            });
+
+        // Wait for both the map tiles and mountain areas data to load
+        await Promise.all([tileLayerPromise, mountainAreasPromise]);
+
+    } catch (error) {
+        console.error('Error loading map or data:', error);
+    }
+}
+
+// Show spinner for 1.5 seconds, then load the map and data
+function showSpinnerAndLoadMap() {
+    const spinner = document.getElementById('loading-spinner');
+    const mapDiv = document.getElementById('map');
+
+    // Display spinner for 1.5 seconds
+    setTimeout(() => {
+        // Hide the spinner and show the map
+        spinner.style.display = 'none';
+        mapDiv.style.display = 'block';
+
+        // After spinner disappears, load the map and data
+        loadMapAndData();
+        map.fitBounds(mountainAreasLayer.getBounds());  // Ensure bounds are set once everything is loaded
+    }, 1500);  // Spinner delay time (1.5 seconds)
+}
+
+// Initialize map settings
 const map = L.map('map', {
     zoomAnimation: true,
     zoomSnap: 1,
@@ -29,49 +72,7 @@ const markers = L.markerClusterGroup({
     showCoverageOnHover: false
 });
 
-// Function to load the map and GeoJSON simultaneously
-async function loadMapAndData() {
-    try {
-        // Show spinner while loading
-        document.getElementById('loading-spinner').style.display = 'block';
-
-        // Load map tiles
-        const tileLayerPromise = new Promise((resolve, reject) => {
-            CartoDB_DarkMatter.addTo(map);
-            map.on('layeradd', () => resolve(true));
-            map.on('tileerror', () => reject('Error loading tiles'));
-        });
-
-        // Load mountain areas GeoJSON data
-        const mountainAreasPromise = fetch(mountainAreasUrl)
-            .then(response => response.json())
-            .then(data => {
-                mountainAreasData = data;
-
-                // Add mountain areas to the map
-                mountainAreasLayer.addData(mountainAreasData);
-
-                // Fit the map to the bounds of the data
-                map.fitBounds(mountainAreasLayer.getBounds());
-            });
-
-        // Wait for both the map tiles and mountain areas data to load
-        await Promise.all([tileLayerPromise, mountainAreasPromise]);
-
-        // Hide spinner and show the map
-        document.getElementById('loading-spinner').style.display = 'none';
-        document.getElementById('map').style.display = 'block';
-
-        // Add layers to map only after both have loaded
-        mountainAreasLayer.addTo(map);
-        markers.addTo(map);
-
-    } catch (error) {
-        console.error('Error loading map or data:', error);
-    }
-}
-
-// Load the map and data on page load
+// Layer control for base maps and overlays
 const mountainAreasLayer = L.geoJSON(null, {
     style: defaultPolygonStyle,
     onEachFeature: (feature, layer) => {
@@ -79,7 +80,6 @@ const mountainAreasLayer = L.geoJSON(null, {
     }
 });
 
-// Layer control
 const baseMaps = {
     "Dark Positron": CartoDB_DarkMatter,
     "OpenStreetMap": openStreetMap,
@@ -91,9 +91,10 @@ const overlayMaps = {
     "OSM Peaks": markers
 };
 
+// Layer control
 L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
 
-// Fetch and display peaks (same as before)
+// Load OSM Peaks data
 async function loadOsmPeaks() {
     try {
         const response = await fetch(osmPeaksUrl);
@@ -140,6 +141,6 @@ function defaultPolygonStyle() {
 const mountainAreasUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson";
 const osmPeaksUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/OSM_peaks.geojson";
 
-// Load map and data
-loadMapAndData();
+// Start the loading process
+showSpinnerAndLoadMap();
 loadOsmPeaks();
