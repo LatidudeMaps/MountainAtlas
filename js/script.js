@@ -1,9 +1,9 @@
-// Initialize the map with a default view (center coordinates and zoom level)
+// Initialize the map with zoom settings (no need for setView)
 const map = L.map('map', {
     zoomAnimation: true,
     zoomSnap: 1,
     zoomDelta: 1
-}).setView([40, -100], 4);  // Adjust the coordinates and zoom level as needed
+});
 
 // Add tile layers
 const CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -66,6 +66,23 @@ L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
 
 let mountainAreasData, osmPeaksData;  // Declare variables
 
+// Function to fit map to the bounds of both mountain areas and OSM peaks
+function fitMapToBounds() {
+    const bounds = L.latLngBounds([]);  // Initialize empty bounds
+    
+    if (mountainAreasLayer.getLayers().length > 0) {
+        bounds.extend(mountainAreasLayer.getBounds());  // Extend bounds to include mountain areas
+    }
+
+    if (markers.getLayers().length > 0) {
+        bounds.extend(markers.getBounds());  // Extend bounds to include OSM peaks
+    }
+
+    if (bounds.isValid()) {
+        map.fitBounds(bounds);  // Fit the map view to the combined bounds
+    }
+}
+
 // Fetch GeoJSON data with async/await
 async function loadMountainAreas() {
     try {
@@ -84,8 +101,11 @@ async function loadMountainAreas() {
             hierLvlSelect.appendChild(option);
         });
 
-        // Add data to the map and set the global bounds
+        // Add data to the map
         mountainAreasLayer.addData(mountainAreasData).addTo(map);
+
+        // Fit map to the bounds of the mountain areas and peaks
+        fitMapToBounds();
 
         hierLvlSelect.addEventListener('change', handleFilterChange);
     } catch (error) {
@@ -110,6 +130,9 @@ function handleFilterChange() {
         });
         mountainAreasLayer.addLayer(filteredData);
     }
+
+    // Refit map bounds after filtering
+    fitMapToBounds();
 }
 
 // Load OSM Peaks data
@@ -140,6 +163,9 @@ async function loadOsmPeaks() {
                 return marker;
             }
         }).addTo(markers);
+
+        // Fit map to the bounds of the mountain areas and peaks
+        fitMapToBounds();
     } catch (error) {
         console.error('Error loading OSM Peaks:', error);
     }
