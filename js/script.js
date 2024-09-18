@@ -1,26 +1,31 @@
 // Initialize the map with zoom settings
 const map = L.map('map', {
-    zoomAnimation: false,
+    zoomAnimation: true,
     zoomSnap: 1,
     zoomDelta: 1,
     preferCanvas: true
-});
+}).setView([0, 0], 2);
 
-/// Add tile layers with additional settings to avoid tile borders
+// Add tile layers
 const CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
     subdomains: 'abcd',
-    detectRetina: true,          // Support high-DPI displays
+    maxZoom: 20,
+    tileSize: 256,
+    detectRetina: true,
+    opacity: 0.99
 }).addTo(map);
 
 const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors',
-    detectRetina: true,          // Retina support
+    detectRetina: true,
+    opacity: 0.99
 });
 
 const esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri',
-    detectRetina: true,          // Retina support
+    detectRetina: true,
+    opacity: 0.99
 });
 
 const baseMaps = {
