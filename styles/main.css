@@ -44,33 +44,3 @@
     max-width: 250px;
     font-size: 14px;
 }
-
-/* Add responsiveness using media queries */
-@media only screen and (max-width: 768px) {
-    /* On smaller screens, adjust the filter control size */
-    .filter-control {
-        max-width: 90%;
-        font-size: 12px;
-    }
-
-    /* Make the map height smaller on small devices */
-    html, body, #map {
-        height: 100vh;  /* Viewport height on mobile */
-    }
-}
-
-@media only screen and (max-width: 480px) {
-    /* Further adjustments for smaller devices like phones */
-    .filter-control {
-        font-size: 10px;
-        padding: 5px;
-        max-width: 80%;
-    }
-}
-
-.leaflet-container img {
-    image-rendering: auto;         /* Let the browser handle image smoothing */
-    image-rendering: crisp-edges;  /* For older browsers */
-    image-rendering: pixelated;    /* For modern browsers */
-    backface-visibility: hidden;   /* Prevent flickering */
-}
