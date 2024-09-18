@@ -1,39 +1,3 @@
-/* Spinner container */
-.spinner {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border: 8px solid #f3f3f3; /* Light gray background */
-    border-top: 8px solid #3498db; /* Blue spinner */
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    animation: spin 1s linear infinite;
-    z-index: 9999; /* Ensures spinner is on top of everything */
-}
-
-/* Animation for spinner */
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Map container */
-#map {
-    display: none; /* Initially hide the map until it's loaded */
-    height: 100vh; /* Full height */
-    width: 100vw; /* Full width */
-}
-
-/* Responsive filter dropdown */
-@media only screen and (max-width: 768px) {
-    .filter-control {
-        max-width: 90%;
-        font-size: 12px;
-    }
-}
-
 /* Tooltip styling for Dark Positron layer (white text) */
 .dark-tooltip {
     background: none !important;
