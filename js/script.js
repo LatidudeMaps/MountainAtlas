@@ -116,7 +116,7 @@ function handleSearch() {
 
     // Clear any previous style (e.g., highlighted)
     mountainAreasLayer.eachLayer(layer => {
-        mountainAreasLayer.resetStyle(layer);
+        mountainAreasLayer.resetStyle(layer); // Reset style for all layers
     });
 
     if (searchValue) {
@@ -124,10 +124,13 @@ function handleSearch() {
 
         // Search only the currently visible layers in the mountainAreasLayer (filtered polygons)
         mountainAreasLayer.eachLayer(layer => {
-            const mapName = layer.feature.properties.MapName.trim().toLowerCase();
+            // Ensure that the layer has feature and properties
+            if (layer.feature && layer.feature.properties) {
+                const mapName = layer.feature.properties.MapName.trim().toLowerCase();
 
-            if (mapName.includes(searchValue)) {
-                matchingLayers.push(layer);
+                if (mapName.includes(searchValue)) {
+                    matchingLayers.push(layer);
+                }
             }
         });
 
