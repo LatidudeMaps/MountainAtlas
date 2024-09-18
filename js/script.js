@@ -46,6 +46,17 @@ const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y
     keepBuffer: 2
 });
 
+// Capture the initial bounds of the map after the first layer is loaded
+map.on('load', function() {
+    const initialBounds = map.getBounds(); // Get the map's initial bounds
+
+    // Set max bounds to limit panning outside the initial bounds
+    map.setMaxBounds(initialBounds);
+
+    // Optionally, set minimum and maximum zoom levels to prevent excessive zooming
+    map.setMinZoom(map.getZoom() - 0);  // Prevent zooming out too much
+});
+
 // Add marker cluster group
 const markers = L.markerClusterGroup({
     spiderfyOnMaxZoom: false,
@@ -294,15 +305,6 @@ function defaultPolygonStyle() {
 // Load data
 const mountainAreasUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson";
 const osmPeaksUrl = "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/OSM_peaks.geojson";
-
-// Capture the initial bounds of the map after the first layer is loaded
-map.on('load', function() {
-    const initialBounds = map.getBounds(); // Get the map's initial bounds
-
-    // Set max bounds to limit panning outside the initial bounds
-    map.setMaxBounds(initialBounds);
-
-});
 
 loadMountainAreas();
 loadOsmPeaks();
