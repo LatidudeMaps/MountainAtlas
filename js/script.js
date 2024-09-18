@@ -1,7 +1,7 @@
-// Initialize the map with zoom settings
+// Disable zoom animation on load
 const map = L.map('map', {
-    zoomAnimation: true,        // Enable smooth zoom animations
-    preferCanvas: true          // Use canvas rendering for better performance
+    zoomAnimation: false,  // Disable zoom animation initially
+    preferCanvas: true
 });
 
 // Add optimized settings for Dark Positron basemap to avoid tile borders
@@ -18,6 +18,14 @@ const esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/res
 // OpenStreetMap layer with regular settings (already working fine)
 const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+});
+
+// Re-enable zoom animation and recalculate the map size after load
+map.on('load', function() {
+    setTimeout(() => {
+        map.invalidateSize();  // Fix size issues
+        map.zoomAnimation = true;  // Re-enable zoom animation
+    }, 100);  // Slight delay to ensure the map is fully rendered
 });
 
 // Capture the initial bounds of the map after the first layer is loaded
