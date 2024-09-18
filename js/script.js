@@ -1,14 +1,12 @@
 // Initialize the map with zoom settings
 const map = L.map('map', {
     zoomAnimation: true,        // Enable smooth zoom animations
-    zoomSnap: 0.25,             // Allow fractional zoom levels
-    zoomDelta: 0.5,             // Smaller zoom delta for smoother zooming
     preferCanvas: true          // Use canvas rendering for better performance
 });
 
 // Add optimized settings for Dark Positron basemap to avoid tile borders
 const CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
     subdomains: 'abcd',
     detectRetina: true,          // Support high-DPI displays
     noWrap: true,                // Avoid white borders at tile edges
@@ -23,7 +21,7 @@ const CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_a
 
 // Add optimized settings for Esri World Imagery basemap
 const esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Tiles &copy; Esri',
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
     detectRetina: true,
     noWrap: true,
     continuousWorld: true,
@@ -37,7 +35,7 @@ const esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/res
 
 // OpenStreetMap layer with regular settings (already working fine)
 const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     detectRetina: true,
     noWrap: true,
     continuousWorld: true,
