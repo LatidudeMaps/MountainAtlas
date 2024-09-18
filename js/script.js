@@ -59,7 +59,7 @@ const overlayMaps = {
 
 L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
 
-// Custom filter dropdown
+// Custom filter dropdown with search bar
 const filterControl = L.control({ position: 'topright' });
 filterControl.onAdd = function() {
     const div = L.DomUtil.create('div', 'filter-control');
@@ -67,10 +67,57 @@ filterControl.onAdd = function() {
         <label for="hier-lvl-select">Choose hierarchy level:</label><br>
         <select id="hier-lvl-select">
             <option value="all">Show All</option>
-        </select>`;
+        </select><br><br>
+        <label for="search-input">Search by MapName:</label><br>
+        <input type="text" id="search-input" placeholder="Search..." style="width: 150px;">
+    `;
     return div;
 };
 filterControl.addTo(map);
+
+// Function to handle search by MapName
+function handleSearch() {
+    const searchValue = document.getElementById('search-input').value.trim().toLowerCase();
+
+    // Clear any previous style (e.g., highlighted) and remove search result layers
+    mountainAreasLayer.eachLayer(layer => {
+        mountainAreasLayer.resetStyle(layer);
+    });
+
+    if (searchValue) {
+        let matchingLayers = [];
+
+        mountainAreasLayer.eachLayer(layer => {
+            const mapName = layer.feature.properties.MapName.trim().toLowerCase();
+
+            if (mapName.includes(searchValue)) {
+                matchingLayers.push(layer);
+            }
+        });
+
+        if (matchingLayers.length > 0) {
+            const bounds = L.latLngBounds([]);
+
+            matchingLayers.forEach(layer => {
+                // Highlight the matching polygons
+                layer.setStyle({
+                    color: 'yellow',       // Highlight with yellow border
+                    weight: 4
+                });
+
+                bounds.extend(layer.getBounds()); // Add to the bounds to zoom to it
+            });
+
+            // Zoom to the matching layers' bounds
+            map.fitBounds(bounds);
+        } else {
+            alert('No matching polygons found.');
+        }
+    }
+}
+
+// Attach the search function to the search input
+document.getElementById('search-input').addEventListener('input', handleSearch);
 
 L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
 
@@ -123,7 +170,6 @@ async function loadMountainAreas() {
     }
 }
 
-// Function to handle filter changes without adjusting the map bounds
 function handleFilterChange() {
     const selectedValue = document.getElementById('hier-lvl-select').value.trim();
     mountainAreasLayer.clearLayers();
@@ -141,7 +187,8 @@ function handleFilterChange() {
         mountainAreasLayer.addLayer(filteredData);
     }
 
-    // No need to refit the bounds when filtering
+    // Keep search functionality in sync with the filtered polygons
+    handleSearch();  // Rerun the search whenever the filter is changed
 }
 
 // Load OSM Peaks data
