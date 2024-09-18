@@ -99,7 +99,7 @@ function updateSearchSuggestions() {
     const searchSuggestions = document.getElementById('search-suggestions');
     searchSuggestions.innerHTML = ''; // Clear previous suggestions
 
-    // Collect visible "MapName" values
+    // Collect visible "MapName" values from filtered layers
     const mapNames = filteredMountainAreas.map(feature => feature.properties.MapName);
 
     // Populate the datalist with unique "MapName" values
@@ -122,7 +122,7 @@ function handleSearch() {
     if (searchValue) {
         let matchingLayers = [];
 
-        // Search only the filtered mountain areas (visible polygons)
+        // Search only the currently visible layers in the mountainAreasLayer (filtered polygons)
         mountainAreasLayer.eachLayer(layer => {
             const mapName = layer.feature.properties.MapName.trim().toLowerCase();
 
@@ -163,7 +163,7 @@ document.getElementById('clear-search').addEventListener('click', function () {
     });
 });
 
-// Modify handleFilterChange to update search suggestions based on filtered polygons
+// Modify handleFilterChange to update search suggestions and display only the filtered polygons
 function handleFilterChange() {
     const selectedValue = document.getElementById('hier-lvl-select').value.trim();
     mountainAreasLayer.clearLayers(); // Clear the current layers on the map
