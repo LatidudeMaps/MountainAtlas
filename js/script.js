@@ -176,19 +176,13 @@ function handleFilterChange() {
         mountainAreasLayer.addData(mountainAreasData); // Add all features if "all" is selected
         filteredMountainAreas = mountainAreasData.features; // All features are visible
     } else {
-        const filteredData = L.geoJSON(mountainAreasData, {
-            filter: feature => String(feature.properties.Hier_lvl).trim() === selectedValue,
-            style: defaultPolygonStyle,
-            onEachFeature: (feature, layer) => {
-                layer.bindPopup(feature.properties.MapName);
-            }
-        });
+        const filteredData = {
+            type: "FeatureCollection",
+            features: mountainAreasData.features.filter(feature => String(feature.properties.Hier_lvl).trim() === selectedValue)
+        };
 
-        filteredMountainAreas = mountainAreasData.features.filter(
-            feature => String(feature.properties.Hier_lvl).trim() === selectedValue
-        );
-
-        mountainAreasLayer.addLayer(filteredData); // Add filtered data to the map
+        mountainAreasLayer.addData(filteredData); // Add filtered data to the map
+        filteredMountainAreas = filteredData.features; // Update the filteredMountainAreas with the filtered features
     }
 
     // Update search suggestions based on the visible features after applying the filter
