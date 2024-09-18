@@ -65,19 +65,6 @@ filterControl.addTo(map);
 L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
 
 let mountainAreasData, osmPeaksData;  // Declare variables
-let allBounds = null;  // Variable to store the combined global bounds
-
-// Function to update map max bounds globally
-function updateMaxBounds(bounds) {
-    if (!allBounds) {
-        allBounds = bounds;
-    } else {
-        allBounds.extend(bounds);
-    }
-    map.setMaxBounds(allBounds);  // Set global max bounds for the map
-    map.fitBounds(allBounds);     // Initially fit map to the largest extent
-    map.setMinZoom(map.getBoundsZoom(allBounds));  // Restrict zooming out beyond the global max bounds
-}
 
 // Fetch GeoJSON data with async/await
 async function loadMountainAreas() {
@@ -97,33 +84,12 @@ async function loadMountainAreas() {
             hierLvlSelect.appendChild(option);
         });
 
-        // Add data to the map and set the global bounds
+        // Add data to the map
         mountainAreasLayer.addData(mountainAreasData).addTo(map);
-        const mountainBounds = mountainAreasLayer.getBounds();
-        updateMaxBounds(mountainBounds);  // Set max bounds based on this layer's extent
 
         hierLvlSelect.addEventListener('change', handleFilterChange);
     } catch (error) {
         console.error('Error loading Mountain Areas:', error);
-    }
-}
-
-// Function to handle filter changes without refitting bounds
-function handleFilterChange() {
-    const selectedValue = document.getElementById('hier-lvl-select').value.trim();
-    mountainAreasLayer.clearLayers();
-
-    if (selectedValue === "all") {
-        mountainAreasLayer.addData(mountainAreasData);
-    } else {
-        const filteredData = L.geoJSON(mountainAreasData, {
-            filter: feature => String(feature.properties.Hier_lvl).trim() === selectedValue,
-            style: defaultPolygonStyle,
-            onEachFeature: (feature, layer) => {
-                layer.bindPopup(feature.properties.MapName);
-            }
-        });
-        mountainAreasLayer.addLayer(filteredData);
     }
 }
 
@@ -134,34 +100,74 @@ async function loadOsmPeaks() {
         const data = await response.json();
         osmPeaksData = data;
 
-        const osmPeaksLayer = L.geoJSON(osmPeaksData, {
-            pointToLayer: (feature, latlng) => {
-                const marker = L.marker(latlng);
-                const name = feature.properties.name || "Unnamed Peak";
-                const elevation = feature.properties.elevation || "Unknown";
-                const popupContent = `<b>Name:</b> ${name}<br><b>Elevation:</b> ${elevation} m`;
-
-                marker.bindPopup(popupContent)
-                      .bindTooltip(name, { 
-                          permanent: true, 
-                          direction: 'top', 
-                          offset: [-15, -3], 
-                          className: 'dark-tooltip' 
-                      })
-                      .on('click', () => marker.openPopup())
-                      .on('popupopen', () => marker.closeTooltip())
-                      .on('popupclose', () => marker.openTooltip());
-
-                return marker;
-            }
-        }).addTo(markers);
-
-        // Get bounds for OSM Peaks layer and update global max bounds
-        const osmBounds = markers.getBounds();
-        updateMaxBounds(osmBounds);  // Set global max bounds
+        // Add initial data to markers
+        addOsmPeaksToMap(osmPeaksData, "all");  // Load all peaks by default
     } catch (error) {
         console.error('Error loading OSM Peaks:', error);
     }
+}
+
+// Function to handle filter changes
+function handleFilterChange() {
+    const selectedValue = document.getElementById('hier-lvl-select').value.trim();
+    mountainAreasLayer.clearLayers();
+    markers.clearLayers();  // Clear the current marker cluster
+
+    if (selectedValue === "all") {
+        mountainAreasLayer.addData(mountainAreasData);  // Show all mountain areas
+        addOsmPeaksToMap(osmPeaksData, "all");  // Show all OSM Peaks
+    } else {
+        // Filter mountain areas based on selected Hier_lvl
+        const filteredMountainAreas = L.geoJSON(mountainAreasData, {
+            filter: feature => String(feature.properties.Hier_lvl).trim() === selectedValue,
+            style: defaultPolygonStyle,
+            onEachFeature: (feature, layer) => {
+                layer.bindPopup(feature.properties.MapName);
+            }
+        });
+        mountainAreasLayer.addLayer(filteredMountainAreas);
+
+        // Filter OSM Peaks based on the corresponding level field
+        addOsmPeaksToMap(osmPeaksData, selectedValue);  // Pass the selected Hier_lvl to filter OSM Peaks
+    }
+}
+
+// Function to add OSM Peaks to the map based on the selected Hier_lvl
+function addOsmPeaksToMap(peaksData, hierLvl) {
+    const fieldMap = {
+        "4": "Level_04",
+        "5": "Level_05",
+        "6": "Level_06",
+        "7": "Level_07",
+        "8": "Level_08"
+    };
+
+    L.geoJSON(peaksData, {
+        pointToLayer: (feature, latlng) => {
+            const marker = L.marker(latlng);
+            const name = feature.properties.name || "Unnamed Peak";
+            const elevation = feature.properties.elevation || "Unknown";
+            const popupContent = `<b>Name:</b> ${name}<br><b>Elevation:</b> ${elevation} m`;
+
+            marker.bindPopup(popupContent)
+                .bindTooltip(name, {
+                    permanent: true,
+                    direction: 'top',
+                    offset: [-15, -3],
+                    className: 'dark-tooltip'
+                })
+                .on('click', () => marker.openPopup())
+                .on('popupopen', () => marker.closeTooltip())
+                .on('popupclose', () => marker.openTooltip());
+
+            return marker;
+        },
+        filter: function(feature) {
+            if (hierLvl === "all") return true;  // Show all peaks if "all" is selected
+            const levelField = fieldMap[hierLvl.padStart(2, '0')];  // Map Hier_lvl to the corresponding Level field
+            return feature.properties[levelField] !== null;  // Only show peaks where the field is not null
+        }
+    }).addTo(markers);
 }
 
 // Default polygon style
