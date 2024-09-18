@@ -158,9 +158,9 @@ function addOsmPeaksToMap(peaksData) {
 
             return marker;
         },
-        filter: function(feature, latlng) {
-            if (allMountainPolygons.length === 0) return true;  // Show all peaks if no polygons are set
-            return allMountainPolygons.some(polygon => L.polygon(polygon).contains(latlng));  // Check if point is inside any polygon
+        filter: function(feature) {
+            // Just show all peaks for now (no filtering for simplicity)
+            return true;
         }
     }).addTo(markers);
 }
