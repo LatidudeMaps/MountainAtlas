@@ -29,7 +29,7 @@ const markers = L.markerClusterGroup({
     disableClusteringAtZoom: 18,
     zoomToBoundsOnClick: true,
     showCoverageOnHover: false,
-    chunkedLoading: true, // Enable chunked loading for large datasets
+    chunkedLoading: true,
     chunkInterval: 200,
     chunkDelay: 50
 }).addTo(map);
@@ -46,7 +46,7 @@ const mountainAreasLayer = L.geoJSON(null, {
     onEachFeature: (feature, layer) => {
         layer.bindPopup(feature.properties.MapName);
     }
-}).addTo(map); // Ensure the mountain areas layer is visible by default
+}).addTo(map);
 
 const overlayMaps = {
     "Mountain Areas": mountainAreasLayer,
@@ -74,11 +74,11 @@ filterControl.addTo(map);
 
 L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
 
-let mountainAreasData, osmPeaksData; // Declare variables
+let mountainAreasData, filteredMountainAreas = []; // Declare variables for original and filtered data
 
 // Function to fit map to the bounds of both mountain areas and OSM peaks
 function fitMapToBounds() {
-    const bounds = L.latLngBounds([]); // Initialize empty bounds
+    const bounds = L.latLngBounds([]);
 
     if (mountainAreasLayer.getLayers().length > 0) {
         bounds.extend(mountainAreasLayer.getBounds()); // Extend bounds to include mountain areas
@@ -99,13 +99,7 @@ function updateSearchSuggestions() {
     searchSuggestions.innerHTML = ''; // Clear previous suggestions
 
     // Collect visible "MapName" values
-    const mapNames = [];
-    mountainAreasLayer.eachLayer(layer => {
-        const mapName = layer.feature.properties.MapName;
-        if (!mapNames.includes(mapName)) {
-            mapNames.push(mapName);
-        }
-    });
+    const mapNames = filteredMountainAreas.map(feature => feature.properties.MapName);
 
     // Populate the datalist with unique "MapName" values
     mapNames.forEach(name => {
@@ -119,7 +113,7 @@ function updateSearchSuggestions() {
 function handleSearch() {
     const searchValue = document.getElementById('search-input').value.trim().toLowerCase();
 
-    // Clear any previous style (e.g., highlighted) and remove search result layers
+    // Clear any previous style (e.g., highlighted)
     mountainAreasLayer.eachLayer(layer => {
         mountainAreasLayer.resetStyle(layer);
     });
@@ -162,10 +156,12 @@ document.getElementById('search-input').addEventListener('change', handleSearch)
 // Modify handleFilterChange to update search suggestions based on filtered polygons
 function handleFilterChange() {
     const selectedValue = document.getElementById('hier-lvl-select').value.trim();
-    mountainAreasLayer.clearLayers();
+    mountainAreasLayer.clearLayers(); // Clear the current layers on the map
+    filteredMountainAreas = []; // Reset filtered features array
 
     if (selectedValue === "all") {
-        mountainAreasLayer.addData(mountainAreasData);
+        mountainAreasLayer.addData(mountainAreasData); // Add all features if "all" is selected
+        filteredMountainAreas = mountainAreasData.features; // All features are visible
     } else {
         const filteredData = L.geoJSON(mountainAreasData, {
             filter: feature => String(feature.properties.Hier_lvl).trim() === selectedValue,
@@ -174,7 +170,12 @@ function handleFilterChange() {
                 layer.bindPopup(feature.properties.MapName);
             }
         });
-        mountainAreasLayer.addLayer(filteredData);
+
+        filteredMountainAreas = mountainAreasData.features.filter(
+            feature => String(feature.properties.Hier_lvl).trim() === selectedValue
+        );
+
+        mountainAreasLayer.addLayer(filteredData); // Add filtered data to the map
     }
 
     // Update search suggestions based on the visible features after applying the filter
@@ -199,12 +200,14 @@ async function loadMountainAreas() {
             hierLvlSelect.appendChild(option);
         });
 
-        // Add data to the map
-        mountainAreasLayer.addData(mountainAreasData).addTo(map);
+        // Add data to the map initially (all data)
+        mountainAreasLayer.addData(mountainAreasData);
+        filteredMountainAreas = mountainAreasData.features; // Initially, all features are visible
 
         // Update search suggestions initially
         updateSearchSuggestions();
 
+        // Add event listener for filter change
         hierLvlSelect.addEventListener('change', handleFilterChange);
     } catch (error) {
         console.error('Error loading Mountain Areas:', error);
