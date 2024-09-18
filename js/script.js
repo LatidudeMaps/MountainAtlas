@@ -91,9 +91,9 @@ filterControl.onAdd = function () {
 };
 filterControl.addTo(map);
 
-// Event listener for the "Show All" button
+// Add event listener for "Show All" button
 document.getElementById('show-all-btn').addEventListener('click', function () {
-    handleFilterChange("all");  // Pass "all" to show all polygons
+    handleFilterChange("all");  // Call handleFilterChange with "all" to show all polygons
 });
 
 L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
@@ -190,13 +190,12 @@ document.getElementById('clear-search').addEventListener('click', function () {
 });
 
 // Modify handleFilterChange to update search suggestions and display only the filtered polygons
-function handleFilterChange() {
-    const selectedValue = document.getElementById('hier-lvl-select').value.trim();
+function handleFilterChange(selectedValue) {
     mountainAreasLayer.clearLayers(); // Clear the current layers on the map
     filteredMountainAreas = []; // Reset filtered features array
 
     if (selectedValue === "all") {
-        mountainAreasLayer.addData(mountainAreasData); // Add all features if "all" is selected
+        mountainAreasLayer.addData(mountainAreasData); // Add all features if "Show All" is clicked
         filteredMountainAreas = mountainAreasData.features; // All features are visible
     } else {
         const filteredData = {
