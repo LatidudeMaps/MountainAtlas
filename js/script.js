@@ -8,7 +8,7 @@ const map = L.map('map', {
 const CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
     subdomains: 'abcd',
-    tileSize: 256,              // Use 256px tiles
+    tileSize: 512,              // Use 256px tiles
     updateWhenZooming: true,    // Keep tiles during zoom transitions
     keepBuffer: 2,              // Keep extra tiles around the edges to avoid flicker
     zoomAnimationThreshold: 4,  // Use zoom animation up to zoom level 4
