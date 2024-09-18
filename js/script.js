@@ -1,7 +1,7 @@
 // Initialize the map with zoom settings
 const map = L.map('map', {
-    zoomAnimation: true,        // Enable smooth zoom animations
-    preferCanvas: true          // Use canvas rendering for better performance
+    zoomAnimation: false,        // Enable smooth zoom animations
+    preferCanvas: false          // Use canvas rendering for better performance
 });
 
 // Add optimized settings for Dark Positron basemap to avoid tile borders
