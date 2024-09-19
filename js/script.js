@@ -41,6 +41,8 @@ const initMap = () => {
             button.innerHTML = '&#8634;';  // Reset icon (circular arrow)
             button.href = '#';
             button.title = 'Reset View';
+            button.style.fontSize = '22px';  // Increase icon size
+            button.style.lineHeight = '30px';  // Center the icon vertically
             
             L.DomEvent.on(button, 'click', function (e) {
                 L.DomEvent.preventDefault(e);
