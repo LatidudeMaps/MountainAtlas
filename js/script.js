@@ -1,6 +1,7 @@
 // Global variables
 let map, mountainAreasLayer, markers, mountainAreasData, filteredMountainAreas = [];
 let baseMaps = {};
+let initialBounds;
 
 // Map initialization
 const initMap = () => {
@@ -29,6 +30,11 @@ const initMap = () => {
     };
 
     baseMaps["Dark Positron"].addTo(map);
+
+    // Add reset view button
+    L.easyButton('&#8634;', function(btn, map) {
+        map.fitBounds(initialBounds);
+    }, 'Reset View').addTo(map);
 
     console.log('Map initialized');
     return map;
@@ -136,8 +142,8 @@ const fitMapToBounds = (map, mountainAreasLayer, markers) => {
     if (markers.getLayers().length > 0) bounds.extend(markers.getBounds());
     if (bounds.isValid()) {
         map.fitBounds(bounds);
-        // After fitting to bounds, set the max bounds to prevent panning outside the initial view
-        map.setMaxBounds(bounds);
+        // Store the initial bounds
+        initialBounds = bounds;
     }
     console.log('Map fitted to bounds');
 };
