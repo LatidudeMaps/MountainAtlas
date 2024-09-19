@@ -93,6 +93,7 @@ const addControls = (map, baseMaps, overlayMaps) => {
     console.log('Adding controls...');
     
     const layerControl = L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
+    console.log('Layer control added:', layerControl);
 
     const filterControl = L.control({ position: 'topright' });
     filterControl.onAdd = () => {
@@ -168,9 +169,16 @@ const addEventListeners = (map, mountainAreasLayer) => {
 
 // Utility Functions
 const addOpacitySlider = (layerControl) => {
-    console.log('Adding opacity slider...');
-    if (!layerControl || !layerControl._overlaysList) {
-        console.error('Layer control or its overlay list is not available');
+    console.log('Attempting to add opacity slider...');
+    console.log('Layer control:', layerControl);
+
+    if (!layerControl) {
+        console.error('Layer control is not available');
+        return;
+    }
+
+    if (!layerControl._overlaysList) {
+        console.error('Overlay list is not available in the layer control');
         return;
     }
 
@@ -180,16 +188,22 @@ const addOpacitySlider = (layerControl) => {
     let mountainAreasItem;
 
     for (let input of layerInputs) {
-        console.log(`Checking input: ${input.nextElementSibling ? input.nextElementSibling.textContent : 'No text content'}`);
+        console.log(`Checking input:`, input);
+        console.log(`Next sibling:`, input.nextElementSibling);
+        if (input.nextElementSibling) {
+            console.log(`Input text content: "${input.nextElementSibling.textContent}"`);
+        }
         if (input.nextElementSibling && input.nextElementSibling.textContent.trim() === "Mountain Areas") {
             mountainAreasItem = input.parentNode;
+            console.log('Mountain Areas layer found:', mountainAreasItem);
             break;
         }
     }
 
     if (mountainAreasItem) {
-        console.log('Mountain Areas layer found. Adding slider...');
+        console.log('Adding slider to Mountain Areas item');
         const sliderContainer = L.DomUtil.create('div', 'opacity-slider-container', mountainAreasItem);
+        console.log('Slider container created:', sliderContainer);
         sliderContainer.innerHTML = `
             <input type="range" class="opacity-slider" min="0" max="1" step="0.1" value="0.65">
             <span class="opacity-value">65%</span>
@@ -213,6 +227,7 @@ const addOpacitySlider = (layerControl) => {
 
 // Function to set the opacity of the mountain areas layer
 const setMountainAreasOpacity = (opacity) => {
+    console.log(`Setting mountain areas opacity to ${opacity}`);
     mountainAreasLayer.setStyle({ fillOpacity: opacity });
 };
 
@@ -470,32 +485,38 @@ const filterAndDisplayPeaks = (hierLvl, mapName = null) => {
 const initializeMap = async () => {
     console.log('Initializing map...');
     map = initMap();
+    console.log('Map initialized:', map);
+
     const layers = initLayers(map);
     mountainAreasLayer = layers.mountainAreasLayer;
     markers = layers.markers;
+    console.log('Layers initialized:', layers);
 
     const overlayMaps = {
         "Mountain Areas": mountainAreasLayer,
         "OSM Peaks": markers
     };
+    console.log('Overlay maps:', overlayMaps);
 
     const controls = addControls(map, baseMaps, overlayMaps);
+    console.log('Controls added:', controls);
+
     addEventListeners(map, mountainAreasLayer);
 
-    // Load both datasets concurrently
+    console.log('Loading data...');
     await Promise.all([loadMountainAreas(), loadOsmPeaks()]);
+    console.log('Data loaded');
     
-    // After loading data, apply the initial filter (Hier_lvl 4)
+    console.log('Applying initial filter...');
     handleFilterChange("4");
     
-    // Add the opacity slider after data is loaded
+    console.log('Adding opacity slider...');
     if (controls && controls.layerControl) {
         addOpacitySlider(controls.layerControl);
     } else {
         console.error('Layer control not available for adding opacity slider');
     }
     
-    // Fit the map to the initial data
     fitMapToBounds(map, mountainAreasLayer, markers);
     
     console.log('Map initialization complete');
