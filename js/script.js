@@ -1,27 +1,72 @@
-// Create map
+// Create map with optimized options
 const map = L.map('map', {
-    zoomAnimation: true,  // Disable zoom animation initially
+    zoomAnimation: true,
+    zoomSnap: 0.5,
+    zoomDelta: 0.5,
+    wheelPxPerZoomLevel: 120,
     preferCanvas: true
 });
 
-// Add optimized settings for Dark Positron basemap to avoid tile borders
+// Add optimized settings for Dark Positron basemap
 const CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
     subdomains: 'abcd',
-    detectRetina: true,         // Enable Retina support for higher resolution displays
-    tileSize: 256,              // Keep the tile size to 256px for better performance
-    updateWhenZooming: false,   // Don't update tiles during zoom animations
-    keepBuffer: 4,              // Keep a buffer of tiles around the map to preload surrounding areas
+    maxZoom: 19,
+    minZoom: 0,
+    detectRetina: true,
+    updateWhenIdle: false,
+    updateWhenZooming: false,
+    keepBuffer: 4,
+    tileSize: 256
 }).addTo(map);
 
 // Add optimized settings for Esri World Imagery basemap
 const esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+    maxZoom: 19,
+    minZoom: 0,
+    detectRetina: true,
+    updateWhenIdle: false,
+    updateWhenZooming: false,
+    keepBuffer: 4,
+    tileSize: 256
 });
 
-// OpenStreetMap layer with regular settings (already working fine)
+// OpenStreetMap layer with optimized settings
 const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+    minZoom: 0,
+    detectRetina: true,
+    updateWhenIdle: false,
+    updateWhenZooming: false,
+    keepBuffer: 4,
+    tileSize: 256
+});
+
+// Add PaneBuildIndex plugin for improved tile loading
+L.Map.addInitHook(function () {
+    this.on('zoomanim', function (e) {
+        const zoom = e.zoom;
+        const center = e.center;
+        const viewHalf = this.getSize().divideBy(2);
+        const zoomOrigin = this.project(center, zoom).subtract(viewHalf).round();
+        
+        this.getPane('tilePane').style.willChange = 'transform';
+        this.getPane('tilePane').style.transform = 'translate3d(' + -zoomOrigin.x + 'px,' + -zoomOrigin.y + 'px,0) scale(' + this.getZoomScale(e.zoom, this.getZoom()) + ')';
+    });
+
+    this.on('zoomend', function () {
+        this.getPane('tilePane').style.willChange = '';
+        this.getPane('tilePane').style.transform = '';
+    });
+});
+
+// Add event listener for zoom end to refresh tiles
+map.on('zoomend', function() {
+    CartoDB_DarkMatter.redraw();
+    esriWorldImagery.redraw();
+    openStreetMap.redraw();
 });
 
 // Re-enable zoom animation and recalculate the map size after load
