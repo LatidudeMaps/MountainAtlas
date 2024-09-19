@@ -19,23 +19,6 @@ body, html {
     font-family: 'Montserrat', Arial, sans-serif;
 }
 
-.leaflet-control:not(.leaflet-control-attribution) a {
-    background-color: #fff;
-    border-bottom: 1px solid #ccc;
-    color: black;
-    display: block;
-    font-size: 18px;
-    height: 26px;
-    line-height: 26px;
-    text-align: center;
-    text-decoration: none;
-    width: 26px;
-}
-
-.leaflet-control:not(.leaflet-control-attribution) a:hover {
-    background-color: #f4f4f4;
-}
-
 /* Tooltip Styles */
 .leaflet-tooltip {
     background: none !important;
