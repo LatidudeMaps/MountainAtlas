@@ -329,6 +329,9 @@ function optimizeForMobile() {
                 window.scrollTo(0, 0);
             });
         });
+    } else {
+        // Reset for desktop view
+        document.querySelector('.filter-control').style.display = 'block';
     }
 }
 
