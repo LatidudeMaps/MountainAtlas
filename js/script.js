@@ -1,11 +1,16 @@
+// Global variables
+let map, mountainAreasLayer, markers, mountainAreasData, filteredMountainAreas = [];
+let baseMaps = {};
+
 // Map initialization
 const initMap = () => {
+    console.log('Initializing map...');
     const map = L.map('map', {
-        zoomAnimation: false,
+        zoomAnimation: true,
         preferCanvas: true
     });
 
-    const baseMaps = {
+    baseMaps = {
         "Dark Positron": L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
             subdomains: 'abcd',
@@ -24,11 +29,16 @@ const initMap = () => {
 
     baseMaps["Dark Positron"].addTo(map);
 
+    // Set an initial view
+    map.setView([0, 0], 2);
+
+    console.log('Map initialized');
     return map;
 };
 
 // Layer initialization
 const initLayers = (map) => {
+    console.log('Initializing layers...');
     const markers = L.markerClusterGroup({
         spiderfyOnMaxZoom: false,
         disableClusteringAtZoom: 18,
@@ -46,11 +56,13 @@ const initLayers = (map) => {
         }
     }).addTo(map);
 
+    console.log('Layers initialized');
     return { markers, mountainAreasLayer };
 };
 
 // UI Controls
 const addControls = (map, baseMaps, overlayMaps) => {
+    console.log('Adding controls...');
     L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
     
     const filterControl = L.control({ position: 'topright' });
@@ -78,10 +90,12 @@ const addControls = (map, baseMaps, overlayMaps) => {
         return div;
     };
     filterControl.addTo(map);
+    console.log('Controls added');
 };
 
 // Event Handlers
 const addEventListeners = (map, mountainAreasLayer) => {
+    console.log('Adding event listeners...');
     map.on('load', () => {
         setTimeout(() => {
             map.invalidateSize();
@@ -114,14 +128,17 @@ const addEventListeners = (map, mountainAreasLayer) => {
             document.getElementById('search-suggestions').style.display = 'none';
         }
     });
+    console.log('Event listeners added');
 };
 
 // Utility Functions
 const fitMapToBounds = (map, mountainAreasLayer, markers) => {
+    console.log('Fitting map to bounds...');
     const bounds = L.latLngBounds([]);
     if (mountainAreasLayer.getLayers().length > 0) bounds.extend(mountainAreasLayer.getBounds());
     if (markers.getLayers().length > 0) bounds.extend(markers.getBounds());
     if (bounds.isValid()) map.fitBounds(bounds);
+    console.log('Map fitted to bounds');
 };
 
 const updateSearchSuggestions = (showAll = false) => {
@@ -159,6 +176,7 @@ const updateSearchSuggestions = (showAll = false) => {
 };
 
 const handleSearch = () => {
+    console.log('Handling search...');
     const searchValue = document.getElementById('search-input').value.trim().toLowerCase();
     mountainAreasLayer.eachLayer(layer => mountainAreasLayer.resetStyle(layer));
 
@@ -181,14 +199,18 @@ const handleSearch = () => {
             alert('No matching polygons found.');
         }
     }
+    console.log('Search handled');
 };
 
 const clearSearch = () => {
+    console.log('Clearing search...');
     document.getElementById('search-input').value = '';
     mountainAreasLayer.eachLayer(layer => mountainAreasLayer.resetStyle(layer));
+    console.log('Search cleared');
 };
 
 const handleFilterChange = (selectedValue) => {
+    console.log('Handling filter change...');
     mountainAreasLayer.clearLayers();
     filteredMountainAreas = selectedValue === "all" 
         ? mountainAreasData.features 
@@ -201,6 +223,7 @@ const handleFilterChange = (selectedValue) => {
 
     document.getElementById('search-input').value = '';
     document.getElementById('search-suggestions').style.display = 'none';
+    console.log('Filter change handled');
 };
 
 const defaultPolygonStyle = () => ({
@@ -213,6 +236,7 @@ const defaultPolygonStyle = () => ({
 
 // Data Loading
 const loadMountainAreas = async () => {
+    console.log('Loading mountain areas...');
     try {
         const response = await fetch("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson");
         mountainAreasData = await response.json();
@@ -233,12 +257,14 @@ const loadMountainAreas = async () => {
         hierLvlSelect.addEventListener('change', function () {
             handleFilterChange(this.value);
         });
+        console.log('Mountain areas loaded');
     } catch (error) {
         console.error('Error loading Mountain Areas:', error);
     }
 };
 
 const loadOsmPeaks = async () => {
+    console.log('Loading OSM peaks...');
     try {
         const response = await fetch("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/OSM_peaks.geojson");
         const osmPeaksData = await response.json();
@@ -266,15 +292,15 @@ const loadOsmPeaks = async () => {
         }).addTo(markers);
 
         fitMapToBounds(map, mountainAreasLayer, markers);
+        console.log('OSM peaks loaded');
     } catch (error) {
         console.error('Error loading OSM Peaks:', error);
     }
 };
 
 // Main execution
-let map, mountainAreasLayer, markers, mountainAreasData, filteredMountainAreas = [];
-
 const initializeMap = async () => {
+    console.log('Initializing map...');
     map = initMap();
     const layers = initLayers(map);
     mountainAreasLayer = layers.mountainAreasLayer;
@@ -290,6 +316,11 @@ const initializeMap = async () => {
 
     await loadMountainAreas();
     await loadOsmPeaks();
+    console.log('Map initialization complete');
 };
 
-initializeMap();
+// Call the initialization function when the DOM is ready
+document.addEventListener('DOMContentLoaded', (event) => {
+    console.log('DOM fully loaded and parsed');
+    initializeMap();
+});
