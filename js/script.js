@@ -6,7 +6,7 @@ let baseMaps = {};
 const initMap = () => {
     console.log('Initializing map...');
     const map = L.map('map', {
-        zoomAnimation: false,
+        zoomAnimation: true,
         preferCanvas: true
     });
 
