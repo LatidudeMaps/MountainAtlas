@@ -52,7 +52,7 @@
 }
 
 /* Style for the filter dropdown (select) */
-#hier-lvl-select {
+.hier-lvl-select {
     width: 150px;
     padding: 5px;
     font-size: 14px;
@@ -65,7 +65,7 @@
 }
 
 /* Style for the autocomplete suggestions (datalist) */
-#search-suggestions {
+.search-suggestions {
     width: 150px; /* Ensure width matches the input */
     font-size: 14px; /* Match the dropdown filter font size */
     font-family: Arial, sans-serif;
@@ -76,7 +76,7 @@
 }
 
 /* Style for the input field */
-#search-input {
+.search-input {
     width: 150px;
     padding: 5px;
     font-size: 14px;
@@ -87,7 +87,7 @@
 }
 
 /* Style the individual options in the datalist */
-datalist option {
+.datalist option {
     font-size: 14px;
     font-family: Arial, sans-serif;
     padding: 5px;
@@ -97,6 +97,6 @@ datalist option {
 }
 
 /* Apply hover effect to datalist options */
-datalist option:hover {
+.datalist option:hover {
     background-color: #ddd;
 }
