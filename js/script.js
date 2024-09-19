@@ -260,6 +260,23 @@ const defaultPolygonStyle = () => ({
     fillOpacity: 0.65
 });
 
+function preventZoom() {
+    document.addEventListener('touchstart', function(event) {
+        if (event.touches.length > 1) {
+            event.preventDefault();
+        }
+    }, { passive: false });
+
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(event) {
+        const now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+}
+
 function optimizeForMobile() {
     if (window.innerWidth <= 768) {
         // Disable zoom animation for better performance
@@ -297,6 +314,21 @@ function optimizeForMobile() {
 
         // Initially hide the filter control
         document.querySelector('.filter-control').style.display = 'none';
+
+        // Prevent unwanted zooming
+        preventZoom();
+
+        // Handle input field focus
+        const inputFields = document.querySelectorAll('input, select');
+        inputFields.forEach(input => {
+            input.addEventListener('focus', () => {
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
+            });
+            input.addEventListener('blur', () => {
+                window.scrollTo(0, 0);
+            });
+        });
     }
 }
 
@@ -364,6 +396,7 @@ const loadOsmPeaks = async () => {
     }
 };
 
+// Map initialization
 const initializeMap = async () => {
     console.log('Initializing map...');
     map = initMap();
