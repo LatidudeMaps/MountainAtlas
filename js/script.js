@@ -7,7 +7,8 @@ const initMap = () => {
     console.log('Initializing map...');
     const map = L.map('map', {
         zoomAnimation: true,
-        preferCanvas: true
+        preferCanvas: true,
+        defaultExtentControl: true,
     });
 
     baseMaps = {
@@ -29,14 +30,8 @@ const initMap = () => {
 
     baseMaps["Dark Positron"].addTo(map);
 
-    // Store the initial bounds after adding the first layer
-    const initialBounds = map.getBounds();
-    
-    // Add the reset view control
-    addResetViewControl(map, initialBounds);
-
     console.log('Map initialized');
-    return { map, initialBounds };
+    return map;
 };
 
 // Layer initialization
@@ -97,16 +92,16 @@ const addControls = (map, baseMaps, overlayMaps) => {
 };
 
 // Event Handlers
-const addEventListeners = (map, mountainAreasLayer, initialBounds) => {
+const addEventListeners = (map, mountainAreasLayer) => {
     console.log('Adding event listeners...');
     map.on('load', () => {
         setTimeout(() => {
             map.invalidateSize();
-            map.options.zoomAnimation = true;
         }, 100);
     });
 
     map.on('load', () => {
+        const initialBounds = map.getBounds();
         map.setMaxBounds(initialBounds);
         map.setMinZoom(map.getZoom());
     });
@@ -145,28 +140,6 @@ const fitMapToBounds = (map, mountainAreasLayer, markers) => {
         map.setMaxBounds(bounds);
     }
     console.log('Map fitted to bounds');
-};
-
-const addResetViewControl = (map, initialBounds) => { // Add this new function to create the reset view button
-    const resetViewControl = L.Control.extend({
-        options: {
-            position: 'topleft'
-        },
-        onAdd: function (map) {
-            const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-            container.style.backgroundColor = 'white';
-            container.style.width = '30px';
-            container.style.height = '30px';
-            container.innerHTML = '<a href="#" title="Reset View" role="button" aria-label="Reset view" style="font-size: 20px; line-height: 30px; text-align: center; text-decoration: none;">⟲</a>';
-            
-            container.onclick = function(){
-                map.fitBounds(initialBounds);
-                return false;
-            }
-            return container;
-        }
-    });
-    map.addControl(new resetViewControl());
 };
 
 const updateSearchSuggestions = (showAll = false) => {
@@ -329,7 +302,7 @@ const loadOsmPeaks = async () => {
 // Main execution
 const initializeMap = async () => {
     console.log('Initializing map...');
-    const { map, initialBounds } = initMap();
+    map = initMap();
     const layers = initLayers(map);
     mountainAreasLayer = layers.mountainAreasLayer;
     markers = layers.markers;
@@ -340,7 +313,7 @@ const initializeMap = async () => {
     };
 
     addControls(map, baseMaps, overlayMaps);
-    addEventListeners(map, mountainAreasLayer, initialBounds);
+    addEventListeners(map, mountainAreasLayer);
 
     await loadMountainAreas();
     await loadOsmPeaks();
