@@ -36,36 +36,6 @@ body, html {
     background-color: #f4f4f4;
 }
 
-/* Attribution Styles */
-.leaflet-control-attribution {
-    font-family: 'Montserrat', Arial, sans-serif !important;
-    font-size: 9px !important;
-    line-height: 1.5 !important;
-    padding: 0 5px !important;
-    background-color: rgba(255, 255, 255, 0.7) !important;
-    color: #333 !important;
-}
-
-.leaflet-control-attribution a {
-    color: #0078A8 !important;
-    text-decoration: none !important;
-}
-
-.leaflet-control-attribution a:hover {
-    text-decoration: underline !important;
-}
-
-/* Layer Control Styles */
-.leaflet-control-layers {
-    font-family: 'Montserrat', Arial, sans-serif !important;
-}
-
-.leaflet-control-layers label {
-    font-weight: normal;
-    margin-bottom: 5px;
-    font-size: 14px;
-}
-
 /* Tooltip Styles */
 .leaflet-tooltip {
     background: none !important;
