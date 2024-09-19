@@ -140,3 +140,23 @@ body, html {
 .search-suggestion:hover {
     background-color: #f0f0f0;
 }
+
+.opacity-slider-container {
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.opacity-slider {
+    width: 100px;
+    margin-right: 5px;
+}
+
+.opacity-value {
+    font-size: 0.8em;
+    color: #777;
+}
+
+.leaflet-control-layers label {
+    margin-bottom: 10px;
+}
