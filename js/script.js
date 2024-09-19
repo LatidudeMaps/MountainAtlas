@@ -147,9 +147,12 @@ const addEventListeners = (map, mountainAreasLayer) => {
         handleFilterChange(this.value);
     });
     document.getElementById('search-input').addEventListener('input', updateSearchSuggestions);
-    document.getElementById('search-input').addEventListener('focus', () => {
-        if (document.getElementById('search-input').value.trim() === '') {
-            updateSearchSuggestions(true);
+    document.getElementById('search-input').addEventListener('keydown', (e) => {
+        const suggestions = document.getElementById('search-suggestions');
+        if (e.key === 'ArrowDown' && suggestions.style.display !== 'none') {
+            e.preventDefault();
+            const firstItem = suggestions.querySelector('li');
+            if (firstItem) firstItem.focus();
         }
     });
     document.getElementById('search-input').addEventListener('change', handleSearch);
@@ -261,21 +264,39 @@ const updateSearchSuggestions = (showAll = false) => {
         .filter(name => showAll || name.toLowerCase().includes(searchValue));
 
     if (matchingNames.length > 0) {
-        matchingNames.forEach(name => {
-            const suggestion = document.createElement('div');
-            suggestion.textContent = name;
-            suggestion.classList.add('search-suggestion');
-            suggestion.addEventListener('click', () => {
-                searchInput.value = name;
-                searchSuggestions.style.display = 'none';
-                handleSearch();
+        const ul = document.createElement('ul');
+        ul.className = 'suggestions-list';
+        
+        matchingNames.forEach((name, index) => {
+            const li = document.createElement('li');
+            li.textContent = name;
+            li.setAttribute('tabindex', '0');  // Make it focusable
+            li.addEventListener('click', () => selectSuggestion(name));
+            li.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') selectSuggestion(name);
+                if (e.key === 'ArrowDown') moveFocus(1, index, ul);
+                if (e.key === 'ArrowUp') moveFocus(-1, index, ul);
             });
-            searchSuggestions.appendChild(suggestion);
+            ul.appendChild(li);
         });
+
+        searchSuggestions.appendChild(ul);
         searchSuggestions.style.display = 'block';
     } else {
         searchSuggestions.style.display = 'none';
     }
+};
+
+const selectSuggestion = (name) => {
+    document.getElementById('search-input').value = name;
+    document.getElementById('search-suggestions').style.display = 'none';
+    handleSearch();
+};
+
+const moveFocus = (direction, currentIndex, ul) => {
+    const items = ul.getElementsByTagName('li');
+    const nextIndex = (currentIndex + direction + items.length) % items.length;
+    items[nextIndex].focus();
 };
 
 const handleSearch = () => {
