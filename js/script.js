@@ -81,7 +81,7 @@ filterControl.onAdd = function () {
     const div = L.DomUtil.create('div', 'filter-control');
     div.innerHTML = `
         <div class="control-group">
-            <label for="hier-lvl-select">Choose hierarchy level:</label>
+            <label for="hier-lvl-select">Choose GMBA Hierarchy Level:</label>
             <div class="input-button-group">
                 <select id="hier-lvl-select" class="custom-select">
                     <!-- Options will be populated dynamically -->
@@ -90,7 +90,7 @@ filterControl.onAdd = function () {
             </div>
         </div>
         <div class="control-group">
-            <label for="search-input">Search by MapName:</label>
+            <label for="search-input">Search by GMBA MapName:</label>
             <div class="input-button-group">
                 <div class="custom-search">
                     <input type="text" id="search-input" class="custom-select" placeholder="Search...">
@@ -112,6 +112,62 @@ document.getElementById('show-all-btn').addEventListener('click', function () {
 L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
 
 let mountainAreasData, filteredMountainAreas = []; // Declare variables for original and filtered data
+let osmPeaksData, filteredOsmPeaks;
+
+function isPointInPolygon(point, polygon) {
+    let inside = false;
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+        let xi = polygon[i][0], yi = polygon[i][1];
+        let xj = polygon[j][0], yj = polygon[j][1];
+        
+        let intersect = ((yi > point[1]) != (yj > point[1]))
+            && (point[0] < (xj - xi) * (point[1] - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+    }
+    return inside;
+}
+
+function filterOsmPeaks() {
+    if (!osmPeaksData || !filteredMountainAreas) return;
+
+    filteredOsmPeaks = osmPeaksData.features.filter(peak => {
+        const peakCoords = peak.geometry.coordinates;
+        return filteredMountainAreas.some(area => {
+            if (area.geometry.type === "Polygon") {
+                return isPointInPolygon(peakCoords, area.geometry.coordinates[0]);
+            } else if (area.geometry.type === "MultiPolygon") {
+                return area.geometry.coordinates.some(polygon => 
+                    isPointInPolygon(peakCoords, polygon[0])
+                );
+            }
+            return false;
+        });
+    });
+
+    // Clear existing markers and add filtered ones
+    markers.clearLayers();
+    L.geoJSON(filteredOsmPeaks, {
+        pointToLayer: (feature, latlng) => {
+            const marker = L.marker(latlng);
+            const name = feature.properties.name || "Unnamed Peak";
+            const elevation = feature.properties.elevation || "Unknown";
+            const popupContent = `<b>Name:</b> ${name}<br><b>Elevation:</b> ${elevation} m`;
+
+            marker.bindPopup(popupContent)
+                .bindTooltip(name, {
+                    permanent: true,
+                    direction: 'top',
+                    offset: [-15, -3],
+                    className: 'dark-tooltip'
+                })
+                .on('click', () => marker.openPopup())
+                .on('popupopen', () => marker.closeTooltip())
+                .on('popupclose', () => marker.openTooltip());
+
+            return marker;
+        }
+    }).addTo(markers);
+}
 
 // Function to fit map to the bounds of both mountain areas and OSM peaks
 function fitMapToBounds() {
@@ -262,10 +318,9 @@ function handleFilterChange(selectedValue) {
         filteredMountainAreas = filteredData.features;
     }
 
-    // The following line has been removed:
-    // updateSearchSuggestions();
+    filterOsmPeaks();  // Add this line
 
-    // Optionally, you might want to clear the search input and hide suggestions
+    // Clear search input and hide suggestions
     const searchInput = document.getElementById('search-input');
     const searchSuggestions = document.getElementById('search-suggestions');
     searchInput.value = '';
@@ -278,6 +333,13 @@ async function loadMountainAreas() {
         const response = await fetch(mountainAreasUrl);
         const data = await response.json();
         mountainAreasData = data;
+
+        mountainAreasLayer = L.geoJSON(null, {
+            style: defaultPolygonStyle,
+            onEachFeature: (feature, layer) => {
+                layer.bindPopup(feature.properties.MapName);
+            }
+        }).addTo(map);
 
         // Extract unique hierarchy levels and populate dropdown
         const uniqueHierLvls = [...new Set(data.features.map(feature => feature.properties?.Hier_lvl))].sort((a, b) => a - b);
@@ -310,30 +372,8 @@ async function loadOsmPeaks() {
         const data = await response.json();
         osmPeaksData = data;
 
-        const osmPeaksLayer = L.geoJSON(osmPeaksData, {
-            pointToLayer: (feature, latlng) => {
-                const marker = L.marker(latlng);
-                const name = feature.properties.name || "Unnamed Peak";
-                const elevation = feature.properties.elevation || "Unknown";
-                const popupContent = `<b>Name:</b> ${name}<br><b>Elevation:</b> ${elevation} m`;
-
-                marker.bindPopup(popupContent)
-                    .bindTooltip(name, {
-                        permanent: true,
-                        direction: 'top',
-                        offset: [-15, -3],
-                        className: 'dark-tooltip'
-                    })
-                    .on('click', () => marker.openPopup())
-                    .on('popupopen', () => marker.closeTooltip())
-                    .on('popupclose', () => marker.openTooltip());
-
-                return marker;
-            }
-        }).addTo(markers);
-
-        // Fit map to the bounds of the mountain areas and peaks
-        fitMapToBounds();
+        // Initial filtering of OSM peaks
+        filterOsmPeaks();
     } catch (error) {
         console.error('Error loading OSM Peaks:', error);
     }
