@@ -6,7 +6,7 @@ let baseMaps = {};
 const initMap = () => {
     console.log('Initializing map...');
     const map = L.map('map', {
-        zoomAnimation: true,
+        zoomAnimation: false,
         preferCanvas: true
     });
 
@@ -28,9 +28,6 @@ const initMap = () => {
     };
 
     baseMaps["Dark Positron"].addTo(map);
-
-    // Set an initial view
-    map.setView([0, 0], 2);
 
     console.log('Map initialized');
     return map;
@@ -106,7 +103,7 @@ const addEventListeners = (map, mountainAreasLayer) => {
     map.on('load', () => {
         const initialBounds = map.getBounds();
         map.setMaxBounds(initialBounds);
-        map.setMinZoom(map.getZoom() - 0);
+        map.setMinZoom(map.getZoom());
     });
 
     document.getElementById('show-all-btn').addEventListener('click', () => handleFilterChange("all"));
@@ -137,7 +134,11 @@ const fitMapToBounds = (map, mountainAreasLayer, markers) => {
     const bounds = L.latLngBounds([]);
     if (mountainAreasLayer.getLayers().length > 0) bounds.extend(mountainAreasLayer.getBounds());
     if (markers.getLayers().length > 0) bounds.extend(markers.getBounds());
-    if (bounds.isValid()) map.fitBounds(bounds);
+    if (bounds.isValid()) {
+        map.fitBounds(bounds);
+        // After fitting to bounds, set the max bounds to prevent panning outside the initial view
+        map.setMaxBounds(bounds);
+    }
     console.log('Map fitted to bounds');
 };
 
