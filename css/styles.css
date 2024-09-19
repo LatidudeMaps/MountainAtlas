@@ -161,3 +161,7 @@ body, html {
     color: #777;
 }
 
+/* Adjust the layer control width if needed */
+.leaflet-control-layers {
+    min-width: 200px;
+}
