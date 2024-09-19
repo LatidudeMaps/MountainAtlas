@@ -2,8 +2,7 @@
 let map, mountainAreasLayer, markers, mountainAreasData, filteredMountainAreas = [];
 let baseMaps = {};
 let initialBounds;
-let filterToggleControl = null;
-let isMobileView = false;
+let isMobileView = window.innerWidth <= 768;
 
 // Map initialization
 const initMap = () => {
@@ -56,6 +55,23 @@ const initMap = () => {
     });
 
     map.addControl(new resetViewControl());
+
+    // Add persistent toggle button
+    const filterToggle = L.control({position: 'topright'});
+    filterToggle.onAdd = function(map) {
+        const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control filter-toggle');
+        div.innerHTML = '<a href="#" title="Toggle Filters" role="button" aria-label="Toggle filters">☰</a>';
+        div.style.display = isMobileView ? 'block' : 'none';
+        div.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const filterControl = document.querySelector('.filter-control');
+            filterControl.style.display = filterControl.style.display === 'none' ? 'block' : 'none';
+            return false;
+        };
+        return div;
+    };
+    filterToggle.addTo(map);
 
     console.log('Map initialized');
     return map;
@@ -281,10 +297,10 @@ function preventZoom() {
 
 function optimizeForMobile() {
     const newIsMobileView = window.innerWidth <= 768;
-    const filterControl = document.querySelector('.filter-control');
-
     if (newIsMobileView !== isMobileView) {
         isMobileView = newIsMobileView;
+        const filterControl = document.querySelector('.filter-control');
+        const filterToggle = document.querySelector('.filter-toggle');
         
         if (isMobileView) {
             // Mobile optimizations
@@ -304,25 +320,9 @@ function optimizeForMobile() {
                 markers.options.maxClusterRadius = 40;
             }
 
-            // Add toggle button if it doesn't exist
-            if (!filterToggleControl) {
-                filterToggleControl = L.control({position: 'topright'});
-                filterToggleControl.onAdd = function(map) {
-                    const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control filter-toggle');
-                    div.innerHTML = '<a href="#" title="Toggle Filters" role="button" aria-label="Toggle filters">☰</a>';
-                    div.onclick = function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        filterControl.style.display = filterControl.style.display === 'none' ? 'block' : 'none';
-                        return false;
-                    };
-                    return div;
-                };
-                filterToggleControl.addTo(map);
-            }
-
-            // Hide filter control initially
-            filterControl.style.display = 'none';
+            // Show toggle button, hide filter control
+            if (filterToggle) filterToggle.style.display = 'block';
+            if (filterControl) filterControl.style.display = 'none';
 
             // Prevent unwanted zooming
             preventZoom();
@@ -343,19 +343,14 @@ function optimizeForMobile() {
             map.options.zoomAnimation = true;
             map.setMaxZoom(18); // Or whatever your default max zoom is
 
-            // Remove toggle button if it exists
-            if (filterToggleControl) {
-                map.removeControl(filterToggleControl);
-                filterToggleControl = null;
-            }
-
-            // Show filter control
-            filterControl.style.display = 'block';
+            // Hide toggle button, show filter control
+            if (filterToggle) filterToggle.style.display = 'none';
+            if (filterControl) filterControl.style.display = 'block';
         }
     }
 }
 
-// Debounce function to limit how often optimizeForMobile is called
+// Debounce function (keep this as is)
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -453,7 +448,10 @@ const initializeMap = async () => {
     
     // Call optimizeForMobile after everything is loaded
     optimizeForMobile();
-    window.addEventListener('resize', debounce(optimizeForMobile, 250));
+    window.addEventListener('load', function() {
+        optimizeForMobile();
+        window.addEventListener('resize', debounce(optimizeForMobile, 250));
+    });
     
     console.log('Map initialization complete');
 };
