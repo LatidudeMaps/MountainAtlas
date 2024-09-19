@@ -51,39 +51,14 @@ body, html {
 /* Attribution Styles */
 .leaflet-control-attribution {
     font-family: 'Montserrat', Arial, sans-serif !important;
-    font-size: 7px !important;  /* Reduced font size */
-    white-space: nowrap !important;
-    width: auto !important;
-    max-width: none !important;
+    font-size: 9px !important;
+    line-height: 1.5 !important;
     background-color: rgba(255, 255, 255, 0.8) !important;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2) !important;
-    display: inline-block !important;
-    position: absolute !important;
-    bottom: 0 !important;
-    right: 0 !important;
-    left: auto !important;
+    padding: 0 5px !important;
 }
 
 .leaflet-control-attribution a {
     color: #0078A8 !important;
-    text-decoration: none !important;
-}
-
-.leaflet-control-attribution a:hover {
-    text-decoration: underline !important;
-}
-
-/* Force the attribution to expand */
-.leaflet-container .leaflet-control-attribution {
-    max-width: none !important;
-    height: auto !important;
-}
-
-/* Ensure the control container doesn't restrict the attribution */
-.leaflet-bottom.leaflet-right {
-    width: auto !important;
-    max-width: none !important;
-    white-space: nowrap !important;
 }
 
 /* Tooltip Styles */
