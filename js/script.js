@@ -132,15 +132,15 @@ function updateSearchSuggestions() {
     // Clear previous suggestions
     searchSuggestions.innerHTML = '';
 
-    if (searchValue.length === 0) {
-        searchSuggestions.style.display = 'none';
-        return;
-    }
-
-    // Filter mapNames based on input
-    const matchingNames = filteredMountainAreas
+    // Get all visible polygon names
+    const visibleNames = filteredMountainAreas
         .map(feature => feature.properties.MapName)
-        .filter(name => name.toLowerCase().includes(searchValue));
+        .sort((a, b) => a.localeCompare(b)); // Sort alphabetically
+
+    // Filter names based on input
+    const matchingNames = visibleNames.filter(name => 
+        name.toLowerCase().includes(searchValue)
+    );
 
     if (matchingNames.length > 0) {
         matchingNames.forEach(name => {
@@ -160,8 +160,13 @@ function updateSearchSuggestions() {
     }
 }
 
-// Modify the existing event listener for search input
-document.getElementById('search-input').addEventListener('input', updateSearchSuggestions);
+// Modified event listeners for search input
+const searchInput = document.getElementById('search-input');
+searchInput.addEventListener('input', updateSearchSuggestions);
+searchInput.addEventListener('focus', () => {
+    searchInput.value = ''; // Clear the input when focused
+    updateSearchSuggestions(); // Show all suggestions
+});
 
 // Close suggestions when clicking outside
 document.addEventListener('click', function(e) {
