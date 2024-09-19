@@ -121,6 +121,21 @@ const addControls = (map, baseMaps, overlayMaps) => {
     console.log('Controls added');
 };
 
+// Create a custom control for the opacity slider
+L.Control.OpacitySlider = L.Control.extend({
+    onAdd: function(map) {
+        const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control opacity-slider-control');
+        container.innerHTML = `
+            <label for="opacity-slider">Mountain Areas Opacity:</label>
+            <input type="range" id="opacity-slider" min="0" max="1" step="0.1" value="0.65">
+        `;
+        
+        L.DomEvent.disableClickPropagation(container);
+        
+        return container;
+    }
+});
+
 // Event Handlers
 const addEventListeners = (map, mountainAreasLayer) => {
     console.log('Adding event listeners...');
@@ -164,6 +179,21 @@ const addEventListeners = (map, mountainAreasLayer) => {
 };
 
 // Utility Functions
+const addOpacitySlider = (map) => { // Add the opacity slider control to the map
+    const opacitySlider = new L.Control.OpacitySlider({ position: 'topright' }).addTo(map);
+    
+    // Add event listener to the slider
+    document.getElementById('opacity-slider').addEventListener('input', function(e) {
+        const opacity = parseFloat(e.target.value);
+        setMountainAreasOpacity(opacity);
+    });
+};
+
+// Function to set the opacity of the mountain areas layer
+const setMountainAreasOpacity = (opacity) => {
+    mountainAreasLayer.setStyle({ fillOpacity: opacity });
+};
+
 const fitMapToBounds = (map, mountainAreasLayer, markers) => {
     console.log('Fitting map to bounds...');
     const bounds = L.latLngBounds([]);
@@ -429,6 +459,7 @@ const initializeMap = async () => {
 
     addControls(map, baseMaps, overlayMaps);
     addEventListeners(map, mountainAreasLayer);
+    addOpacitySlider(map);  // Add this line
 
     // Load both datasets concurrently
     await Promise.all([loadMountainAreas(), loadOsmPeaks()]);
