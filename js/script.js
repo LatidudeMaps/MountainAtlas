@@ -2,6 +2,8 @@
 let map, mountainAreasLayer, markers, mountainAreasData, filteredMountainAreas = [];
 let baseMaps = {};
 let initialBounds;
+let filterToggleControl = null;
+let isMobileView = false;
 
 // Map initialization
 const initMap = () => {
@@ -278,73 +280,92 @@ function preventZoom() {
 }
 
 function optimizeForMobile() {
-    const isMobile = window.innerWidth <= 768;
+    const newIsMobileView = window.innerWidth <= 768;
     const filterControl = document.querySelector('.filter-control');
 
-    if (isMobile) {
-        // Mobile optimizations
-        map.options.zoomAnimation = false;
-        map.setMaxZoom(16);
+    if (newIsMobileView !== isMobileView) {
+        isMobileView = newIsMobileView;
+        
+        if (isMobileView) {
+            // Mobile optimizations
+            map.options.zoomAnimation = false;
+            map.setMaxZoom(16);
 
-        // Simplify vector layers
-        map.eachLayer(function(layer) {
-            if (layer instanceof L.Polyline) {
-                layer.setStyle({ weight: 2 });
+            // Simplify vector layers
+            map.eachLayer(function(layer) {
+                if (layer instanceof L.Polyline) {
+                    layer.setStyle({ weight: 2 });
+                }
+            });
+
+            // Adjust cluster settings
+            if (markers instanceof L.MarkerClusterGroup) {
+                markers.options.disableClusteringAtZoom = 15;
+                markers.options.maxClusterRadius = 40;
             }
-        });
 
-        // Adjust cluster settings
-        if (markers instanceof L.MarkerClusterGroup) {
-            markers.options.disableClusteringAtZoom = 15;
-            markers.options.maxClusterRadius = 40;
-        }
-
-        // Add toggle button if it doesn't exist
-        if (!filterToggleControl) {
-            filterToggleControl = L.control({position: 'topright'});
-            filterToggleControl.onAdd = function(map) {
-                const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-                div.innerHTML = '<a href="#" title="Toggle Filters" role="button" aria-label="Toggle filters">☰</a>';
-                div.onclick = function() {
-                    filterControl.style.display = filterControl.style.display === 'none' ? 'block' : 'none';
-                    return false;
+            // Add toggle button if it doesn't exist
+            if (!filterToggleControl) {
+                filterToggleControl = L.control({position: 'topright'});
+                filterToggleControl.onAdd = function(map) {
+                    const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control filter-toggle');
+                    div.innerHTML = '<a href="#" title="Toggle Filters" role="button" aria-label="Toggle filters">☰</a>';
+                    div.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        filterControl.style.display = filterControl.style.display === 'none' ? 'block' : 'none';
+                        return false;
+                    };
+                    return div;
                 };
-                return div;
-            };
-            filterToggleControl.addTo(map);
-        }
+                filterToggleControl.addTo(map);
+            }
 
-        // Hide filter control initially
-        filterControl.style.display = 'none';
+            // Hide filter control initially
+            filterControl.style.display = 'none';
 
-        // Prevent unwanted zooming
-        preventZoom();
+            // Prevent unwanted zooming
+            preventZoom();
 
-        // Handle input field focus
-        const inputFields = document.querySelectorAll('input, select');
-        inputFields.forEach(input => {
-            input.addEventListener('focus', () => {
-                document.body.scrollTop = 0;
-                document.documentElement.scrollTop = 0;
+            // Handle input field focus
+            const inputFields = document.querySelectorAll('input, select');
+            inputFields.forEach(input => {
+                input.addEventListener('focus', () => {
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                });
+                input.addEventListener('blur', () => {
+                    window.scrollTo(0, 0);
+                });
             });
-            input.addEventListener('blur', () => {
-                window.scrollTo(0, 0);
-            });
-        });
-    } else {
-        // Desktop optimizations
-        map.options.zoomAnimation = true;
-        map.setMaxZoom(18); // Or whatever your default max zoom is
+        } else {
+            // Desktop optimizations
+            map.options.zoomAnimation = true;
+            map.setMaxZoom(18); // Or whatever your default max zoom is
 
-        // Remove toggle button if it exists
-        if (filterToggleControl) {
-            map.removeControl(filterToggleControl);
-            filterToggleControl = null;
+            // Remove toggle button if it exists
+            if (filterToggleControl) {
+                map.removeControl(filterToggleControl);
+                filterToggleControl = null;
+            }
+
+            // Show filter control
+            filterControl.style.display = 'block';
         }
-
-        // Show filter control
-        filterControl.style.display = 'block';
     }
+}
+
+// Debounce function to limit how often optimizeForMobile is called
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
 }
 
 // Data Loading
@@ -432,7 +453,7 @@ const initializeMap = async () => {
     
     // Call optimizeForMobile after everything is loaded
     optimizeForMobile();
-    window.addEventListener('resize', optimizeForMobile);
+    window.addEventListener('resize', debounce(optimizeForMobile, 250));
     
     console.log('Map initialization complete');
 };
