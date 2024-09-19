@@ -214,7 +214,17 @@ const updateSearchSuggestions = (showAll = false) => {
 const handleSearch = () => {
     console.log('Handling search...');
     const searchValue = document.getElementById('search-input').value.trim().toLowerCase();
-    mountainAreasLayer.eachLayer(layer => mountainAreasLayer.resetStyle(layer));
+
+    // Reset all polygons to default style with increased transparency
+    mountainAreasLayer.eachLayer(layer => {
+        layer.setStyle({
+            color: "#ff7800",
+            weight: 2,
+            opacity: 0.7,
+            fillColor: "#ffcc66",
+            fillOpacity: 0.3  // More transparent
+        });
+    });
 
     if (searchValue) {
         const matchingLayers = [];
@@ -229,7 +239,12 @@ const handleSearch = () => {
         if (matchingLayers.length > 0) {
             const bounds = L.latLngBounds([]);
             matchingLayers.forEach(layer => {
-                layer.setStyle({ color: 'yellow', weight: 4 });
+                layer.setStyle({
+                    color: 'yellow',
+                    weight: 4,
+                    opacity: 1,
+                    fillOpacity: 0.65  // Normal opacity for the matching polygon
+                });
                 bounds.extend(layer.getBounds());
             });
             map.fitBounds(bounds);
@@ -239,6 +254,9 @@ const handleSearch = () => {
         } else {
             alert('No matching polygons found.');
         }
+    } else {
+        // If search is cleared, reset to default view
+        resetView();
     }
     console.log('Search handled');
 };
@@ -246,7 +264,7 @@ const handleSearch = () => {
 const clearSearch = () => {
     console.log('Clearing search...');
     document.getElementById('search-input').value = '';
-    mountainAreasLayer.eachLayer(layer => mountainAreasLayer.resetStyle(layer));
+    resetView();
     console.log('Search cleared');
 };
 
@@ -284,6 +302,21 @@ const defaultPolygonStyle = () => ({
     fillColor: "#ffcc66",
     fillOpacity: 0.65
 });
+
+// Add a new function to reset the view
+const resetView = () => {
+    // Reset all polygons to default style
+    mountainAreasLayer.eachLayer(layer => {
+        layer.setStyle(defaultPolygonStyle());
+    });
+
+    // Reset OSM peaks to show all for the current hierarchy level
+    const currentHierLevel = document.getElementById('hier-lvl-select').value;
+    filterAndDisplayPeaks(currentHierLevel);
+
+    // Optionally, fit the map to show all features
+    fitMapToBounds(map, mountainAreasLayer, markers);
+};
 
 // Data Loading
 const loadMountainAreas = async () => {
