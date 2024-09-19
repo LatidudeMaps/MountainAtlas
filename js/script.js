@@ -169,7 +169,6 @@ const addEventListeners = (map, mountainAreasLayer) => {
 };
 
 // Utility Functions
-
 const addOpacitySlider = (layerControl) => {
     const mountainAreasItem = layerControl._overlaysList.querySelector('input[type="checkbox"] + span:contains("Mountain Areas")').parentNode;
     if (mountainAreasItem) {
@@ -191,45 +190,6 @@ const addOpacitySlider = (layerControl) => {
         L.DomEvent.on(slider, 'click', L.DomEvent.stopPropagation);
     }
 };
-
-// Custom Layer Control with Opacity Slider
-L.Control.Layers.WithOpacitySlider = L.Control.Layers.extend({
-    onAdd: function(map) {
-        var container = L.Control.Layers.prototype.onAdd.call(this, map);
-        
-        // Find the Mountain Areas checkbox
-        var inputs = container.getElementsByTagName('input');
-        var mountainAreasInput;
-        for (var i = 0; i < inputs.length; i++) {
-            if (inputs[i].nextSibling.textContent.trim() === 'Mountain Areas') {
-                mountainAreasInput = inputs[i];
-                break;
-            }
-        }
-        
-        if (mountainAreasInput) {
-            var label = mountainAreasInput.parentNode;
-            var sliderContainer = L.DomUtil.create('div', 'opacity-slider-container', label);
-            sliderContainer.innerHTML = `
-                <input type="range" class="opacity-slider" min="0" max="1" step="0.1" value="0.65">
-                <span class="opacity-value">65%</span>
-            `;
-            
-            var slider = sliderContainer.getElementsByClassName('opacity-slider')[0];
-            var opacityValue = sliderContainer.getElementsByClassName('opacity-value')[0];
-            
-            L.DomEvent.on(slider, 'input', function(e) {
-                var opacity = parseFloat(e.target.value);
-                setMountainAreasOpacity(opacity);
-                opacityValue.textContent = Math.round(opacity * 100) + '%';
-            });
-            
-            L.DomEvent.on(slider, 'click', L.DomEvent.stopPropagation);
-        }
-        
-        return container;
-    }
-});
 
 // Function to set the opacity of the mountain areas layer
 const setMountainAreasOpacity = (opacity) => {
