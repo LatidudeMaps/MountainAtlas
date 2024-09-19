@@ -136,9 +136,7 @@ const addEventListeners = (map, mountainAreasLayer) => {
         map.setMinZoom(map.getZoom());
     });
 
-    document.getElementById('show-all-btn').addEventListener('click', () => {
-        handleFilterChange("all");
-    });
+    document.getElementById('show-all-btn').addEventListener('click', () => handleFilterChange("all"));
     
     const hierLvlSelect = document.getElementById('hier-lvl-select');
     hierLvlSelect.addEventListener('change', function () {
@@ -249,7 +247,7 @@ const clearSearch = () => {
 
 const handleFilterChange = (selectedValue) => {
     console.log('Handling filter change...');
-    if (!mountainAreasLoaded || !osmPeaksLoaded) return;
+    if (!mountainAreasLoaded) return;
 
     mountainAreasLayer.clearLayers();
     filteredMountainAreas = selectedValue === "all" 
@@ -382,14 +380,8 @@ const initializeMap = async () => {
     addControls(map, baseMaps, overlayMaps);
     addEventListeners(map, mountainAreasLayer);
 
-    // Load both datasets concurrently
-    await Promise.all([loadMountainAreas(), loadOsmPeaks()]);
-    
-    // After loading data, apply the initial filter (Hier_lvl 4)
-    handleFilterChange("4");
-    
-    // Fit the map to the initial data
-    fitMapToBounds(map, mountainAreasLayer, markers);
+    await loadMountainAreas();
+    await loadOsmPeaks();
     
     console.log('Map initialization complete');
 };
