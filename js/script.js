@@ -1,18 +1,47 @@
 // Create map
 const map = L.map('map', {
-    zoomAnimation: true,  
+    zoomAnimation: true,  // Disable zoom animation initially
     preferCanvas: true
 });
 
 // Add optimized settings for Dark Positron basemap to avoid tile borders
 const CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
     subdomains: 'abcd',
-    detectRetina: true,
-    tileSize: 256,  
-    updateWhenZooming: false,  
-    keepBuffer: 4  
+    detectRetina: true,         // Enable Retina support for higher resolution displays
+    tileSize: 256,              // Keep the tile size to 256px for better performance
+    updateWhenZooming: false,   // Don't update tiles during zoom animations
+    keepBuffer: 4,              // Keep a buffer of tiles around the map to preload surrounding areas
 }).addTo(map);
+
+// Add optimized settings for Esri World Imagery basemap
+const esriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+});
+
+// OpenStreetMap layer with regular settings (already working fine)
+const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+});
+
+// Re-enable zoom animation and recalculate the map size after load
+map.on('load', function() {
+    setTimeout(() => {
+        map.invalidateSize();  // Fix size issues
+        map.zoomAnimation = true;  // Re-enable zoom animation
+    }, 100);  // Slight delay to ensure the map is fully rendered
+});
+
+// Capture the initial bounds of the map after the first layer is loaded
+map.on('load', function() {
+    const initialBounds = map.getBounds(); // Get the map's initial bounds
+
+    // Set max bounds to limit panning outside the initial bounds
+    map.setMaxBounds(initialBounds);
+
+    // Optionally, set minimum and maximum zoom levels to prevent excessive zooming
+    map.setMinZoom(map.getZoom() - 0);  // Prevent zooming out too much
+});
 
 // Add marker cluster group
 const markers = L.markerClusterGroup({
@@ -27,10 +56,12 @@ const markers = L.markerClusterGroup({
 
 // Layer control for base maps and overlays
 const baseMaps = {
-    "Dark Positron": CartoDB_DarkMatter
+    "Dark Positron": CartoDB_DarkMatter,
+    "OpenStreetMap": openStreetMap,
+    "Esri World Imagery": esriWorldImagery
 };
 
-let mountainAreasLayer = L.geoJSON(null, {
+const mountainAreasLayer = L.geoJSON(null, {
     style: defaultPolygonStyle,
     onEachFeature: (feature, layer) => {
         layer.bindPopup(feature.properties.MapName);
@@ -44,21 +75,21 @@ const overlayMaps = {
 
 L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
 
-let mountainAreasData, filteredMountainAreas = [];
-
 // Custom filter dropdown with search bar, clear button, and "Show All" button
 const filterControl = L.control({ position: 'topright' });
 filterControl.onAdd = function () {
     const div = L.DomUtil.create('div', 'filter-control');
     div.innerHTML = `
         <label for="hier-lvl-select">Choose hierarchy level:</label><br>
-        <select id="hier-lvl-select"></select>
-        <button id="show-all-btn" style="margin-left:5px;">Show All</button>
+        <select id="hier-lvl-select">
+            <!-- Removed the "Show All" option from the dropdown -->
+        </select>
+        <button id="show-all-btn" style="margin-left:5px;">Show All</button> <!-- New Show All button -->
         <br><br>
         <label for="search-input">Search by MapName:</label><br>
-        <input type="text" id="search-input" placeholder="Search..." style="width: 150px;">
-        <div id="autocomplete-list" class="autocomplete-items"></div> <!-- Custom autocomplete container -->
-        <button id="clear-search" style="margin-left:5px;">Clear</button>
+        <input type="text" id="search-input" placeholder="Search..." style="width: 150px;" list="search-suggestions">
+        <datalist id="search-suggestions"></datalist> <!-- This will hold autocomplete suggestions -->
+        <button id="clear-search" style="margin-left:5px;">Clear</button> <!-- Clear button -->
     `;
     return div;
 };
@@ -69,39 +100,48 @@ document.getElementById('show-all-btn').addEventListener('click', function () {
     handleFilterChange("all");  // Call handleFilterChange with "all" to show all polygons
 });
 
-// Disable click propagation so the filter control doesn't interfere with map interaction
 L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
 
-// Autocomplete functionality for custom dropdown
-document.getElementById('search-input').addEventListener('input', function () {
-    const searchValue = this.value.trim().toLowerCase();
-    const suggestionsContainer = document.getElementById('autocomplete-list');
-    suggestionsContainer.innerHTML = ''; // Clear previous suggestions
+let mountainAreasData, filteredMountainAreas = []; // Declare variables for original and filtered data
 
-    if (searchValue) {
-        // Filter suggestions based on input value
-        const filteredSuggestions = filteredMountainAreas
-            .map(feature => feature.properties.MapName)
-            .filter(name => name.toLowerCase().includes(searchValue));
+// Function to fit map to the bounds of both mountain areas and OSM peaks
+function fitMapToBounds() {
+    const bounds = L.latLngBounds([]);
 
-        // Populate suggestions in the dropdown
-        filteredSuggestions.forEach(name => {
-            const suggestionItem = document.createElement('div');
-            suggestionItem.classList.add('autocomplete-item');
-            suggestionItem.textContent = name;
-            suggestionItem.addEventListener('click', function () {
-                document.getElementById('search-input').value = name;
-                suggestionsContainer.innerHTML = ''; // Clear suggestions
-                handleSearch(); // Trigger search based on the selected value
-            });
-            suggestionsContainer.appendChild(suggestionItem);
-        });
+    if (mountainAreasLayer.getLayers().length > 0) {
+        bounds.extend(mountainAreasLayer.getBounds()); // Extend bounds to include mountain areas
     }
-});
 
-// Function to handle search by MapName when a suggestion is selected or search value is entered
+    if (markers.getLayers().length > 0) {
+        bounds.extend(markers.getBounds()); // Extend bounds to include OSM peaks
+    }
+
+    if (bounds.isValid()) {
+        map.fitBounds(bounds); // Fit the map view to the combined bounds
+    }
+}
+
+// Function to update search suggestions based on the visible polygons
+function updateSearchSuggestions() {
+    const searchSuggestions = document.getElementById('search-suggestions');
+    searchSuggestions.innerHTML = ''; // Clear previous suggestions
+
+    // Collect visible "MapName" values from filtered layers
+    const mapNames = filteredMountainAreas.map(feature => feature.properties.MapName);
+
+    // Populate the datalist with unique "MapName" values
+    mapNames.forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        searchSuggestions.appendChild(option);
+    });
+}
+
+// Function to handle search by MapName when "Enter" is pressed or suggestion is selected
 function handleSearch() {
     const searchValue = document.getElementById('search-input').value.trim().toLowerCase();
+
+    // Clear any previous style (e.g., highlighted)
     mountainAreasLayer.eachLayer(layer => {
         mountainAreasLayer.resetStyle(layer); // Reset style for all layers
     });
@@ -111,8 +151,10 @@ function handleSearch() {
 
         // Search only the currently visible layers in the mountainAreasLayer (filtered polygons)
         mountainAreasLayer.eachLayer(layer => {
+            // Ensure that the layer has feature and properties
             if (layer.feature && layer.feature.properties) {
                 const mapName = layer.feature.properties.MapName.trim().toLowerCase();
+
                 if (mapName.includes(searchValue)) {
                     matchingLayers.push(layer);
                 }
@@ -128,6 +170,7 @@ function handleSearch() {
                     color: 'yellow', // Highlight with yellow border
                     weight: 4
                 });
+
                 bounds.extend(layer.getBounds()); // Add to the bounds to zoom to it
             });
 
@@ -139,10 +182,12 @@ function handleSearch() {
     }
 }
 
+// Attach the search function to the search input, only trigger search on "Enter" or autocomplete selection
+document.getElementById('search-input').addEventListener('change', handleSearch);
+
 // Add a clear button functionality to reset the search input
 document.getElementById('clear-search').addEventListener('click', function () {
     document.getElementById('search-input').value = '';
-    document.getElementById('autocomplete-list').innerHTML = ''; // Clear autocomplete suggestions
     mountainAreasLayer.eachLayer(layer => {
         mountainAreasLayer.resetStyle(layer); // Reset styles on all layers when clearing search
     });
@@ -206,7 +251,9 @@ async function loadOsmPeaks() {
     try {
         const response = await fetch(osmPeaksUrl);
         const data = await response.json();
-        const osmPeaksLayer = L.geoJSON(data, {
+        osmPeaksData = data;
+
+        const osmPeaksLayer = L.geoJSON(osmPeaksData, {
             pointToLayer: (feature, latlng) => {
                 const marker = L.marker(latlng);
                 const name = feature.properties.name || "Unnamed Peak";
@@ -219,10 +266,17 @@ async function loadOsmPeaks() {
                         direction: 'top',
                         offset: [-15, -3],
                         className: 'dark-tooltip'
-                    });
+                    })
+                    .on('click', () => marker.openPopup())
+                    .on('popupopen', () => marker.closeTooltip())
+                    .on('popupclose', () => marker.openTooltip());
+
                 return marker;
             }
         }).addTo(markers);
+
+        // Fit map to the bounds of the mountain areas and peaks
+        fitMapToBounds();
     } catch (error) {
         console.error('Error loading OSM Peaks:', error);
     }
