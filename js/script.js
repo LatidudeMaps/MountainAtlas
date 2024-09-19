@@ -384,7 +384,7 @@ const filterAndDisplayPeaks = (hierLvl, mapName = null) => {
             const marker = L.marker(latlng);
             const name = feature.properties.name || "Unnamed Peak";
             const elevation = feature.properties.elevation || "Unknown";
-            const popupContent = `<b>Name:</b> ${name}<br><b>Elevation:</b> ${elevation} m<br><b>Hier_lvl:</b> ${feature.properties.Hier_lvl}<br><b>MapName:</b> ${feature.properties.MapName}`;
+            const popupContent = `<b>Name:</b> ${name}<br><b>Elevation:</b> ${elevation} m<br><b>MapName:</b> ${feature.properties.MapName}`;
 
             marker.bindPopup(popupContent)
                 .bindTooltip(name, {
