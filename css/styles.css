@@ -54,6 +54,11 @@ body, html {
     font-size: 11px !important;
     line-height: 1.5 !important;
     padding: 0 5px !important;
+    white-space: nowrap !important;
+    width: auto !important;
+    background-color: rgba(255, 255, 255, 0.8) !important;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2) !important;
+    border-radius: 3px 0 0 0 !important;
 }
 
 .leaflet-control-attribution a {
@@ -63,6 +68,20 @@ body, html {
 
 .leaflet-control-attribution a:hover {
     text-decoration: underline !important;
+}
+
+/* Force the attribution to be on a single line */
+.leaflet-container .leaflet-control-attribution {
+    display: flex !important;
+    align-items: center !important;
+    max-width: none !important;
+}
+
+/* Ensure the attribution expands to fit its content */
+.leaflet-container .leaflet-control-attribution,
+.leaflet-container .leaflet-control-scale {
+    right: 0 !important;
+    left: auto !important;
 }
 
 /* Tooltip Styles */
