@@ -1,4 +1,4 @@
-// Disable zoom animation on load
+// Create map
 const map = L.map('map', {
     zoomAnimation: true,  // Disable zoom animation initially
     preferCanvas: true
