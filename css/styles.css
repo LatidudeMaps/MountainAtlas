@@ -67,3 +67,30 @@
         max-width: 80%;
     }
 }
+
+.custom-search {
+    position: relative;
+}
+
+.search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    display: none;
+    z-index: 1000;
+}
+
+.search-suggestion {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.search-suggestion:hover {
+    background-color: #f0f0f0;
+}
