@@ -14,40 +14,6 @@ body, html {
     width: 100%;
 }
 
-/* Leaflet Controls */
-.leaflet-control {
-    font-family: 'Montserrat', Arial, sans-serif !important;
-    overflow: visible !important;
-}
-
-.leaflet-control a {
-    background-color: #fff;
-    border-bottom: 1px solid #ccc;
-    color: black;
-    display: block;
-    font-size: 18px;
-    height: 26px;
-    line-height: 26px;
-    text-align: center;
-    text-decoration: none;
-    width: 26px;
-}
-
-.leaflet-control a:hover {
-    background-color: #f4f4f4;
-}
-
-/* Layer Control Styles */
-.leaflet-control-layers {
-    font-family: 'Montserrat', Arial, sans-serif !important;
-}
-
-.leaflet-control-layers label {
-    font-weight: normal;
-    margin-bottom: 5px;
-    font-size: 14px;
-}
-
 /* Tooltip Styles */
 .leaflet-tooltip {
     background: none !important;
