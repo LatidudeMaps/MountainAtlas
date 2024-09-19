@@ -134,9 +134,11 @@ const addEventListeners = (map, mountainAreasLayer) => {
         map.setMinZoom(map.getZoom());
     });
 
-    document.getElementById('show-all-btn').addEventListener('click', () => {
-        handleFilterChange("all");
-        filterAndDisplayPeaks(4);  // Show peaks with Hier_lvl = 4 when "Show All" is clicked
+    document.getElementById('show-all-btn').addEventListener('click', () => handleFilterChange("all"));
+    
+    const hierLvlSelect = document.getElementById('hier-lvl-select');
+    hierLvlSelect.addEventListener('change', function () {
+        handleFilterChange(this.value);
     });
     document.getElementById('search-input').addEventListener('input', updateSearchSuggestions);
     document.getElementById('search-input').addEventListener('focus', () => {
@@ -245,7 +247,7 @@ const handleFilterChange = (selectedValue) => {
     console.log('Handling filter change...');
     mountainAreasLayer.clearLayers();
     filteredMountainAreas = selectedValue === "all" 
-        ? mountainAreasData.features 
+        ? mountainAreasData.features.filter(feature => String(feature.properties.Hier_lvl).trim() === "4")
         : mountainAreasData.features.filter(feature => String(feature.properties.Hier_lvl).trim() === selectedValue);
     
     mountainAreasLayer.addData({
@@ -254,7 +256,7 @@ const handleFilterChange = (selectedValue) => {
     });
 
     // Filter OSM peaks
-    filterAndDisplayPeaks(selectedValue === "all" ? 4 : parseInt(selectedValue));
+    filterAndDisplayPeaks(selectedValue);
 
     document.getElementById('search-input').value = '';
     document.getElementById('search-suggestions').style.display = 'none';
@@ -289,9 +291,6 @@ const loadMountainAreas = async () => {
         hierLvlSelect.value = "4";
         handleFilterChange("4");
 
-        hierLvlSelect.addEventListener('change', function () {
-            handleFilterChange(this.value);
-        });
         console.log('Mountain areas loaded');
     } catch (error) {
         console.error('Error loading Mountain Areas:', error);
@@ -302,12 +301,12 @@ const loadMountainAreas = async () => {
 const loadOsmPeaks = async () => {
     console.log('Loading OSM peaks...');
     try {
-        const response = await fetch("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/OSM_peaks_GMBA.geojson");
+        const response = await fetch("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/OSM_peaks.geojson");
         const osmPeaksData = await response.json();
         allOsmPeaks = osmPeaksData.features;
         
         // Initially filter peaks with Hier_lvl = 4
-        filterAndDisplayPeaks(4);
+        filterAndDisplayPeaks("4");
         
         console.log('OSM peaks loaded');
     } catch (error) {
@@ -318,7 +317,9 @@ const loadOsmPeaks = async () => {
 // New function to filter and display peaks
 const filterAndDisplayPeaks = (hierLvl) => {
     markers.clearLayers();
-    filteredOsmPeaks = allOsmPeaks.filter(feature => feature.properties.Hier_lvl == hierLvl);
+    filteredOsmPeaks = hierLvl === "all" 
+        ? allOsmPeaks.filter(feature => feature.properties.Hier_lvl === "4")
+        : allOsmPeaks.filter(feature => String(feature.properties.Hier_lvl).trim() === hierLvl);
     
     L.geoJSON(filteredOsmPeaks, {
         pointToLayer: (feature, latlng) => {
