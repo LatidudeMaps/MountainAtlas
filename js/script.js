@@ -146,12 +146,21 @@ const addEventListeners = (map, mountainAreasLayer) => {
     hierLvlSelect.addEventListener('change', function () {
         handleFilterChange(this.value);
     });
-    document.getElementById('search-input').addEventListener('input', updateSearchSuggestions);
-    document.getElementById('search-input').addEventListener('keydown', (e) => {
-        const suggestions = document.getElementById('search-suggestions');
-        if (e.key === 'ArrowDown' && suggestions.style.display !== 'none') {
+    const searchInput = document.getElementById('search-input');
+    const searchSuggestions = document.getElementById('search-suggestions');
+
+    searchInput.addEventListener('focus', () => {
+        updateSearchSuggestions(true);  // Show all suggestions when focused
+    });
+
+    searchInput.addEventListener('input', () => {
+        updateSearchSuggestions(false);  // Update suggestions based on input
+    });
+
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown' && searchSuggestions.style.display !== 'none') {
             e.preventDefault();
-            const firstItem = suggestions.querySelector('li');
+            const firstItem = searchSuggestions.querySelector('li');
             if (firstItem) firstItem.focus();
         }
     });
@@ -164,10 +173,9 @@ const addEventListeners = (map, mountainAreasLayer) => {
     // Close suggestions when clicking outside
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.custom-search')) {
-            document.getElementById('search-suggestions').style.display = 'none';
+            searchSuggestions.style.display = 'none';
         }
     });
-    console.log('Event listeners added');
 };
 
 // Utility Functions
@@ -254,14 +262,19 @@ const updateSearchSuggestions = (showAll = false) => {
 
     searchSuggestions.innerHTML = '';
 
-    if (searchValue.length === 0 && !showAll) {
+    let matchingNames;
+    if (showAll) {
+        // Show all available mountain areas when the search box is clicked
+        matchingNames = filteredMountainAreas.map(feature => feature.properties.MapName);
+    } else if (searchValue.length > 0) {
+        // Only show suggestions for complete words or when a suggestion is selected
+        matchingNames = filteredMountainAreas
+            .map(feature => feature.properties.MapName)
+            .filter(name => name.toLowerCase().includes(searchValue));
+    } else {
         searchSuggestions.style.display = 'none';
         return;
     }
-
-    const matchingNames = filteredMountainAreas
-        .map(feature => feature.properties.MapName)
-        .filter(name => showAll || name.toLowerCase().includes(searchValue));
 
     if (matchingNames.length > 0) {
         const ul = document.createElement('ul');
@@ -387,6 +400,10 @@ const handleFilterChange = (selectedValue) => {
 
     document.getElementById('search-input').value = '';
     document.getElementById('search-suggestions').style.display = 'none';
+    
+    // Update search suggestions to reflect the new filtered mountain areas
+    updateSearchSuggestions(true);
+    
     console.log('Filter change handled');
 };
 
