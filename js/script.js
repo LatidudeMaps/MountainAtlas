@@ -84,12 +84,14 @@ filterControl.onAdd = function () {
         <select id="hier-lvl-select">
             <!-- Removed the "Show All" option from the dropdown -->
         </select>
-        <button id="show-all-btn" style="margin-left:5px;">Show All</button> <!-- New Show All button -->
+        <button id="show-all-btn" style="margin-left:5px;">Show All</button>
         <br><br>
         <label for="search-input">Search by MapName:</label><br>
-        <input type="text" id="search-input" placeholder="Search..." style="width: 150px;" list="search-suggestions">
-        <datalist id="search-suggestions"></datalist> <!-- This will hold autocomplete suggestions -->
-        <button id="clear-search" style="margin-left:5px;">Clear</button> <!-- Clear button -->
+        <div class="custom-search">
+            <input type="text" id="search-input" placeholder="Search..." style="width: 150px;">
+            <div id="search-suggestions" class="search-suggestions"></div>
+        </div>
+        <button id="clear-search" style="margin-left:5px;">Clear</button>
     `;
     return div;
 };
@@ -123,19 +125,51 @@ function fitMapToBounds() {
 
 // Function to update search suggestions based on the visible polygons
 function updateSearchSuggestions() {
+    const searchInput = document.getElementById('search-input');
     const searchSuggestions = document.getElementById('search-suggestions');
-    searchSuggestions.innerHTML = ''; // Clear previous suggestions
+    const searchValue = searchInput.value.trim().toLowerCase();
 
-    // Collect visible "MapName" values from filtered layers
-    const mapNames = filteredMountainAreas.map(feature => feature.properties.MapName);
+    // Clear previous suggestions
+    searchSuggestions.innerHTML = '';
 
-    // Populate the datalist with unique "MapName" values
-    mapNames.forEach(name => {
-        const option = document.createElement('option');
-        option.value = name;
-        searchSuggestions.appendChild(option);
-    });
+    if (searchValue.length === 0) {
+        searchSuggestions.style.display = 'none';
+        return;
+    }
+
+    // Filter mapNames based on input
+    const matchingNames = filteredMountainAreas
+        .map(feature => feature.properties.MapName)
+        .filter(name => name.toLowerCase().includes(searchValue));
+
+    if (matchingNames.length > 0) {
+        matchingNames.forEach(name => {
+            const suggestion = document.createElement('div');
+            suggestion.textContent = name;
+            suggestion.classList.add('search-suggestion');
+            suggestion.addEventListener('click', () => {
+                searchInput.value = name;
+                searchSuggestions.style.display = 'none';
+                handleSearch();
+            });
+            searchSuggestions.appendChild(suggestion);
+        });
+        searchSuggestions.style.display = 'block';
+    } else {
+        searchSuggestions.style.display = 'none';
+    }
 }
+
+// Modify the existing event listener for search input
+document.getElementById('search-input').addEventListener('input', updateSearchSuggestions);
+
+// Close suggestions when clicking outside
+document.addEventListener('click', function(e) {
+    const searchSuggestions = document.getElementById('search-suggestions');
+    if (!e.target.closest('.custom-search')) {
+        searchSuggestions.style.display = 'none';
+    }
+});
 
 // Function to handle search by MapName when "Enter" is pressed or suggestion is selected
 function handleSearch() {
