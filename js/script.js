@@ -170,7 +170,16 @@ const addEventListeners = (map, mountainAreasLayer) => {
 
 // Utility Functions
 const addOpacitySlider = (layerControl) => {
-    const mountainAreasItem = layerControl._overlaysList.querySelector('input[type="checkbox"] + span:contains("Mountain Areas")').parentNode;
+    const layerInputs = layerControl._overlaysList.querySelectorAll('input[type="checkbox"]');
+    let mountainAreasItem;
+
+    for (let input of layerInputs) {
+        if (input.nextElementSibling && input.nextElementSibling.textContent.trim() === "Mountain Areas") {
+            mountainAreasItem = input.parentNode;
+            break;
+        }
+    }
+
     if (mountainAreasItem) {
         const sliderContainer = L.DomUtil.create('div', 'opacity-slider-container', mountainAreasItem);
         sliderContainer.innerHTML = `
@@ -188,6 +197,8 @@ const addOpacitySlider = (layerControl) => {
         });
         
         L.DomEvent.on(slider, 'click', L.DomEvent.stopPropagation);
+    } else {
+        console.error("Mountain Areas layer not found in the layer control");
     }
 };
 
