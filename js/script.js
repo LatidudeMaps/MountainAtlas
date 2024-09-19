@@ -31,10 +31,30 @@ const initMap = () => {
 
     baseMaps["Dark Positron"].addTo(map);
 
-    // Add reset view button
-    L.easyButton('&#8634;', function(btn, map) {
-        map.fitBounds(initialBounds);
-    }, 'Reset View').addTo(map);
+    // Add custom reset view button
+    const resetViewControl = L.Control.extend({
+        options: {
+            position: 'topleft'
+        },
+        onAdd: function (map) {
+            const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+            const button = L.DomUtil.create('a', '', container);
+            button.innerHTML = '&#8634;';  // Reset icon (circular arrow)
+            button.href = '#';
+            button.title = 'Reset View';
+            
+            L.DomEvent.on(button, 'click', function (e) {
+                L.DomEvent.preventDefault(e);
+                if (initialBounds) {
+                    map.fitBounds(initialBounds);
+                }
+            });
+
+            return container;
+        }
+    });
+
+    map.addControl(new resetViewControl());
 
     console.log('Map initialized');
     return map;
