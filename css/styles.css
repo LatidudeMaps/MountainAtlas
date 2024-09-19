@@ -139,22 +139,56 @@ body, html {
     background-color: #f0f0f0;
 }
 
-/* Responsive Design */
+/* Mobile-specific styles */
 @media only screen and (max-width: 768px) {
     .filter-control {
         font-size: 12px;
         max-width: 90%;
+        background-color: rgba(255, 255, 255, 0.9);
     }
 
     html, body, #map {
         height: 100vh;
+    }
+
+    /* Increase touch target sizes */
+    .leaflet-touch .leaflet-control-layers,
+    .leaflet-touch .leaflet-bar a {
+        min-width: 44px;
+        min-height: 44px;
+        line-height: 44px;
+    }
+
+    /* Simplify UI for mobile */
+    .leaflet-control-layers-toggle {
+        width: 44px;
+        height: 44px;
+        background-size: 25px 25px;
+    }
+
+    /* Adjust filter control for better mobile viewing */
+    .filter-control {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        z-index: 1000;
+    }
+
+    .input-button-group {
+        flex-direction: column;
+    }
+
+    .custom-button {
+        margin-left: 0;
+        margin-top: 5px;
     }
 }
 
 @media only screen and (max-width: 480px) {
     .filter-control {
         font-size: 10px;
-        max-width: 80%;
+        max-width: 100%;
         padding: 5px;
     }
 }

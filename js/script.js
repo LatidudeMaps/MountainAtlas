@@ -260,6 +260,46 @@ const defaultPolygonStyle = () => ({
     fillOpacity: 0.65
 });
 
+function optimizeForMobile() {
+    if (window.innerWidth <= 768) {
+        // Disable zoom animation for better performance
+        map.options.zoomAnimation = false;
+
+        // Reduce the max zoom level for faster rendering
+        map.setMaxZoom(16);
+
+        // Simplify vector layers (if you're using any)
+        map.eachLayer(function(layer) {
+            if (layer instanceof L.Polyline) {
+                layer.setStyle({ weight: 2 });
+            }
+        });
+
+        // Adjust cluster settings for better mobile performance
+        if (markers instanceof L.MarkerClusterGroup) {
+            markers.options.disableClusteringAtZoom = 15;
+            markers.options.maxClusterRadius = 40;
+        }
+
+        // Add a button to toggle the filter control visibility
+        const filterToggle = L.control({position: 'topright'});
+        filterToggle.onAdd = function(map) {
+            const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+            div.innerHTML = '<a href="#" title="Toggle Filters" role="button" aria-label="Toggle filters">☰</a>';
+            div.onclick = function() {
+                const filterControl = document.querySelector('.filter-control');
+                filterControl.style.display = filterControl.style.display === 'none' ? 'block' : 'none';
+                return false;
+            };
+            return div;
+        };
+        filterToggle.addTo(map);
+
+        // Initially hide the filter control
+        document.querySelector('.filter-control').style.display = 'none';
+    }
+}
+
 // Data Loading
 const loadMountainAreas = async () => {
     console.log('Loading mountain areas...');
@@ -324,7 +364,6 @@ const loadOsmPeaks = async () => {
     }
 };
 
-// Main execution
 const initializeMap = async () => {
     console.log('Initializing map...');
     map = initMap();
@@ -342,6 +381,10 @@ const initializeMap = async () => {
 
     await loadMountainAreas();
     await loadOsmPeaks();
+    
+    // Call optimizeForMobile after everything is loaded
+    optimizeForMobile();
+    
     console.log('Map initialization complete');
 };
 
@@ -350,3 +393,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM fully loaded and parsed');
     initializeMap();
 });
+
+// Add resize listener
+window.addEventListener('resize', optimizeForMobile);
