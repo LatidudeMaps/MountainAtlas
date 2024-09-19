@@ -87,7 +87,7 @@
 }
 
 /* Style the individual options in the datalist */
-#datalist option {
+datalist option {
     font-size: 14px;
     font-family: Arial, sans-serif;
     padding: 5px;
@@ -97,6 +97,6 @@
 }
 
 /* Apply hover effect to datalist options */
-#datalist option:hover {
+datalist option:hover {
     background-color: #ddd;
 }
