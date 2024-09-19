@@ -9,7 +9,6 @@ const initMap = () => {
     const map = L.map('map', {
         zoomAnimation: true,
         preferCanvas: true,
-        defaultExtentControl: true,
     });
 
     baseMaps = {
