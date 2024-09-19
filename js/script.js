@@ -3,6 +3,8 @@ let map, mountainAreasLayer, markers, mountainAreasData, filteredMountainAreas =
 let baseMaps = {};
 let initialBounds;
 let allOsmPeaks, filteredOsmPeaks;
+let mountainAreasLoaded = false;
+let osmPeaksLoaded = false;
 
 // Map initialization
 const initMap = () => {
@@ -245,6 +247,8 @@ const clearSearch = () => {
 
 const handleFilterChange = (selectedValue) => {
     console.log('Handling filter change...');
+    if (!mountainAreasLoaded) return;
+
     mountainAreasLayer.clearLayers();
     filteredMountainAreas = selectedValue === "all" 
         ? mountainAreasData.features.filter(feature => String(feature.properties.Hier_lvl).trim() === "4")
@@ -261,6 +265,12 @@ const handleFilterChange = (selectedValue) => {
     document.getElementById('search-input').value = '';
     document.getElementById('search-suggestions').style.display = 'none';
     console.log('Filter change handled');
+};
+
+// New function to apply the current filter
+const applyCurrentFilter = () => {
+    const hierLvlSelect = document.getElementById('hier-lvl-select');
+    handleFilterChange(hierLvlSelect.value);
 };
 
 const defaultPolygonStyle = () => ({
@@ -289,7 +299,11 @@ const loadMountainAreas = async () => {
         });
 
         hierLvlSelect.value = "4";
-        handleFilterChange("4");
+        mountainAreasLoaded = true;
+        
+        if (osmPeaksLoaded) {
+            applyCurrentFilter();
+        }
 
         console.log('Mountain areas loaded');
     } catch (error) {
@@ -304,9 +318,11 @@ const loadOsmPeaks = async () => {
         const response = await fetch("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/OSM_peaks_GMBA.geojson");
         const osmPeaksData = await response.json();
         allOsmPeaks = osmPeaksData.features;
+        osmPeaksLoaded = true;
         
-        // Initially filter peaks with Hier_lvl = 4
-        filterAndDisplayPeaks("4");
+        if (mountainAreasLoaded) {
+            applyCurrentFilter();
+        }
         
         console.log('OSM peaks loaded');
     } catch (error) {
@@ -316,6 +332,8 @@ const loadOsmPeaks = async () => {
 
 // New function to filter and display peaks
 const filterAndDisplayPeaks = (hierLvl) => {
+    if (!osmPeaksLoaded) return;
+
     markers.clearLayers();
     filteredOsmPeaks = hierLvl === "all" 
         ? allOsmPeaks.filter(feature => feature.properties.Hier_lvl === "4")
@@ -362,8 +380,8 @@ const initializeMap = async () => {
     addControls(map, baseMaps, overlayMaps);
     addEventListeners(map, mountainAreasLayer);
 
-    await loadMountainAreas();
-    await loadOsmPeaks();
+    // Load both datasets concurrently
+    await Promise.all([loadMountainAreas(), loadOsmPeaks()]);
     
     console.log('Map initialization complete');
 };
