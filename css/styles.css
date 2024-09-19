@@ -51,14 +51,21 @@ body, html {
 /* Attribution Styles */
 .leaflet-control-attribution {
     font-family: 'Montserrat', Arial, sans-serif !important;
-    font-size: 11px !important;
+    font-size: 7px !important;  /* Reduced font size */
     line-height: 1.5 !important;
     padding: 0 5px !important;
     white-space: nowrap !important;
     width: auto !important;
+    max-width: none !important;
     background-color: rgba(255, 255, 255, 0.8) !important;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.2) !important;
     border-radius: 3px 0 0 0 !important;
+    display: inline-block !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    left: auto !important;
+    overflow: visible !important;
 }
 
 .leaflet-control-attribution a {
@@ -70,18 +77,19 @@ body, html {
     text-decoration: underline !important;
 }
 
-/* Force the attribution to be on a single line */
+/* Force the attribution to expand */
 .leaflet-container .leaflet-control-attribution {
-    display: flex !important;
-    align-items: center !important;
     max-width: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    line-height: 1.5 !important;
 }
 
-/* Ensure the attribution expands to fit its content */
-.leaflet-container .leaflet-control-attribution,
-.leaflet-container .leaflet-control-scale {
-    right: 0 !important;
-    left: auto !important;
+/* Ensure the control container doesn't restrict the attribution */
+.leaflet-bottom.leaflet-right {
+    width: auto !important;
+    max-width: none !important;
+    white-space: nowrap !important;
 }
 
 /* Tooltip Styles */
