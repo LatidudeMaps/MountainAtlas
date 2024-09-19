@@ -146,6 +146,9 @@ body, html {
     width: 100%;
     position: relative;
     z-index: 1000;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 5px;
+    border-radius: 3px;
 }
 
 .opacity-slider {
@@ -155,4 +158,6 @@ body, html {
 
 .opacity-value {
     font-size: 12px;
+    display: inline-block;
+    vertical-align: middle;
 }
