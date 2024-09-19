@@ -130,8 +130,8 @@ function fitMapToBounds() {
     }
 }
 
-// Function to update search suggestions based on the visible polygons
-function updateSearchSuggestions() {
+// Modified function to update search suggestions
+function updateSearchSuggestions(showAll = false) {
     const searchInput = document.getElementById('search-input');
     const searchSuggestions = document.getElementById('search-suggestions');
     const searchValue = searchInput.value.trim().toLowerCase();
@@ -139,15 +139,15 @@ function updateSearchSuggestions() {
     // Clear previous suggestions
     searchSuggestions.innerHTML = '';
 
-    // Get all visible polygon names
-    const visibleNames = filteredMountainAreas
-        .map(feature => feature.properties.MapName)
-        .sort((a, b) => a.localeCompare(b)); // Sort alphabetically
+    if (searchValue.length === 0 && !showAll) {
+        searchSuggestions.style.display = 'none';
+        return;
+    }
 
-    // Filter names based on input
-    const matchingNames = visibleNames.filter(name => 
-        name.toLowerCase().includes(searchValue)
-    );
+    // Filter mapNames based on input
+    const matchingNames = filteredMountainAreas
+        .map(feature => feature.properties.MapName)
+        .filter(name => showAll || name.toLowerCase().includes(searchValue));
 
     if (matchingNames.length > 0) {
         matchingNames.forEach(name => {
@@ -169,10 +169,11 @@ function updateSearchSuggestions() {
 
 // Modified event listeners for search input
 const searchInput = document.getElementById('search-input');
-searchInput.addEventListener('input', updateSearchSuggestions);
+searchInput.addEventListener('input', () => updateSearchSuggestions());
 searchInput.addEventListener('focus', () => {
-    searchInput.value = ''; // Clear the input when focused
-    updateSearchSuggestions(); // Show all suggestions
+    if (searchInput.value.trim() === '') {
+        updateSearchSuggestions(true); // Show all suggestions when focused and empty
+    }
 });
 
 // Prevent map zoom when scrolling the suggestions
@@ -244,36 +245,41 @@ document.getElementById('clear-search').addEventListener('click', function () {
     });
 });
 
-// Modify handleFilterChange to update search suggestions and display only the filtered polygons
 function handleFilterChange(selectedValue) {
-    mountainAreasLayer.clearLayers(); // Clear the current layers on the map
-    filteredMountainAreas = []; // Reset filtered features array
+    mountainAreasLayer.clearLayers();
+    filteredMountainAreas = [];
 
     if (selectedValue === "all") {
-        mountainAreasLayer.addData(mountainAreasData); // Add all features if "Show All" is clicked
-        filteredMountainAreas = mountainAreasData.features; // All features are visible
+        mountainAreasLayer.addData(mountainAreasData);
+        filteredMountainAreas = mountainAreasData.features;
     } else {
         const filteredData = {
             type: "FeatureCollection",
             features: mountainAreasData.features.filter(feature => String(feature.properties.Hier_lvl).trim() === selectedValue)
         };
 
-        mountainAreasLayer.addData(filteredData); // Add filtered data to the map
-        filteredMountainAreas = filteredData.features; // Update the filteredMountainAreas with the filtered features
+        mountainAreasLayer.addData(filteredData);
+        filteredMountainAreas = filteredData.features;
     }
 
-    // Update search suggestions based on the visible features after applying the filter
-    updateSearchSuggestions();
+    // The following line has been removed:
+    // updateSearchSuggestions();
+
+    // Optionally, you might want to clear the search input and hide suggestions
+    const searchInput = document.getElementById('search-input');
+    const searchSuggestions = document.getElementById('search-suggestions');
+    searchInput.value = '';
+    searchSuggestions.style.display = 'none';
 }
 
-// Fetch GeoJSON data with async/await (updated to preselect hier_lvl 4 on load)
+// Fetch GeoJSON data with async/await
 async function loadMountainAreas() {
     try {
         const response = await fetch(mountainAreasUrl);
         const data = await response.json();
         mountainAreasData = data;
 
-        // Extract unique hierarchy levels and populate dropdown (excluding "Show All")
+        // Extract unique hierarchy levels and populate dropdown
         const uniqueHierLvls = [...new Set(data.features.map(feature => feature.properties?.Hier_lvl))].sort((a, b) => a - b);
 
         const hierLvlSelect = document.getElementById('hier-lvl-select');
