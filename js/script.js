@@ -91,8 +91,11 @@ const initLayers = (map) => {
 // UI Controls
 const addControls = (map, baseMaps, overlayMaps) => {
     console.log('Adding controls...');
-    new L.Control.Layers.WithOpacitySlider(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
     
+    // Create the layer control without the opacity slider
+    const layerControl = L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
+
+    // Add the filter control
     const filterControl = L.control({ position: 'topright' });
     filterControl.onAdd = () => {
         const div = L.DomUtil.create('div', 'filter-control');
@@ -118,7 +121,9 @@ const addControls = (map, baseMaps, overlayMaps) => {
         return div;
     };
     filterControl.addTo(map);
+
     console.log('Controls added');
+    return layerControl;
 };
 
 // Event Handlers
@@ -164,6 +169,28 @@ const addEventListeners = (map, mountainAreasLayer) => {
 };
 
 // Utility Functions
+
+const addOpacitySlider = (layerControl) => {
+    const mountainAreasItem = layerControl._overlaysList.querySelector('input[type="checkbox"] + span:contains("Mountain Areas")').parentNode;
+    if (mountainAreasItem) {
+        const sliderContainer = L.DomUtil.create('div', 'opacity-slider-container', mountainAreasItem);
+        sliderContainer.innerHTML = `
+            <input type="range" class="opacity-slider" min="0" max="1" step="0.1" value="0.65">
+            <span class="opacity-value">65%</span>
+        `;
+        
+        const slider = sliderContainer.getElementsByClassName('opacity-slider')[0];
+        const opacityValue = sliderContainer.getElementsByClassName('opacity-value')[0];
+        
+        L.DomEvent.on(slider, 'input', function(e) {
+            const opacity = parseFloat(e.target.value);
+            setMountainAreasOpacity(opacity);
+            opacityValue.textContent = Math.round(opacity * 100) + '%';
+        });
+        
+        L.DomEvent.on(slider, 'click', L.DomEvent.stopPropagation);
+    }
+};
 
 // Custom Layer Control with Opacity Slider
 L.Control.Layers.WithOpacitySlider = L.Control.Layers.extend({
@@ -472,7 +499,7 @@ const initializeMap = async () => {
         "OSM Peaks": markers
     };
 
-    addControls(map, baseMaps, overlayMaps);
+    const layerControl = addControls(map, baseMaps, overlayMaps);
     addEventListeners(map, mountainAreasLayer);
 
     // Load both datasets concurrently
@@ -480,6 +507,9 @@ const initializeMap = async () => {
     
     // After loading data, apply the initial filter (Hier_lvl 4)
     handleFilterChange("4");
+    
+    // Add the opacity slider after data is loaded
+    addOpacitySlider(layerControl);
     
     // Fit the map to the initial data
     fitMapToBounds(map, mountainAreasLayer, markers);
