@@ -99,6 +99,8 @@ document.getElementById('show-all-btn').addEventListener('click', function () {
     handleFilterChange("all");  // Show all polygons
 });
 
+let mountainAreasData, filteredMountainAreas = []; // Declare variables for original and filtered data
+
 // Autocomplete logic (unchanged)
 document.getElementById('search-input').addEventListener('input', function () {
     const searchValue = this.value.trim().toLowerCase();
