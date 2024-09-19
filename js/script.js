@@ -237,7 +237,6 @@ const handleSearch = () => {
         });
 
         if (matchingLayers.length > 0) {
-            const bounds = L.latLngBounds([]);
             matchingLayers.forEach(layer => {
                 layer.setStyle({
                     color: 'yellow',
@@ -245,9 +244,22 @@ const handleSearch = () => {
                     opacity: 1,
                     fillOpacity: 0.65  // Normal opacity for the matching polygon
                 });
-                bounds.extend(layer.getBounds());
             });
-            map.fitBounds(bounds);
+
+            // Get the bounds of the matching layer
+            const bounds = matchingLayers[0].getBounds();
+            
+            // Calculate the center of the bounds
+            const center = bounds.getCenter();
+            
+            // Calculate appropriate zoom level
+            const zoom = map.getBoundsZoom(bounds);
+
+            // Use flyTo for smooth animation
+            map.flyTo(center, zoom, {
+                duration: 1.5,  // Animation duration in seconds
+                easeLinearity: 0.25
+            });
 
             // Filter and display matching OSM peaks
             filterAndDisplayPeaks(null, matchingMapName);
