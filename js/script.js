@@ -338,6 +338,19 @@ function optimizeForMobile() {
                     window.scrollTo(0, 0);
                 });
             });
+
+            // Show toggle button, hide filter control
+            if (filterToggle) filterToggle.style.display = 'block';
+            if (filterControl) filterControl.style.display = 'none';
+
+            // Ensure the filter toggle is clickable
+            if (filterToggle) {
+                filterToggle.style.zIndex = '1002';
+                filterToggle.style.position = 'absolute';
+                filterToggle.style.top = '10px';
+                filterToggle.style.right = '50px';
+            }
+
         } else {
             // Desktop optimizations
             map.options.zoomAnimation = true;
@@ -346,6 +359,14 @@ function optimizeForMobile() {
             // Hide toggle button, show filter control
             if (filterToggle) filterToggle.style.display = 'none';
             if (filterControl) filterControl.style.display = 'block';
+
+            // Reset filter control position for desktop view
+            if (filterControl) {
+                filterControl.style.position = 'static';
+                filterControl.style.top = 'auto';
+                filterControl.style.left = 'auto';
+                filterControl.style.right = 'auto';
+            }
         }
     }
 }
