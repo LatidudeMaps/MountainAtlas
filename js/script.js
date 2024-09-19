@@ -2,7 +2,6 @@
 let map, mountainAreasLayer, markers, mountainAreasData, filteredMountainAreas = [];
 let baseMaps = {};
 let initialBounds;
-let isMobileView = window.innerWidth <= 768;
 
 // Map initialization
 const initMap = () => {
@@ -55,23 +54,6 @@ const initMap = () => {
     });
 
     map.addControl(new resetViewControl());
-
-    // Add persistent toggle button
-    const filterToggle = L.control({position: 'topright'});
-    filterToggle.onAdd = function(map) {
-        const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control filter-toggle');
-        div.innerHTML = '<a href="#" title="Toggle Filters" role="button" aria-label="Toggle filters">☰</a>';
-        div.style.display = isMobileView ? 'block' : 'none';
-        div.onclick = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const filterControl = document.querySelector('.filter-control');
-            filterControl.style.display = filterControl.style.display === 'none' ? 'block' : 'none';
-            return false;
-        };
-        return div;
-    };
-    filterToggle.addTo(map);
 
     console.log('Map initialized');
     return map;
@@ -278,104 +260,6 @@ const defaultPolygonStyle = () => ({
     fillOpacity: 0.65
 });
 
-function preventZoom() {
-    document.addEventListener('touchstart', function(event) {
-        if (event.touches.length > 1) {
-            event.preventDefault();
-        }
-    }, { passive: false });
-
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', function(event) {
-        const now = (new Date()).getTime();
-        if (now - lastTouchEnd <= 300) {
-            event.preventDefault();
-        }
-        lastTouchEnd = now;
-    }, false);
-}
-
-function optimizeForMobile() {
-    const newIsMobileView = window.innerWidth <= 768;
-    if (newIsMobileView !== isMobileView) {
-        isMobileView = newIsMobileView;
-        const filterControl = document.querySelector('.filter-control');
-        const filterToggle = document.querySelector('.filter-toggle');
-        
-        if (isMobileView) {
-            // Mobile optimizations
-            map.options.zoomAnimation = false;
-            map.setMaxZoom(16);
-
-            // Simplify vector layers
-            map.eachLayer(function(layer) {
-                if (layer instanceof L.Polyline) {
-                    layer.setStyle({ weight: 2 });
-                }
-            });
-
-            // Adjust cluster settings
-            if (markers instanceof L.MarkerClusterGroup) {
-                markers.options.disableClusteringAtZoom = 15;
-                markers.options.maxClusterRadius = 40;
-            }
-
-            // Show toggle button, hide filter control
-            if (filterToggle) filterToggle.style.display = 'block';
-            if (filterControl) filterControl.style.display = 'none';
-
-            // Prevent unwanted zooming
-            preventZoom();
-
-            // Handle input field focus
-            const inputFields = document.querySelectorAll('input, select');
-            inputFields.forEach(input => {
-                input.addEventListener('focus', () => {
-                    document.body.scrollTop = 0;
-                    document.documentElement.scrollTop = 0;
-                });
-                input.addEventListener('blur', () => {
-                    window.scrollTo(0, 0);
-                });
-            });
-
-            // Show toggle button, hide filter control
-            if (filterToggle) filterToggle.style.display = 'block';
-            if (filterControl) filterControl.style.display = 'none';
-
-            // Ensure the filter toggle is clickable
-            if (filterToggle) {
-                filterToggle.style.zIndex = '1002';
-                filterToggle.style.position = 'absolute';
-                filterToggle.style.top = '10px';
-                filterToggle.style.right = '50px';
-            }
-            
-        } else {
-            // Desktop optimizations
-            map.options.zoomAnimation = true;
-            map.setMaxZoom(18); // Or whatever your default max zoom is
-
-            // Hide toggle button, show filter control
-            if (filterToggle) filterToggle.style.display = 'none';
-            if (filterControl) filterControl.style.display = 'block';
-        }
-    }
-}
-
-// Debounce function (keep this as is)
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
 // Data Loading
 const loadMountainAreas = async () => {
     console.log('Loading mountain areas...');
@@ -459,13 +343,6 @@ const initializeMap = async () => {
     await loadMountainAreas();
     await loadOsmPeaks();
     
-    // Call optimizeForMobile after everything is loaded
-    optimizeForMobile();
-    window.addEventListener('load', function() {
-        optimizeForMobile();
-        window.addEventListener('resize', debounce(optimizeForMobile, 250));
-    });
-    
     console.log('Map initialization complete');
 };
 
@@ -474,6 +351,3 @@ document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM fully loaded and parsed');
     initializeMap();
 });
-
-// Add resize listener
-window.addEventListener('resize', optimizeForMobile);
