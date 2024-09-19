@@ -243,26 +243,6 @@ const clearSearch = () => {
     console.log('Search cleared');
 };
 
-const handleFilterChange = (selectedValue) => {
-    console.log('Handling filter change...');
-    mountainAreasLayer.clearLayers();
-    filteredMountainAreas = selectedValue === "all" 
-        ? mountainAreasData.features.filter(feature => String(feature.properties.Hier_lvl).trim() === "4")
-        : mountainAreasData.features.filter(feature => String(feature.properties.Hier_lvl).trim() === selectedValue);
-    
-    mountainAreasLayer.addData({
-        type: "FeatureCollection",
-        features: filteredMountainAreas
-    });
-
-    // Filter OSM peaks
-    filterAndDisplayPeaks(selectedValue);
-
-    document.getElementById('search-input').value = '';
-    document.getElementById('search-suggestions').style.display = 'none';
-    console.log('Filter change handled');
-};
-
 const defaultPolygonStyle = () => ({
     color: "#ff7800",
     weight: 2,
@@ -271,32 +251,6 @@ const defaultPolygonStyle = () => ({
     fillOpacity: 0.65
 });
 
-// Data Loading
-const loadMountainAreas = async () => {
-    console.log('Loading mountain areas...');
-    try {
-        const response = await fetch("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson");
-        mountainAreasData = await response.json();
-
-        const uniqueHierLvls = [...new Set(mountainAreasData.features.map(feature => feature.properties?.Hier_lvl))].sort((a, b) => a - b);
-        const hierLvlSelect = document.getElementById('hier-lvl-select');
-        
-        uniqueHierLvls.forEach(value => {
-            const option = document.createElement('option');
-            option.value = value;
-            option.text = `Hier_lvl: ${value}`;
-            hierLvlSelect.appendChild(option);
-        });
-
-        hierLvlSelect.value = "4";
-        handleFilterChange("4");
-
-        console.log('Mountain areas loaded');
-    } catch (error) {
-        console.error('Error loading Mountain Areas:', error);
-    }
-};
-
 // Modify the loadOsmPeaks function
 const loadOsmPeaks = async () => {
     console.log('Loading OSM peaks...');
@@ -304,10 +258,6 @@ const loadOsmPeaks = async () => {
         const response = await fetch("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/OSM_peaks.geojson");
         const osmPeaksData = await response.json();
         allOsmPeaks = osmPeaksData.features;
-        
-        // Initially filter peaks with Hier_lvl = 4
-        filterAndDisplayPeaks("4");
-        
         console.log('OSM peaks loaded');
     } catch (error) {
         console.error('Error loading OSM Peaks:', error);
@@ -316,6 +266,11 @@ const loadOsmPeaks = async () => {
 
 // New function to filter and display peaks
 const filterAndDisplayPeaks = (hierLvl) => {
+    if (!allOsmPeaks) {
+        console.error('OSM peaks data not loaded yet');
+        return;
+    }
+    
     markers.clearLayers();
     filteredOsmPeaks = hierLvl === "all" 
         ? allOsmPeaks.filter(feature => feature.properties.Hier_lvl === "4")
@@ -346,7 +301,52 @@ const filterAndDisplayPeaks = (hierLvl) => {
     fitMapToBounds(map, mountainAreasLayer, markers);
 };
 
-// Map initialization
+// Modify the handleFilterChange function
+const handleFilterChange = (selectedValue) => {
+    console.log('Handling filter change...');
+    mountainAreasLayer.clearLayers();
+    filteredMountainAreas = selectedValue === "all" 
+        ? mountainAreasData.features.filter(feature => String(feature.properties.Hier_lvl).trim() === "4")
+        : mountainAreasData.features.filter(feature => String(feature.properties.Hier_lvl).trim() === selectedValue);
+    
+    mountainAreasLayer.addData({
+        type: "FeatureCollection",
+        features: filteredMountainAreas
+    });
+
+    // Filter OSM peaks
+    filterAndDisplayPeaks(selectedValue);
+
+    document.getElementById('search-input').value = '';
+    document.getElementById('search-suggestions').style.display = 'none';
+    console.log('Filter change handled');
+};
+
+// Modify the loadMountainAreas function
+const loadMountainAreas = async () => {
+    console.log('Loading mountain areas...');
+    try {
+        const response = await fetch("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson");
+        mountainAreasData = await response.json();
+
+        const uniqueHierLvls = [...new Set(mountainAreasData.features.map(feature => feature.properties?.Hier_lvl))].sort((a, b) => a - b);
+        const hierLvlSelect = document.getElementById('hier-lvl-select');
+        
+        uniqueHierLvls.forEach(value => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.text = `Hier_lvl: ${value}`;
+            hierLvlSelect.appendChild(option);
+        });
+
+        hierLvlSelect.value = "4";
+        console.log('Mountain areas loaded');
+    } catch (error) {
+        console.error('Error loading Mountain Areas:', error);
+    }
+};
+
+// Modify the initializeMap function
 const initializeMap = async () => {
     console.log('Initializing map...');
     map = initMap();
@@ -364,6 +364,9 @@ const initializeMap = async () => {
 
     await loadMountainAreas();
     await loadOsmPeaks();
+    
+    // Initialize the filter after both datasets are loaded
+    handleFilterChange("4");
     
     console.log('Map initialization complete');
 };
