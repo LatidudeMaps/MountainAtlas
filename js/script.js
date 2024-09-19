@@ -104,7 +104,7 @@ const initLayers = (map) => {
 // UI Controls
 const addControls = (map, baseMaps, overlayMaps) => {
     console.log('Adding controls...');
-    L.control.layers(baseMaps, overlayMaps, { collapsed: true }).addTo(map);
+    L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
     
     const filterControl = L.control({ position: 'topright' });
     filterControl.onAdd = () => {
