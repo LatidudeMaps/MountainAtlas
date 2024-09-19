@@ -96,7 +96,6 @@ const addEventListeners = (map, mountainAreasLayer) => {
     map.on('load', () => {
         setTimeout(() => {
             map.invalidateSize();
-            map.setZoomAnimation(true);
         }, 100);
     });
 
