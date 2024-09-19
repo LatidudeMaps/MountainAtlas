@@ -175,6 +175,11 @@ searchInput.addEventListener('focus', () => {
     updateSearchSuggestions(); // Show all suggestions
 });
 
+// Prevent map zoom when scrolling the suggestions
+document.getElementById('search-suggestions').addEventListener('wheel', function(e) {
+    e.stopPropagation();
+});
+
 // Close suggestions when clicking outside
 document.addEventListener('click', function(e) {
     const searchSuggestions = document.getElementById('search-suggestions');

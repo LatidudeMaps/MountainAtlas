@@ -88,28 +88,33 @@
 
 .input-button-group {
     display: flex;
-    align-items: center;
+    align-items: stretch;
+}
+
+.custom-select,
+#search-input,
+.custom-button {
+    height: 30px;
+    font-size: 14px;
+    box-sizing: border-box;
 }
 
 .custom-select,
 #search-input {
     flex-grow: 1;
-    height: 30px;
     padding: 5px;
     border: 1px solid #ccc;
     border-radius: 3px;
-    font-size: 14px;
 }
 
 .custom-button {
-    height: 30px;
     padding: 5px 10px;
     margin-left: 5px;
     background-color: #f8f8f8;
     border: 1px solid #ccc;
     border-radius: 3px;
     cursor: pointer;
-    font-size: 14px;
+    white-space: nowrap;
 }
 
 .custom-button:hover {
