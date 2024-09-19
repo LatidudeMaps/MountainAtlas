@@ -80,18 +80,25 @@ const filterControl = L.control({ position: 'topright' });
 filterControl.onAdd = function () {
     const div = L.DomUtil.create('div', 'filter-control');
     div.innerHTML = `
-        <label for="hier-lvl-select">Choose hierarchy level:</label><br>
-        <select id="hier-lvl-select">
-            <!-- Removed the "Show All" option from the dropdown -->
-        </select>
-        <button id="show-all-btn" style="margin-left:5px;">Show All</button>
-        <br><br>
-        <label for="search-input">Search by MapName:</label><br>
-        <div class="custom-search">
-            <input type="text" id="search-input" placeholder="Search..." style="width: 150px;">
-            <div id="search-suggestions" class="search-suggestions"></div>
+        <div class="control-group">
+            <label for="hier-lvl-select">Choose hierarchy level:</label>
+            <div class="input-button-group">
+                <select id="hier-lvl-select" class="custom-select">
+                    <!-- Options will be populated dynamically -->
+                </select>
+                <button id="show-all-btn" class="custom-button">Show All</button>
+            </div>
         </div>
-        <button id="clear-search" style="margin-left:5px;">Clear</button>
+        <div class="control-group">
+            <label for="search-input">Search by MapName:</label>
+            <div class="input-button-group">
+                <div class="custom-search">
+                    <input type="text" id="search-input" class="custom-select" placeholder="Search...">
+                    <div id="search-suggestions" class="search-suggestions"></div>
+                </div>
+                <button id="clear-search" class="custom-button">Clear</button>
+            </div>
+        </div>
     `;
     return div;
 };
