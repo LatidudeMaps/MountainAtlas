@@ -2,6 +2,7 @@
 let map, mountainAreasLayer, markers, mountainAreasData, filteredMountainAreas = [];
 let baseMaps = {};
 let initialBounds;
+let allOsmPeaks, filteredOsmPeaks;
 
 // Map initialization
 const initMap = () => {
@@ -133,7 +134,10 @@ const addEventListeners = (map, mountainAreasLayer) => {
         map.setMinZoom(map.getZoom());
     });
 
-    document.getElementById('show-all-btn').addEventListener('click', () => handleFilterChange("all"));
+    document.getElementById('show-all-btn').addEventListener('click', () => {
+        handleFilterChange("all");
+        filterAndDisplayPeaks(4);  // Show peaks with Hier_lvl = 4 when "Show All" is clicked
+    });
     document.getElementById('search-input').addEventListener('input', updateSearchSuggestions);
     document.getElementById('search-input').addEventListener('focus', () => {
         if (document.getElementById('search-input').value.trim() === '') {
@@ -249,6 +253,9 @@ const handleFilterChange = (selectedValue) => {
         features: filteredMountainAreas
     });
 
+    // Filter OSM peaks
+    filterAndDisplayPeaks(selectedValue === "all" ? 4 : parseInt(selectedValue));
+
     document.getElementById('search-input').value = '';
     document.getElementById('search-suggestions').style.display = 'none';
     console.log('Filter change handled');
@@ -291,39 +298,51 @@ const loadMountainAreas = async () => {
     }
 };
 
+// Modify the loadOsmPeaks function
 const loadOsmPeaks = async () => {
     console.log('Loading OSM peaks...');
     try {
-        const response = await fetch("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/OSM_peaks.geojson");
+        const response = await fetch("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/OSM_peaks_GMBA.geojson");
         const osmPeaksData = await response.json();
-
-        L.geoJSON(osmPeaksData, {
-            pointToLayer: (feature, latlng) => {
-                const marker = L.marker(latlng);
-                const name = feature.properties.name || "Unnamed Peak";
-                const elevation = feature.properties.elevation || "Unknown";
-                const popupContent = `<b>Name:</b> ${name}<br><b>Elevation:</b> ${elevation} m`;
-
-                marker.bindPopup(popupContent)
-                    .bindTooltip(name, {
-                        permanent: true,
-                        direction: 'top',
-                        offset: [-15, -3],
-                        className: 'dark-tooltip'
-                    })
-                    .on('click', () => marker.openPopup())
-                    .on('popupopen', () => marker.closeTooltip())
-                    .on('popupclose', () => marker.openTooltip());
-
-                return marker;
-            }
-        }).addTo(markers);
-
-        fitMapToBounds(map, mountainAreasLayer, markers);
+        allOsmPeaks = osmPeaksData.features;
+        
+        // Initially filter peaks with Hier_lvl = 4
+        filterAndDisplayPeaks(4);
+        
         console.log('OSM peaks loaded');
     } catch (error) {
         console.error('Error loading OSM Peaks:', error);
     }
+};
+
+// New function to filter and display peaks
+const filterAndDisplayPeaks = (hierLvl) => {
+    markers.clearLayers();
+    filteredOsmPeaks = allOsmPeaks.filter(feature => feature.properties.Hier_lvl == hierLvl);
+    
+    L.geoJSON(filteredOsmPeaks, {
+        pointToLayer: (feature, latlng) => {
+            const marker = L.marker(latlng);
+            const name = feature.properties.name || "Unnamed Peak";
+            const elevation = feature.properties.elevation || "Unknown";
+            const popupContent = `<b>Name:</b> ${name}<br><b>Elevation:</b> ${elevation} m<br><b>Hier_lvl:</b> ${feature.properties.Hier_lvl}`;
+
+            marker.bindPopup(popupContent)
+                .bindTooltip(name, {
+                    permanent: true,
+                    direction: 'top',
+                    offset: [-15, -3],
+                    className: 'dark-tooltip'
+                })
+                .on('click', () => marker.openPopup())
+                .on('popupopen', () => marker.closeTooltip())
+                .on('popupclose', () => marker.openTooltip());
+
+            return marker;
+        }
+    }).addTo(markers);
+
+    fitMapToBounds(map, mountainAreasLayer, markers);
 };
 
 // Map initialization
