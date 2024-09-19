@@ -510,12 +510,15 @@ const initializeMap = async () => {
     console.log('Applying initial filter...');
     handleFilterChange("4");
     
-    console.log('Adding opacity slider...');
-    if (controls && controls.layerControl) {
-        addOpacitySlider(controls.layerControl);
-    } else {
-        console.error('Layer control not available for adding opacity slider');
-    }
+    // Add a small delay before adding the opacity slider
+    setTimeout(() => {
+        console.log('Adding opacity slider...');
+        if (controls && controls.layerControl) {
+            addOpacitySlider(controls.layerControl);
+        } else {
+            console.error('Layer control not available for adding opacity slider');
+        }
+    }, 100);
     
     fitMapToBounds(map, mountainAreasLayer, markers);
     
