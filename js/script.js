@@ -218,9 +218,11 @@ const handleSearch = () => {
 
     if (searchValue) {
         const matchingLayers = [];
+        let matchingMapName = '';
         mountainAreasLayer.eachLayer(layer => {
             if (layer.feature?.properties?.MapName.trim().toLowerCase().includes(searchValue)) {
                 matchingLayers.push(layer);
+                matchingMapName = layer.feature.properties.MapName;
             }
         });
 
@@ -231,6 +233,9 @@ const handleSearch = () => {
                 bounds.extend(layer.getBounds());
             });
             map.fitBounds(bounds);
+
+            // Filter and display matching OSM peaks
+            filterAndDisplayPeaks(null, matchingMapName);
         } else {
             alert('No matching polygons found.');
         }
@@ -328,20 +333,28 @@ const loadOsmPeaks = async () => {
     }
 };
 
-const filterAndDisplayPeaks = (hierLvl) => {
+const filterAndDisplayPeaks = (hierLvl, mapName = null) => {
     if (!osmPeaksLoaded) return;
 
     markers.clearLayers();
-    filteredOsmPeaks = hierLvl === "all" 
-        ? allOsmPeaks.filter(feature => feature.properties.Hier_lvl === "4")
-        : allOsmPeaks.filter(feature => String(feature.properties.Hier_lvl).trim() === hierLvl);
-    
-    L.geoJSON(filteredOsmPeaks, {
+    let filteredPeaks;
+
+    if (mapName) {
+        filteredPeaks = allOsmPeaks.filter(feature => 
+            feature.properties.MapName.trim().toLowerCase() === mapName.toLowerCase()
+        );
+    } else {
+        filteredPeaks = hierLvl === "all" 
+            ? allOsmPeaks.filter(feature => feature.properties.Hier_lvl === "4")
+            : allOsmPeaks.filter(feature => String(feature.properties.Hier_lvl).trim() === hierLvl);
+    }
+
+    L.geoJSON(filteredPeaks, {
         pointToLayer: (feature, latlng) => {
             const marker = L.marker(latlng);
             const name = feature.properties.name || "Unnamed Peak";
             const elevation = feature.properties.elevation || "Unknown";
-            const popupContent = `<b>Name:</b> ${name}<br><b>Elevation:</b> ${elevation} m<br><b>Hier_lvl:</b> ${feature.properties.Hier_lvl}`;
+            const popupContent = `<b>Name:</b> ${name}<br><b>Elevation:</b> ${elevation} m<br><b>Hier_lvl:</b> ${feature.properties.Hier_lvl}<br><b>MapName:</b> ${feature.properties.MapName}`;
 
             marker.bindPopup(popupContent)
                 .bindTooltip(name, {
