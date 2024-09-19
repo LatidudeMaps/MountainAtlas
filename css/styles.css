@@ -161,12 +161,3 @@ body, html {
     color: #777;
 }
 
-/* Ensure the layer control items have enough space */
-.leaflet-control-layers label {
-    margin-bottom: 10px;
-}
-
-/* Adjust the layer control width if needed */
-.leaflet-control-layers {
-    min-width: 200px;
-}
