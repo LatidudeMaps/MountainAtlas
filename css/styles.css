@@ -140,3 +140,19 @@ body, html {
 .search-suggestion:hover {
     background-color: #f0f0f0;
 }
+
+.opacity-slider-container {
+    margin-top: 5px;
+    width: 100%;
+    position: relative;
+    z-index: 1000;
+}
+
+.opacity-slider {
+    width: 100%;
+    margin-right: 5px;
+}
+
+.opacity-value {
+    font-size: 12px;
+}

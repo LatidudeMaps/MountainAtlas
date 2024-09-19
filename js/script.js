@@ -190,8 +190,9 @@ const addOpacitySlider = (layerControl) => {
     if (mountainAreasItem) {
         console.log('Mountain Areas layer found. Adding slider...');
         const sliderContainer = L.DomUtil.create('div', 'opacity-slider-container', mountainAreasItem);
+        sliderContainer.style.marginTop = '5px';  // Add some spacing
         sliderContainer.innerHTML = `
-            <input type="range" class="opacity-slider" min="0" max="1" step="0.1" value="0.65">
+            <input type="range" class="opacity-slider" min="0" max="1" step="0.1" value="0.65" style="width: 100%;">
             <span class="opacity-value">65%</span>
         `;
         
