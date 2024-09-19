@@ -87,8 +87,8 @@ filterControl.onAdd = function () {
         <button id="show-all-btn" style="margin-left:5px;">Show All</button> <!-- New Show All button -->
         <br><br>
         <label for="search-input">Search by MapName:</label><br>
-        <input type="text" id="search-input" placeholder="Search..." style="width: 150px;" list="search-suggestions">
-        <datalist id="search-suggestions"></datalist> <!-- This will hold autocomplete suggestions -->
+        <input type="text" id="search-input" placeholder="Search..." style="width: 150px;">
+        <div id="autocomplete-list" class="autocomplete-items"></div> <!-- Custom autocomplete container -->
         <button id="clear-search" style="margin-left:5px;">Clear</button> <!-- Clear button -->
     `;
     return div;
@@ -104,57 +104,47 @@ L.DomEvent.disableClickPropagation(document.querySelector('.filter-control'));
 
 let mountainAreasData, filteredMountainAreas = []; // Declare variables for original and filtered data
 
-// Function to fit map to the bounds of both mountain areas and OSM peaks
-function fitMapToBounds() {
-    const bounds = L.latLngBounds([]);
+// Autocomplete functionality for custom dropdown
+document.getElementById('search-input').addEventListener('input', function () {
+    const searchValue = this.value.trim().toLowerCase();
+    const suggestionsContainer = document.getElementById('autocomplete-list');
+    suggestionsContainer.innerHTML = ''; // Clear previous suggestions
 
-    if (mountainAreasLayer.getLayers().length > 0) {
-        bounds.extend(mountainAreasLayer.getBounds()); // Extend bounds to include mountain areas
+    if (searchValue) {
+        // Filter suggestions based on input value
+        const filteredSuggestions = filteredMountainAreas
+            .map(feature => feature.properties.MapName)
+            .filter(name => name.toLowerCase().includes(searchValue));
+
+        // Populate suggestions in the dropdown
+        filteredSuggestions.forEach(name => {
+            const suggestionItem = document.createElement('div');
+            suggestionItem.classList.add('autocomplete-item');
+            suggestionItem.textContent = name;
+            suggestionItem.addEventListener('click', function () {
+                // On suggestion click, populate the input field and clear suggestions
+                document.getElementById('search-input').value = name;
+                suggestionsContainer.innerHTML = '';
+                handleSearch(); // Trigger search based on the selected value
+            });
+            suggestionsContainer.appendChild(suggestionItem);
+        });
     }
+});
 
-    if (markers.getLayers().length > 0) {
-        bounds.extend(markers.getBounds()); // Extend bounds to include OSM peaks
-    }
-
-    if (bounds.isValid()) {
-        map.fitBounds(bounds); // Fit the map view to the combined bounds
-    }
-}
-
-// Function to update search suggestions based on the visible polygons
-function updateSearchSuggestions() {
-    const searchSuggestions = document.getElementById('search-suggestions');
-    searchSuggestions.innerHTML = ''; // Clear previous suggestions
-
-    // Collect visible "MapName" values from filtered layers
-    const mapNames = filteredMountainAreas.map(feature => feature.properties.MapName);
-
-    // Populate the datalist with unique "MapName" values
-    mapNames.forEach(name => {
-        const option = document.createElement('option');
-        option.value = name;
-        searchSuggestions.appendChild(option);
-    });
-}
-
-// Function to handle search by MapName when "Enter" is pressed or suggestion is selected
+// Function to handle search by MapName when a suggestion is selected or search value is entered
 function handleSearch() {
     const searchValue = document.getElementById('search-input').value.trim().toLowerCase();
-
-    // Clear any previous style (e.g., highlighted)
     mountainAreasLayer.eachLayer(layer => {
         mountainAreasLayer.resetStyle(layer); // Reset style for all layers
     });
 
     if (searchValue) {
         let matchingLayers = [];
-
-        // Search only the currently visible layers in the mountainAreasLayer (filtered polygons)
+        // Search only the visible layers
         mountainAreasLayer.eachLayer(layer => {
-            // Ensure that the layer has feature and properties
             if (layer.feature && layer.feature.properties) {
                 const mapName = layer.feature.properties.MapName.trim().toLowerCase();
-
                 if (mapName.includes(searchValue)) {
                     matchingLayers.push(layer);
                 }
@@ -163,18 +153,13 @@ function handleSearch() {
 
         if (matchingLayers.length > 0) {
             const bounds = L.latLngBounds([]);
-
             matchingLayers.forEach(layer => {
-                // Highlight the matching polygons
                 layer.setStyle({
                     color: 'yellow', // Highlight with yellow border
                     weight: 4
                 });
-
-                bounds.extend(layer.getBounds()); // Add to the bounds to zoom to it
+                bounds.extend(layer.getBounds());
             });
-
-            // Zoom to the matching layers' bounds
             map.fitBounds(bounds);
         } else {
             alert('No matching polygons found.');
@@ -182,12 +167,10 @@ function handleSearch() {
     }
 }
 
-// Attach the search function to the search input, only trigger search on "Enter" or autocomplete selection
-document.getElementById('search-input').addEventListener('change', handleSearch);
-
-// Add a clear button functionality to reset the search input
+// Add a clear button functionality to reset the search input and clear suggestions
 document.getElementById('clear-search').addEventListener('click', function () {
     document.getElementById('search-input').value = '';
+    document.getElementById('autocomplete-list').innerHTML = ''; // Clear suggestions
     mountainAreasLayer.eachLayer(layer => {
         mountainAreasLayer.resetStyle(layer); // Reset styles on all layers when clearing search
     });
@@ -215,7 +198,7 @@ function handleFilterChange(selectedValue) {
     updateSearchSuggestions();
 }
 
-// Fetch GeoJSON data with async/await (updated to preselect hier_lvl 4 on load)
+// Fetch GeoJSON data with async/await
 async function loadMountainAreas() {
     try {
         const response = await fetch(mountainAreasUrl);
