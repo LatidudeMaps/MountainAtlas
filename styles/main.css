@@ -51,23 +51,23 @@
     cursor: pointer;
 }
 
-/* Style the search input field */
-.filter-control input#search-input {
-    width: 150px;
-    padding: 5px;
-    font-size: 14px;
-    font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    color: #333;
+/* Use !important to override default browser styles */
+.filter-control select#hier-lvl-select {
+    width: 150px !important;
+    padding: 5px !important;
+    font-size: 14px !important;
+    background-color: #f8f9fa !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    color: #333 !important;
 }
 
-/* Styling the datalist options (though full control is limited) */
-.filter-control datalist#search-suggestions option {
-    font-size: 14px;
-    font-family: Arial, sans-serif;
-    padding: 5px;
-    background-color: #f8f9fa; /* Light background */
-    color: #333;
+.filter-control input#search-input {
+    width: 150px !important;
+    padding: 5px !important;
+    font-size: 14px !important;
+    background-color: #f8f9fa !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    color: #333 !important;
 }
