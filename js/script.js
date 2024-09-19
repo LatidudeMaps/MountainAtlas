@@ -104,7 +104,7 @@ const initLayers = (map) => {
 // UI Controls
 const addControls = (map, baseMaps, overlayMaps) => {
     console.log('Adding controls...');
-    L.control.layers(baseMaps, overlayMaps, { collapsed: true }).addTo(map);
+    L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
     
     const filterControl = L.control({ position: 'topright' });
     filterControl.onAdd = () => {
@@ -350,7 +350,7 @@ function optimizeForMobile() {
                 filterToggle.style.top = '10px';
                 filterToggle.style.right = '50px';
             }
-
+            
         } else {
             // Desktop optimizations
             map.options.zoomAnimation = true;
@@ -359,14 +359,6 @@ function optimizeForMobile() {
             // Hide toggle button, show filter control
             if (filterToggle) filterToggle.style.display = 'none';
             if (filterControl) filterControl.style.display = 'block';
-
-            // Reset filter control position for desktop view
-            if (filterControl) {
-                filterControl.style.position = 'static';
-                filterControl.style.top = 'auto';
-                filterControl.style.left = 'auto';
-                filterControl.style.right = 'auto';
-            }
         }
     }
 }
