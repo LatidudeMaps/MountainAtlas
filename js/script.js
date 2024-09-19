@@ -255,8 +255,8 @@ const handleSearch = () => {
             alert('No matching polygons found.');
         }
     } else {
-        // If search is cleared, reset to default view
-        resetView();
+        // If search is empty, reset styles without changing the view
+        resetLayerStyles();
     }
     console.log('Search handled');
 };
@@ -264,7 +264,7 @@ const handleSearch = () => {
 const clearSearch = () => {
     console.log('Clearing search...');
     document.getElementById('search-input').value = '';
-    resetView();
+    resetLayerStyles();
     console.log('Search cleared');
 };
 
@@ -304,7 +304,7 @@ const defaultPolygonStyle = () => ({
 });
 
 // Add a new function to reset the view
-const resetView = () => {
+const resetLayerStyles = () => {
     // Reset all polygons to default style
     mountainAreasLayer.eachLayer(layer => {
         layer.setStyle(defaultPolygonStyle());
@@ -313,9 +313,6 @@ const resetView = () => {
     // Reset OSM peaks to show all for the current hierarchy level
     const currentHierLevel = document.getElementById('hier-lvl-select').value;
     filterAndDisplayPeaks(currentHierLevel);
-
-    // Optionally, fit the map to show all features
-    fitMapToBounds(map, mountainAreasLayer, markers);
 };
 
 // Data Loading
