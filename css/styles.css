@@ -140,3 +140,33 @@ body, html {
 .search-suggestion:hover {
     background-color: #f0f0f0;
 }
+
+/* Styles for the opacity slider container */
+.opacity-slider-container {
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    padding-left: 20px; /* Align with the checkbox label */
+}
+
+/* Styles for the range input (slider) */
+.opacity-slider {
+    width: 100px;
+    margin-right: 5px;
+}
+
+/* Styles for the opacity value display */
+.opacity-value {
+    font-size: 0.8em;
+    color: #777;
+}
+
+/* Ensure the layer control items have enough space */
+.leaflet-control-layers label {
+    margin-bottom: 10px;
+}
+
+/* Adjust the layer control width if needed */
+.leaflet-control-layers {
+    min-width: 200px;
+}

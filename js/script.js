@@ -91,8 +91,9 @@ const initLayers = (map) => {
 // UI Controls
 const addControls = (map, baseMaps, overlayMaps) => {
     console.log('Adding controls...');
-    L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
     
+    const layerControl = L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
+
     const filterControl = L.control({ position: 'topright' });
     filterControl.onAdd = () => {
         const div = L.DomUtil.create('div', 'filter-control');
@@ -118,7 +119,9 @@ const addControls = (map, baseMaps, overlayMaps) => {
         return div;
     };
     filterControl.addTo(map);
+
     console.log('Controls added');
+    return { layerControl, filterControl };
 };
 
 // Event Handlers
@@ -164,6 +167,55 @@ const addEventListeners = (map, mountainAreasLayer) => {
 };
 
 // Utility Functions
+const addOpacitySlider = (layerControl) => {
+    console.log('Adding opacity slider...');
+    if (!layerControl || !layerControl._overlaysList) {
+        console.error('Layer control or its overlay list is not available');
+        return;
+    }
+
+    const layerInputs = layerControl._overlaysList.querySelectorAll('input[type="checkbox"]');
+    console.log(`Found ${layerInputs.length} layer inputs`);
+
+    let mountainAreasItem;
+
+    for (let input of layerInputs) {
+        console.log(`Checking input: ${input.nextElementSibling ? input.nextElementSibling.textContent : 'No text content'}`);
+        if (input.nextElementSibling && input.nextElementSibling.textContent.trim() === "Mountain Areas") {
+            mountainAreasItem = input.parentNode;
+            break;
+        }
+    }
+
+    if (mountainAreasItem) {
+        console.log('Mountain Areas layer found. Adding slider...');
+        const sliderContainer = L.DomUtil.create('div', 'opacity-slider-container', mountainAreasItem);
+        sliderContainer.innerHTML = `
+            <input type="range" class="opacity-slider" min="0" max="1" step="0.1" value="0.65">
+            <span class="opacity-value">65%</span>
+        `;
+        
+        const slider = sliderContainer.getElementsByClassName('opacity-slider')[0];
+        const opacityValue = sliderContainer.getElementsByClassName('opacity-value')[0];
+        
+        L.DomEvent.on(slider, 'input', function(e) {
+            const opacity = parseFloat(e.target.value);
+            setMountainAreasOpacity(opacity);
+            opacityValue.textContent = Math.round(opacity * 100) + '%';
+        });
+        
+        L.DomEvent.on(slider, 'click', L.DomEvent.stopPropagation);
+        console.log('Opacity slider added successfully');
+    } else {
+        console.error("Mountain Areas layer not found in the layer control");
+    }
+};
+
+// Function to set the opacity of the mountain areas layer
+const setMountainAreasOpacity = (opacity) => {
+    mountainAreasLayer.setStyle({ fillOpacity: opacity });
+};
+
 const fitMapToBounds = (map, mountainAreasLayer, markers) => {
     console.log('Fitting map to bounds...');
     const bounds = L.latLngBounds([]);
@@ -427,7 +479,7 @@ const initializeMap = async () => {
         "OSM Peaks": markers
     };
 
-    addControls(map, baseMaps, overlayMaps);
+    const controls = addControls(map, baseMaps, overlayMaps);
     addEventListeners(map, mountainAreasLayer);
 
     // Load both datasets concurrently
@@ -435,6 +487,13 @@ const initializeMap = async () => {
     
     // After loading data, apply the initial filter (Hier_lvl 4)
     handleFilterChange("4");
+    
+    // Add the opacity slider after data is loaded
+    if (controls && controls.layerControl) {
+        addOpacitySlider(controls.layerControl);
+    } else {
+        console.error('Layer control not available for adding opacity slider');
+    }
     
     // Fit the map to the initial data
     fitMapToBounds(map, mountainAreasLayer, markers);
