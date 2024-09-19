@@ -278,42 +278,44 @@ function preventZoom() {
 }
 
 function optimizeForMobile() {
-    if (window.innerWidth <= 768) {
-        // Disable zoom animation for better performance
-        map.options.zoomAnimation = false;
+    const isMobile = window.innerWidth <= 768;
+    const filterControl = document.querySelector('.filter-control');
 
-        // Reduce the max zoom level for faster rendering
+    if (isMobile) {
+        // Mobile optimizations
+        map.options.zoomAnimation = false;
         map.setMaxZoom(16);
 
-        // Simplify vector layers (if you're using any)
+        // Simplify vector layers
         map.eachLayer(function(layer) {
             if (layer instanceof L.Polyline) {
                 layer.setStyle({ weight: 2 });
             }
         });
 
-        // Adjust cluster settings for better mobile performance
+        // Adjust cluster settings
         if (markers instanceof L.MarkerClusterGroup) {
             markers.options.disableClusteringAtZoom = 15;
             markers.options.maxClusterRadius = 40;
         }
 
-        // Add a button to toggle the filter control visibility
-        const filterToggle = L.control({position: 'topright'});
-        filterToggle.onAdd = function(map) {
-            const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-            div.innerHTML = '<a href="#" title="Toggle Filters" role="button" aria-label="Toggle filters">☰</a>';
-            div.onclick = function() {
-                const filterControl = document.querySelector('.filter-control');
-                filterControl.style.display = filterControl.style.display === 'none' ? 'block' : 'none';
-                return false;
+        // Add toggle button if it doesn't exist
+        if (!filterToggleControl) {
+            filterToggleControl = L.control({position: 'topright'});
+            filterToggleControl.onAdd = function(map) {
+                const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+                div.innerHTML = '<a href="#" title="Toggle Filters" role="button" aria-label="Toggle filters">☰</a>';
+                div.onclick = function() {
+                    filterControl.style.display = filterControl.style.display === 'none' ? 'block' : 'none';
+                    return false;
+                };
+                return div;
             };
-            return div;
-        };
-        filterToggle.addTo(map);
+            filterToggleControl.addTo(map);
+        }
 
-        // Initially hide the filter control
-        document.querySelector('.filter-control').style.display = 'none';
+        // Hide filter control initially
+        filterControl.style.display = 'none';
 
         // Prevent unwanted zooming
         preventZoom();
@@ -330,8 +332,18 @@ function optimizeForMobile() {
             });
         });
     } else {
-        // Reset for desktop view
-        document.querySelector('.filter-control').style.display = 'block';
+        // Desktop optimizations
+        map.options.zoomAnimation = true;
+        map.setMaxZoom(18); // Or whatever your default max zoom is
+
+        // Remove toggle button if it exists
+        if (filterToggleControl) {
+            map.removeControl(filterToggleControl);
+            filterToggleControl = null;
+        }
+
+        // Show filter control
+        filterControl.style.display = 'block';
     }
 }
 
@@ -420,6 +432,7 @@ const initializeMap = async () => {
     
     // Call optimizeForMobile after everything is loaded
     optimizeForMobile();
+    window.addEventListener('resize', optimizeForMobile);
     
     console.log('Map initialization complete');
 };
