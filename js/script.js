@@ -104,7 +104,7 @@ const initLayers = (map) => {
 // UI Controls
 const addControls = (map, baseMaps, overlayMaps) => {
     console.log('Adding controls...');
-    L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
+    L.control.layers(baseMaps, overlayMaps, { collapsed: true }).addTo(map);
     
     const filterControl = L.control({ position: 'topright' });
     filterControl.onAdd = () => {
@@ -307,11 +307,50 @@ function optimizeForMobile() {
             map.options.zoomAnimation = false;
             map.setMaxZoom(16);
 
+            // Simplify vector layers
+            map.eachLayer(function(layer) {
+                if (layer instanceof L.Polyline) {
+                    layer.setStyle({ weight: 2 });
+                }
+            });
+
+            // Adjust cluster settings
+            if (markers instanceof L.MarkerClusterGroup) {
+                markers.options.disableClusteringAtZoom = 15;
+                markers.options.maxClusterRadius = 40;
+            }
+
             // Show toggle button, hide filter control
             if (filterToggle) filterToggle.style.display = 'block';
             if (filterControl) filterControl.style.display = 'none';
 
-            // Other mobile-specific optimizations...
+            // Prevent unwanted zooming
+            preventZoom();
+
+            // Handle input field focus
+            const inputFields = document.querySelectorAll('input, select');
+            inputFields.forEach(input => {
+                input.addEventListener('focus', () => {
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                });
+                input.addEventListener('blur', () => {
+                    window.scrollTo(0, 0);
+                });
+            });
+
+            // Show toggle button, hide filter control
+            if (filterToggle) filterToggle.style.display = 'block';
+            if (filterControl) filterControl.style.display = 'none';
+
+            // Ensure the filter toggle is clickable
+            if (filterToggle) {
+                filterToggle.style.zIndex = '1002';
+                filterToggle.style.position = 'absolute';
+                filterToggle.style.top = '10px';
+                filterToggle.style.right = '50px';
+            }
+
         } else {
             // Desktop optimizations
             map.options.zoomAnimation = true;
@@ -321,7 +360,13 @@ function optimizeForMobile() {
             if (filterToggle) filterToggle.style.display = 'none';
             if (filterControl) filterControl.style.display = 'block';
 
-            // Other desktop-specific optimizations...
+            // Reset filter control position for desktop view
+            if (filterControl) {
+                filterControl.style.position = 'static';
+                filterControl.style.top = 'auto';
+                filterControl.style.left = 'auto';
+                filterControl.style.right = 'auto';
+            }
         }
     }
 }
