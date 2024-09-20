@@ -298,6 +298,12 @@ const updateSearchSuggestions = (showAll = false) => {
 
     searchSuggestions.innerHTML = '';
 
+    // Add this check to prevent showing suggestions at startup
+    if (!showAll && searchValue.length === 0) {
+        searchSuggestions.style.display = 'none';
+        return;
+    }
+
     let matchingNames;
     if (showAll || searchValue.length > 0) {
         matchingNames = filteredMountainAreas
