@@ -436,7 +436,7 @@ const resetLayerStyles = () => {
 const loadMountainAreas = async () => {
     console.log('Loading mountain areas...');
     try {
-        const response = await fetch("https://cdn.jsdelivr.net/gh/latidudemaps/MountainAtlas@main/data/MountainAreas.geojson");
+        const response = await fetch("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson");
         mountainAreasData = await response.json();
 
         const uniqueHierLvls = [...new Set(mountainAreasData.features.map(feature => feature.properties?.Hier_lvl))].sort((a, b) => a - b);
@@ -465,7 +465,7 @@ const loadMountainAreas = async () => {
 const loadOsmPeaks = async () => {
     console.log('Loading OSM peaks...');
     try {
-        const response = await fetch("https://cdn.jsdelivr.net/gh/latidudemaps/MountainAtlas@main/data/OSM_peaks_GMBA.geojson");
+        const response = await fetch("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/OSM_peaks_GMBA.geojson");
         const osmPeaksData = await response.json();
         allOsmPeaks = osmPeaksData.features;
         osmPeaksLoaded = true;
