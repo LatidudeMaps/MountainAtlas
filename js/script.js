@@ -147,11 +147,29 @@ const addEventListeners = (map, mountainAreasLayer) => {
     hierLvlSelect.addEventListener('change', function () {
         handleFilterChange(this.value);
     });
+
     const searchInput = document.getElementById('search-input');
     const searchSuggestions = document.getElementById('search-suggestions');
+    const selectArrow = document.querySelector('.select-arrow');
 
     searchInput.addEventListener('focus', () => {
         updateSearchSuggestions(true);  // Show all suggestions when focused
+    });
+
+    searchInput.addEventListener('click', (e) => {
+        e.stopPropagation();
+        updateSearchSuggestions(true);
+    });
+
+    selectArrow.addEventListener('click', (e) => {
+        e.stopPropagation();
+        updateSearchSuggestions(true);
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+            searchSuggestions.style.display = 'none';
+        }
     });
 
     searchInput.addEventListener('blur', (e) => {
@@ -273,7 +291,7 @@ const updateSearchSuggestions = (showAll = false) => {
     searchSuggestions.innerHTML = '';
 
     let matchingNames;
-    if (showAll) {
+    if (showAll && document.activeElement === searchInput) {
         // Show all available mountain areas when the search box is clicked
         matchingNames = filteredMountainAreas.map(feature => feature.properties.MapName);
     } else if (searchValue.length > 0) {
@@ -285,7 +303,7 @@ const updateSearchSuggestions = (showAll = false) => {
         searchSuggestions.style.display = 'none';
         return;
     }
-
+    
     if (matchingNames.length > 0) {
         // Sort the matching names alphabetically
         matchingNames.sort((a, b) => a.localeCompare(b));
