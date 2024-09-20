@@ -111,6 +111,7 @@ const addControls = (map, baseMaps, overlayMaps) => {
                 <div class="input-button-group">
                     <div class="custom-search">
                         <input type="text" id="search-input" class="custom-select" placeholder="Search...">
+                        <div class="select-arrow"></div>
                         <div id="search-suggestions" class="search-suggestions"></div>
                     </div>
                     <button id="clear-search" class="custom-button">Clear</button>
@@ -151,6 +152,15 @@ const addEventListeners = (map, mountainAreasLayer) => {
 
     searchInput.addEventListener('focus', () => {
         updateSearchSuggestions(true);  // Show all suggestions when focused
+    });
+
+    searchInput.addEventListener('blur', (e) => {
+        // Delay hiding the suggestions to allow for clicks on the suggestions
+        setTimeout(() => {
+            if (!searchSuggestions.contains(document.activeElement)) {
+                searchSuggestions.style.display = 'none';
+            }
+        }, 200);
     });
 
     searchInput.addEventListener('input', () => {
@@ -263,11 +273,11 @@ const updateSearchSuggestions = (showAll = false) => {
     searchSuggestions.innerHTML = '';
 
     let matchingNames;
-    if (showAll && searchValue.length > 0) {
-        // Show all available mountain areas when the search box is clicked and has a value
+    if (showAll) {
+        // Show all available mountain areas when the search box is clicked
         matchingNames = filteredMountainAreas.map(feature => feature.properties.MapName);
     } else if (searchValue.length > 0) {
-        // Only show suggestions for complete words or when a suggestion is selected
+        // Show suggestions based on input
         matchingNames = filteredMountainAreas
             .map(feature => feature.properties.MapName)
             .filter(name => name.toLowerCase().includes(searchValue));
