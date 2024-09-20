@@ -152,37 +152,40 @@ const addEventListeners = (map, mountainAreasLayer) => {
     const searchSuggestions = document.getElementById('search-suggestions');
     const selectArrow = document.querySelector('.select-arrow');
 
-    searchInput.addEventListener('focus', () => {
-        updateSearchSuggestions(true);  // Show all suggestions when focused
-    });
+    const toggleSuggestions = (show) => {
+        if (show) {
+            updateSearchSuggestions(true);
+            searchSuggestions.style.display = 'block';
+        } else {
+            searchSuggestions.style.display = 'none';
+        }
+    };
+
+    searchInput.addEventListener('focus', () => toggleSuggestions(true));
 
     searchInput.addEventListener('click', (e) => {
         e.stopPropagation();
-        updateSearchSuggestions(true);
+        toggleSuggestions(true);
     });
 
     selectArrow.addEventListener('click', (e) => {
         e.stopPropagation();
-        updateSearchSuggestions(true);
+        toggleSuggestions(searchSuggestions.style.display === 'none');
     });
 
-    document.addEventListener('click', (e) => {
-        if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+    searchInput.addEventListener('input', () => {
+        if (searchInput.value.trim() !== '') {
+            updateSearchSuggestions(false);
+            searchSuggestions.style.display = 'block';
+        } else {
             searchSuggestions.style.display = 'none';
         }
     });
 
-    searchInput.addEventListener('blur', (e) => {
-        // Delay hiding the suggestions to allow for clicks on the suggestions
-        setTimeout(() => {
-            if (!searchSuggestions.contains(document.activeElement)) {
-                searchSuggestions.style.display = 'none';
-            }
-        }, 200);
-    });
-
-    searchInput.addEventListener('input', () => {
-        updateSearchSuggestions(false);  // Update suggestions based on input
+    document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target) && !selectArrow.contains(e.target)) {
+            toggleSuggestions(false);
+        }
     });
 
     searchInput.addEventListener('keydown', (e) => {
@@ -192,6 +195,7 @@ const addEventListeners = (map, mountainAreasLayer) => {
             if (firstItem) firstItem.focus();
         }
     });
+
     document.getElementById('search-input').addEventListener('change', handleSearch);
     document.getElementById('clear-search').addEventListener('click', clearSearch);
     
@@ -291,41 +295,35 @@ const updateSearchSuggestions = (showAll = false) => {
     searchSuggestions.innerHTML = '';
 
     let matchingNames;
-    if (showAll && document.activeElement === searchInput) {
-        // Show all available mountain areas when the search box is clicked
-        matchingNames = filteredMountainAreas.map(feature => feature.properties.MapName);
-    } else if (searchValue.length > 0) {
-        // Show suggestions based on input
+    if (showAll || searchValue.length > 0) {
         matchingNames = filteredMountainAreas
             .map(feature => feature.properties.MapName)
-            .filter(name => name.toLowerCase().includes(searchValue));
-    } else {
-        searchSuggestions.style.display = 'none';
-        return;
-    }
-    
-    if (matchingNames.length > 0) {
-        // Sort the matching names alphabetically
-        matchingNames.sort((a, b) => a.localeCompare(b));
+            .filter(name => showAll || name.toLowerCase().includes(searchValue));
 
-        const ul = document.createElement('ul');
-        ul.className = 'suggestions-list';
-        
-        matchingNames.forEach((name, index) => {
-            const li = document.createElement('li');
-            li.textContent = name;
-            li.setAttribute('tabindex', '0');  // Make it focusable
-            li.addEventListener('click', () => selectSuggestion(name));
-            li.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') selectSuggestion(name);
-                if (e.key === 'ArrowDown') moveFocus(1, index, ul);
-                if (e.key === 'ArrowUp') moveFocus(-1, index, ul);
+        if (matchingNames.length > 0) {
+            matchingNames.sort((a, b) => a.localeCompare(b));
+
+            const ul = document.createElement('ul');
+            ul.className = 'suggestions-list';
+            
+            matchingNames.forEach((name, index) => {
+                const li = document.createElement('li');
+                li.textContent = name;
+                li.setAttribute('tabindex', '0');
+                li.addEventListener('click', () => selectSuggestion(name));
+                li.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') selectSuggestion(name);
+                    if (e.key === 'ArrowDown') moveFocus(1, index, ul);
+                    if (e.key === 'ArrowUp') moveFocus(-1, index, ul);
+                });
+                ul.appendChild(li);
             });
-            ul.appendChild(li);
-        });
 
-        searchSuggestions.appendChild(ul);
-        searchSuggestions.style.display = 'block';
+            searchSuggestions.appendChild(ul);
+            searchSuggestions.style.display = 'block';
+        } else {
+            searchSuggestions.style.display = 'none';
+        }
     } else {
         searchSuggestions.style.display = 'none';
     }
