@@ -124,7 +124,7 @@ body, html {
 }
 
 .select-arrow {
-    cursor: pointer;
+    cursor: default;
 }
 
 .select-arrow {
