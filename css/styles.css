@@ -134,8 +134,6 @@ body, html {
     border-right: 5px solid transparent;
     border-top: 5px solid #333;
     pointer-events: none;
-    background-color: #fff; /* Match the input background */
-    padding: 10px 5px; /* Create a background area around the arrow */
 }
 
 .search-suggestions {
