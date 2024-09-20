@@ -100,11 +100,8 @@ const addControls = (map, baseMaps, overlayMaps) => {
         const div = L.DomUtil.create('div', 'filter-control');
         div.innerHTML = `
             <div class="control-group">
-                <label for="hier-lvl-select">Choose GMBA Hierarchy Level:</label>
-                <div class="input-button-group">
-                    <select id="hier-lvl-select" class="custom-select"></select>
-                    <button id="show-all-btn" class="custom-button">Show All</button>
-                </div>
+                <label for="hier-lvl-slider">GMBA Hierarchy Level: <span id="hier-lvl-value">4</span></label>
+                <input type="range" id="hier-lvl-slider" min="1" max="4" value="4" step="1" class="custom-slider">
             </div>
             <div class="control-group">
                 <label for="search-input">Search by GMBA MapName:</label>
@@ -141,10 +138,14 @@ const addEventListeners = (map, mountainAreasLayer) => {
         map.setMinZoom(map.getZoom());
     });
 
-    document.getElementById('show-all-btn').addEventListener('click', () => handleFilterChange("all"));
+    const hierLvlSlider = document.getElementById('hier-lvl-slider');
+    const hierLvlValue = document.getElementById('hier-lvl-value');
     
-    const hierLvlSelect = document.getElementById('hier-lvl-select');
-    hierLvlSelect.addEventListener('change', function () {
+    hierLvlSlider.addEventListener('input', function() {
+        hierLvlValue.textContent = this.value;
+    });
+
+    hierLvlSlider.addEventListener('change', function() {
         handleFilterChange(this.value);
     });
 
@@ -425,9 +426,9 @@ const handleFilterChange = (selectedValue) => {
     if (!mountainAreasLoaded || !osmPeaksLoaded) return;
 
     mountainAreasLayer.clearLayers();
-    filteredMountainAreas = selectedValue === "all" 
-        ? mountainAreasData.features.filter(feature => String(feature.properties.Hier_lvl).trim() === "4")
-        : mountainAreasData.features.filter(feature => String(feature.properties.Hier_lvl).trim() === selectedValue);
+    filteredMountainAreas = mountainAreasData.features.filter(feature => 
+        String(feature.properties.Hier_lvl).trim() === selectedValue
+    );
     
     mountainAreasLayer.addData({
         type: "FeatureCollection",
@@ -440,11 +441,8 @@ const handleFilterChange = (selectedValue) => {
     document.getElementById('search-input').value = '';
     document.getElementById('search-suggestions').style.display = 'none';
     
-    // Remove this line to prevent updating search suggestions at startup
-    // updateSearchSuggestions(true);
-    
     console.log('Filter change handled');
-}; 
+};
 
 const applyCurrentFilter = () => {
     const hierLvlSelect = document.getElementById('hier-lvl-select');
@@ -478,21 +476,10 @@ const loadMountainAreas = async () => {
         const response = await fetch("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson");
         mountainAreasData = await response.json();
 
-        const uniqueHierLvls = [...new Set(mountainAreasData.features.map(feature => feature.properties?.Hier_lvl))].sort((a, b) => a - b);
-        const hierLvlSelect = document.getElementById('hier-lvl-select');
-        
-        uniqueHierLvls.forEach(value => {
-            const option = document.createElement('option');
-            option.value = value;
-            option.text = `Hier_lvl: ${value}`;
-            hierLvlSelect.appendChild(option);
-        });
-
-        hierLvlSelect.value = "4";
         mountainAreasLoaded = true;
         
         if (osmPeaksLoaded) {
-            applyCurrentFilter();
+            handleFilterChange("4");
         }
 
         console.log('Mountain areas loaded');
