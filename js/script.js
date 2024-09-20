@@ -151,6 +151,7 @@ const addEventListeners = (map, mountainAreasLayer) => {
     const searchInput = document.getElementById('search-input');
     const searchSuggestions = document.getElementById('search-suggestions');
     const selectArrow = document.querySelector('.select-arrow');
+    selectArrow.style.cursor = 'pointer';  // Add this line
 
     const toggleSuggestions = (show) => {
         if (show) {
