@@ -440,11 +440,11 @@ const handleFilterChange = (selectedValue) => {
     document.getElementById('search-input').value = '';
     document.getElementById('search-suggestions').style.display = 'none';
     
-    // Update search suggestions to reflect the new filtered mountain areas
-    updateSearchSuggestions(true);
+    // Remove this line to prevent updating search suggestions at startup
+    // updateSearchSuggestions(true);
     
     console.log('Filter change handled');
-};
+}; 
 
 const applyCurrentFilter = () => {
     const hierLvlSelect = document.getElementById('hier-lvl-select');
@@ -586,6 +586,9 @@ const initializeMap = async () => {
     
     console.log('Applying initial filter...');
     handleFilterChange("4");
+    
+    // Ensure search suggestions are hidden at startup
+    document.getElementById('search-suggestions').style.display = 'none';
     
     // Add a small delay before adding the opacity slider
     setTimeout(() => {
