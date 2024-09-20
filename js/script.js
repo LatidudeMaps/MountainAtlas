@@ -263,8 +263,8 @@ const updateSearchSuggestions = (showAll = false) => {
     searchSuggestions.innerHTML = '';
 
     let matchingNames;
-    if (showAll) {
-        // Show all available mountain areas when the search box is clicked
+    if (showAll && searchValue.length > 0) {
+        // Show all available mountain areas when the search box is clicked and has a value
         matchingNames = filteredMountainAreas.map(feature => feature.properties.MapName);
     } else if (searchValue.length > 0) {
         // Only show suggestions for complete words or when a suggestion is selected
@@ -277,6 +277,9 @@ const updateSearchSuggestions = (showAll = false) => {
     }
 
     if (matchingNames.length > 0) {
+        // Sort the matching names alphabetically
+        matchingNames.sort((a, b) => a.localeCompare(b));
+
         const ul = document.createElement('ul');
         ul.className = 'suggestions-list';
         
