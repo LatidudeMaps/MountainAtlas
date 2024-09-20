@@ -149,6 +149,19 @@ const addEventListeners = (map, mountainAreasLayer) => {
         handleFilterChange(this.value);
     });
 
+    // Prevent map dragging when interacting with the slider
+    hierLvlSlider.addEventListener('mousedown', function(e) {
+        map.dragging.disable();
+        document.addEventListener('mouseup', enableMapDragging);
+        document.addEventListener('mouseleave', enableMapDragging);
+    });
+
+    function enableMapDragging() {
+        map.dragging.enable();
+        document.removeEventListener('mouseup', enableMapDragging);
+        document.removeEventListener('mouseleave', enableMapDragging);
+    }
+
     const searchInput = document.getElementById('search-input');
     const searchSuggestions = document.getElementById('search-suggestions');
     const selectArrow = document.querySelector('.select-arrow');
@@ -445,8 +458,12 @@ const handleFilterChange = (selectedValue) => {
 };
 
 const applyCurrentFilter = () => {
-    const hierLvlSelect = document.getElementById('hier-lvl-select');
-    handleFilterChange(hierLvlSelect.value);
+    const hierLvlSlider = document.getElementById('hier-lvl-slider');
+    if (hierLvlSlider) {
+        handleFilterChange(hierLvlSlider.value);
+    } else {
+        console.warn('Hierarchy level slider not found. Unable to apply filter.');
+    }
 };
 
 const defaultPolygonStyle = () => ({
@@ -507,7 +524,12 @@ const loadOsmPeaks = async () => {
         osmPeaksLoaded = true;
         
         if (mountainAreasLoaded) {
-            applyCurrentFilter();
+            const hierLvlSlider = document.getElementById('hier-lvl-slider');
+            if (hierLvlSlider) {
+                applyCurrentFilter();
+            } else {
+                console.warn('Hierarchy level slider not found. Skipping initial filter application.');
+            }
         }
         
         console.log('OSM peaks loaded');
