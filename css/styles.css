@@ -121,10 +121,12 @@ body, html {
 .custom-search .custom-select {
     width: 100%;
     text-overflow: ellipsis;
+    cursor: text;
 }
 
-.select-arrow {
-    cursor: default;
+.custom-search .select-arrow {
+    cursor: default !important;
+    pointer-events: auto;
 }
 
 .select-arrow {
