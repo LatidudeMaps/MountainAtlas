@@ -151,7 +151,6 @@ const addEventListeners = (map, mountainAreasLayer) => {
     const searchInput = document.getElementById('search-input');
     const searchSuggestions = document.getElementById('search-suggestions');
     const selectArrow = document.querySelector('.select-arrow');
-    selectArrow.style.cursor = 'pointer';  // Add this line
 
     const toggleSuggestions = (show) => {
         if (show) {
@@ -171,7 +170,11 @@ const addEventListeners = (map, mountainAreasLayer) => {
 
     selectArrow.addEventListener('click', (e) => {
         e.stopPropagation();
+        e.preventDefault();
         toggleSuggestions(searchSuggestions.style.display === 'none');
+        if (searchSuggestions.style.display === 'none') {
+            searchInput.focus();
+        }
     });
 
     searchInput.addEventListener('input', () => {
@@ -296,7 +299,7 @@ const updateSearchSuggestions = (showAll = false) => {
     searchSuggestions.innerHTML = '';
 
     let matchingNames;
-    if ((showAll && document.activeElement === searchInput) || searchValue.length > 0) {
+    if (showAll || searchValue.length > 0) {
         matchingNames = filteredMountainAreas
             .map(feature => feature.properties.MapName)
             .filter(name => showAll || name.toLowerCase().includes(searchValue));
