@@ -124,6 +124,10 @@ body, html {
 }
 
 .select-arrow {
+    cursor: pointer;
+}
+
+.select-arrow {
     position: absolute;
     right: 10px;
     top: 50%;

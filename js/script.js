@@ -295,7 +295,7 @@ const updateSearchSuggestions = (showAll = false) => {
     searchSuggestions.innerHTML = '';
 
     let matchingNames;
-    if (showAll || searchValue.length > 0) {
+    if ((showAll && document.activeElement === searchInput) || searchValue.length > 0) {
         matchingNames = filteredMountainAreas
             .map(feature => feature.properties.MapName)
             .filter(name => showAll || name.toLowerCase().includes(searchValue));
