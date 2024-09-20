@@ -120,7 +120,6 @@ body, html {
 
 .custom-search .custom-select {
     width: 100%;
-    padding-right: 30px; /* Make room for the arrow */
     text-overflow: ellipsis;
 }
 
