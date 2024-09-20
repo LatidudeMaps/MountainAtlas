@@ -427,13 +427,6 @@ const handleSearch = () => {
     console.log('Search handled');
 };
 
-const clearSearch = () => {
-    console.log('Clearing search...');
-    document.getElementById('search-input').value = '';
-    resetLayerStyles();
-    console.log('Search cleared');
-};
-
 const handleFilterChange = (selectedValue) => {
     console.log('Handling filter change...');
     if (!mountainAreasLoaded || !osmPeaksLoaded) return;
@@ -474,7 +467,6 @@ const defaultPolygonStyle = () => ({
     fillOpacity: 0.65
 });
 
-// Add a new function to reset the view
 const resetLayerStyles = () => {
     // Reset all polygons to default style
     mountainAreasLayer.eachLayer(layer => {
@@ -482,8 +474,22 @@ const resetLayerStyles = () => {
     });
 
     // Reset OSM peaks to show all for the current hierarchy level
-    const currentHierLevel = document.getElementById('hier-lvl-select').value;
-    filterAndDisplayPeaks(currentHierLevel);
+    const hierLvlSlider = document.getElementById('hier-lvl-slider');
+    if (hierLvlSlider) {
+        const currentHierLevel = hierLvlSlider.value;
+        filterAndDisplayPeaks(currentHierLevel);
+    } else {
+        console.warn('Hierarchy level slider not found. Unable to reset OSM peaks.');
+        // Optionally, you could show all peaks or use a default value here
+        // For example: filterAndDisplayPeaks("all");
+    }
+};
+
+const clearSearch = () => {
+    console.log('Clearing search...');
+    document.getElementById('search-input').value = '';
+    resetLayerStyles();
+    console.log('Search cleared');
 };
 
 // Data Loading
