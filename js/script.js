@@ -100,8 +100,8 @@ const addControls = (map, baseMaps, overlayMaps) => {
         const div = L.DomUtil.create('div', 'filter-control');
         div.innerHTML = `
             <div class="control-group">
-                <label for="hier-lvl-slider">GMBA Hierarchy Level: <span id="hier-lvl-value">4</span></label>
-                <input type="range" id="hier-lvl-slider" min="1" max="4" value="4" step="1" class="custom-slider">
+                <label for="hier-lvl-slider">GMBA Hierarchy Level: <span id="hier-lvl-value"></span></label>
+                <input type="range" id="hier-lvl-slider" class="custom-slider">
             </div>
             <div class="control-group">
                 <label for="search-input">Search by GMBA MapName:</label>
@@ -475,6 +475,16 @@ const loadMountainAreas = async () => {
     try {
         const response = await fetch("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson");
         mountainAreasData = await response.json();
+
+        const uniqueHierLvls = [...new Set(mountainAreasData.features.map(feature => feature.properties?.Hier_lvl))].sort((a, b) => a - b);
+        const hierLvlSlider = document.getElementById('hier-lvl-slider');
+        const hierLvlValue = document.getElementById('hier-lvl-value');
+        
+        hierLvlSlider.min = Math.min(...uniqueHierLvls);
+        hierLvlSlider.max = Math.max(...uniqueHierLvls);
+        hierLvlSlider.step = 1;
+        hierLvlSlider.value = 4;  // Set default value
+        hierLvlValue.textContent = hierLvlSlider.value;
 
         mountainAreasLoaded = true;
         
