@@ -34,13 +34,11 @@ body, html {
 .dark-tooltip {
     color: white;
     text-shadow: 1px 1px 2px black;
-    font-family: 'Montserrat', Arial, sans-serif;
 }
 
 .light-tooltip {
     color: black;
     text-shadow: 1px 1px 2px white;
-    font-family: 'Montserrat', Arial, sans-serif;
 }
 
 .leaflet-tooltip-top:before, 
@@ -56,8 +54,9 @@ body, html {
     border-radius: 5px;
     box-shadow: 0 1px 5px rgba(0,0,0,0.65);
     font-family: 'Montserrat', Arial, sans-serif;
-    max-width: 250px;
+    max-width: 300px;
     padding: 10px;
+    width: 100%;
 }
 
 .control-group {
@@ -105,15 +104,6 @@ body, html {
     background: #4CAF50;
     cursor: pointer;
 }
-.control-group {
-    margin-bottom: 10px;
-}
-
-.control-group label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-}
 
 .input-button-group {
     display: flex;
@@ -152,7 +142,6 @@ body, html {
 }
 
 /* Search Suggestions */
-/* Search box styles */
 .custom-search {
     position: relative;
     flex-grow: 1;
@@ -212,24 +201,55 @@ body, html {
     outline: none;
 }
 
-/* Styles for the opacity slider container */
+/* Opacity slider container */
 .opacity-slider-container {
     margin-top: 5px;
     display: flex;
     align-items: center;
-    padding-left: 20px; /* Align with the checkbox label */
+    padding-left: 20px;
 }
 
-/* Styles for the range input (slider) */
+/* Opacity slider */
 .opacity-slider {
     width: 100px;
     margin-right: 5px;
 }
 
-/* Styles for the opacity value display */
+/* Opacity value display */
 .opacity-value {
     font-size: 0.8em;
     color: #777;
+}
+
+/* Responsive styles */
+@media screen and (max-width: 768px) {
+    .filter-control {
+        max-width: none;
+        width: calc(100% - 20px);
+        margin: 10px;
+        position: relative;
+        top: auto;
+        right: auto;
+    }
+
+    .leaflet-control-layers {
+        max-width: none;
+        width: calc(100% - 20px);
+        margin: 10px;
+    }
+
+    .input-button-group {
+        flex-direction: column;
+    }
+
+    .custom-button {
+        margin-left: 0;
+        margin-top: 5px;
+    }
+
+    .opacity-slider-container {
+        padding-left: 0;
+    }
 }
 
 /* Adjust the layer control width if needed */

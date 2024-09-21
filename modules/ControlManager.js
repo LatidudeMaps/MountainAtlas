@@ -10,7 +10,24 @@ export class ControlManager {
         console.log('Initializing controls');
         this.layerControl = this.addLayerControl();
         this.filterControl = this.addFilterControl();
+        this.handleResponsiveControls();
         return this.filterControl;
+    }
+
+    handleResponsiveControls() {
+        const handleResize = () => {
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile) {
+                this.filterControl.setPosition('topleft');
+                this.layerControl.setPosition('topleft');
+            } else {
+                this.filterControl.setPosition('topright');
+                this.layerControl.setPosition('topright');
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Call once to set initial state
     }
 
     addLayerControl() {

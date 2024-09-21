@@ -12,9 +12,11 @@ export class MapManager {
         const map = L.map(mapId, {
             zoomAnimation: true,
             preferCanvas: true,
+            zoomControl: false // Disable default zoom control
         });
 
         this.addResetViewControl(map);
+        this.addResponsiveZoomControl(map);
 
         console.log('Map initialized');
         return map;
@@ -132,5 +134,22 @@ export class MapManager {
             console.warn('Map not ready, setting view instead of flying');
             this.map.setView(center, zoom);
         }
+    }
+
+    addResponsiveZoomControl(map) {
+        const zoomControl = L.control.zoom({ position: 'topright' });
+        zoomControl.addTo(map);
+
+        const handleResize = () => {
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile) {
+                zoomControl.setPosition('bottomright');
+            } else {
+                zoomControl.setPosition('topright');
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Call once to set initial state
     }
 }
