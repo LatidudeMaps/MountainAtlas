@@ -11,7 +11,11 @@ class App {
         this.layerManager = new LayerManager(this.mapManager.map);
         this.controlManager = new ControlManager(this.mapManager, this.layerManager);
         this.dataLoader = new DataLoader();
-        this.uiManager = new UIManager(this.handleSearch.bind(this), this.handleFilterChange.bind(this));
+        this.uiManager = new UIManager(
+            this.handleSearch.bind(this),
+            this.handleFilterChange.bind(this),
+            this.layerManager
+        );
     }
 
     async init() {

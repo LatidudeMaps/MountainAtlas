@@ -39,6 +39,11 @@ export class LayerManager {
         console.log('Mountain areas data added to layer');
     }
 
+    getAllMountainAreaNames() {
+        if (!this.allMountainAreas) return [];
+        return this.allMountainAreas.features.map(feature => feature.properties.MapName);
+    }
+
     setOsmPeaksData(data) {
         console.log('Setting OSM peaks data');
         this.allOsmPeaks = data;
