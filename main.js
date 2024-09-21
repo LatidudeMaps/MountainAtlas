@@ -6,6 +6,7 @@ import { UIManager } from './modules/UIManager.js';
 
 class App {
     constructor() {
+        console.log('App constructor called');
         this.mapManager = new MapManager('map');
         this.layerManager = new LayerManager(this.mapManager.map);
         this.controlManager = new ControlManager(this.mapManager, this.layerManager);
@@ -14,20 +15,34 @@ class App {
     }
 
     async init() {
+        console.log('App init started');
         try {
             const mountainAreasData = await this.dataLoader.loadMountainAreas();
+            console.log('Mountain areas data loaded:', mountainAreasData);
             const osmPeaksData = await this.dataLoader.loadOsmPeaks();
+            console.log('OSM peaks data loaded:', osmPeaksData);
             
             this.layerManager.setMountainAreasData(mountainAreasData);
             this.layerManager.setOsmPeaksData(osmPeaksData);
             
-            this.mapManager.map.on('load', () => {
-                this.controlManager.initControls();
-                this.setupUI();
-                this.applyInitialFilter();
-                this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
-                setTimeout(() => this.controlManager.addOpacitySlider(), 100);
-            });
+            console.log('Data set in LayerManager');
+
+            this.controlManager.initControls();
+            console.log('Controls initialized');
+
+            this.setupUI();
+            console.log('UI setup complete');
+
+            this.applyInitialFilter();
+            console.log('Initial filter applied');
+
+            this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
+            console.log('Map fitted to bounds');
+
+            setTimeout(() => {
+                this.controlManager.addOpacitySlider();
+                console.log('Opacity slider added');
+            }, 100);
         } catch (error) {
             console.error('Error initializing app:', error);
         }
@@ -35,6 +50,7 @@ class App {
 
     setupUI() {
         const uniqueHierLevels = this.dataLoader.getUniqueHierLevels();
+        console.log('Unique hierarchy levels:', uniqueHierLevels);
         this.uiManager.updateHierLevelSlider(
             Math.min(...uniqueHierLevels),
             Math.max(...uniqueHierLevels),
@@ -46,10 +62,12 @@ class App {
 
     applyInitialFilter() {
         const initialHierLevel = "4";
+        console.log('Applying initial filter with level:', initialHierLevel);
         this.handleFilterChange(initialHierLevel);
     }
 
     handleSearch(searchValue) {
+        console.log('Search initiated with value:', searchValue);
         this.layerManager.highlightSearchedAreas(searchValue);
         const matchingLayers = this.layerManager.getMatchingLayers(searchValue);
 
@@ -62,12 +80,17 @@ class App {
             const matchingMapName = matchingLayers[0].feature.properties.MapName;
             this.layerManager.filterAndDisplayPeaks(null, matchingMapName);
         } else {
+            console.log('No matching polygons found');
             alert('No matching polygons found.');
         }
     }
 
     handleFilterChange(selectedValue) {
-        if (!this.dataLoader.mountainAreasLoaded || !this.dataLoader.osmPeaksLoaded) return;
+        console.log('Filter change initiated with value:', selectedValue);
+        if (!this.dataLoader.mountainAreasLoaded || !this.dataLoader.osmPeaksLoaded) {
+            console.log('Data not fully loaded, skipping filter change');
+            return;
+        }
 
         this.layerManager.filterMountainAreas(selectedValue);
         this.layerManager.filterAndDisplayPeaks(selectedValue);
@@ -76,6 +99,7 @@ class App {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM content loaded');
     const app = new App();
     app.init();
 });

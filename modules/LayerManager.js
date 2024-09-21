@@ -1,5 +1,6 @@
 export class LayerManager {
     constructor(map) {
+        console.log('LayerManager constructor called');
         this.map = map;
         this.mountainAreasLayer = this.initMountainAreasLayer();
         this.markers = this.initMarkers();
@@ -9,6 +10,7 @@ export class LayerManager {
     }
 
     initMountainAreasLayer() {
+        console.log('Initializing mountain areas layer');
         return L.geoJSON(null, {
             style: this.defaultPolygonStyle,
             onEachFeature: (feature, layer) => {
@@ -18,6 +20,7 @@ export class LayerManager {
     }
 
     initMarkers() {
+        console.log('Initializing markers');
         return L.markerClusterGroup({
             spiderfyOnMaxZoom: false,
             disableClusteringAtZoom: 18,
@@ -30,12 +33,15 @@ export class LayerManager {
     }
 
     setMountainAreasData(data) {
+        console.log('Setting mountain areas data');
         this.allMountainAreas = data;
         this.mountainAreasLayer.clearLayers();
         this.mountainAreasLayer.addData(data);
+        console.log('Mountain areas data added to layer');
     }
 
     setOsmPeaksData(data) {
+        console.log('Setting OSM peaks data');
         this.allOsmPeaks = data;
     }
 
@@ -50,6 +56,7 @@ export class LayerManager {
     }
 
     highlightSearchedAreas(searchValue) {
+        console.log('Highlighting searched areas:', searchValue);
         this.mountainAreasLayer.eachLayer(layer => {
             if (layer.feature?.properties?.MapName.trim().toLowerCase().includes(searchValue.toLowerCase())) {
                 layer.setStyle({
@@ -65,16 +72,19 @@ export class LayerManager {
     }
 
     getMatchingLayers(searchValue) {
+        console.log('Getting matching layers for:', searchValue);
         const matchingLayers = [];
         this.mountainAreasLayer.eachLayer(layer => {
             if (layer.feature?.properties?.MapName.trim().toLowerCase().includes(searchValue.toLowerCase())) {
                 matchingLayers.push(layer);
             }
         });
+        console.log('Matching layers found:', matchingLayers.length);
         return matchingLayers;
     }
 
     filterMountainAreas(selectedValue) {
+        console.log('Filtering mountain areas for level:', selectedValue);
         this.mountainAreasLayer.clearLayers();
         this.filteredMountainAreas = this.allMountainAreas.features.filter(feature => 
             String(feature.properties.Hier_lvl).trim() === selectedValue
@@ -84,9 +94,11 @@ export class LayerManager {
             type: "FeatureCollection",
             features: this.filteredMountainAreas
         });
+        console.log('Filtered mountain areas added to layer');
     }
 
     filterAndDisplayPeaks(hierLvl, mapName = null) {
+        console.log('Filtering and displaying peaks:', hierLvl, mapName);
         this.markers.clearLayers();
         let filteredPeaks;
 
@@ -103,6 +115,7 @@ export class LayerManager {
         L.geoJSON(filteredPeaks, {
             pointToLayer: this.createMarker.bind(this)
         }).addTo(this.markers);
+        console.log('Filtered peaks added to markers');
     }
 
     createMarker(feature, latlng) {
