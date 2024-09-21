@@ -1,5 +1,6 @@
 export class MapManager {
     constructor(mapId) {
+        console.log('MapManager constructor called');
         this.map = this.initMap(mapId);
         this.baseMaps = this.initBaseMaps();
         this.initialBounds = null;
@@ -10,16 +11,12 @@ export class MapManager {
         console.log('Initializing map...');
         const map = L.map(mapId, {
             zoomAnimation: true,
-            zoomSnap: 0,
+            zoomSnap: 0.25,
             zoomDelta: 0.25,
             wheelDebounceTime: 40,
             wheelPxPerZoomLevel: 80,
             fadeAnimation: true,
         });
-
-        // Create a custom pane for basemaps
-        map.createPane('basemap');
-        map.getPane('basemap').style.zIndex = 100;
 
         this.addResetViewControl(map);
 
@@ -28,38 +25,54 @@ export class MapManager {
     }
 
     initBaseMaps() {
-        const createTileLayer = (url, options) => {
-            return L.tileLayer(url, {
-                ...options,
-                pane: 'basemap',
-                updateWhenIdle: false,
-                updateWhenZooming: false,
-                keepBuffer: 4,
-                maxZoom: 22,
-                maxNativeZoom: 19,
-                tileSize: 256,
-                zoomOffset: 0,
-                bounceAtZoomLimits: false,
-            });
-        };
-
+        console.log('Initializing base maps');
         const baseMaps = {
-            "Dark Positron": createTileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            "Dark Positron": L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
                 subdomains: 'abcd',
+                maxZoom: 20
             }),
-            "OpenStreetMap": createTileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19
             }),
-            "Esri World Imagery": createTileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            "Esri World Imagery": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+                maxZoom: 18
             })
         };
 
         // Add the default base map
         baseMaps["Dark Positron"].addTo(this.map);
 
+        console.log('Base maps initialized');
         return baseMaps;
+    }
+
+    setInitialExtent(mountainAreasLayer) {
+        console.log('Setting initial extent');
+        if (!mountainAreasLayer) {
+            console.error('Mountain areas layer is undefined');
+            return;
+        }
+        const bounds = mountainAreasLayer.getBounds();
+        if (!bounds.isValid()) {
+            console.error('Invalid bounds for mountain areas layer');
+            return;
+        }
+        const center = bounds.getCenter();
+        
+        // Set the initial view based on the mountain areas layer
+        this.map.setView(center, 5);
+        
+        // Set the initial bounds
+        this.initialBounds = this.map.getBounds();
+        
+        // Set max bounds (with some padding)
+        const maxBounds = this.initialBounds.pad(0.1);
+        this.map.setMaxBounds(maxBounds);
+        
+        console.log('Initial extent set');
     }
 
     addResetViewControl(map) {
@@ -90,16 +103,15 @@ export class MapManager {
 
     fitMapToBounds(mountainAreasLayer, markers) {
         console.log('Fitting map to bounds...');
-        const bounds = L.latLngBounds([]);
-        if (mountainAreasLayer.getLayers().length > 0) bounds.extend(mountainAreasLayer.getBounds());
-        if (markers.getLayers().length > 0) bounds.extend(markers.getBounds());
-        if (bounds.isValid()) {
-            this.map.fitBounds(bounds);
-            this.initialBounds = bounds;
-        } else {
-            console.warn('No valid bounds to fit, keeping initial view');
+        if (!this.initialBounds) {
+            this.setInitialExtent(mountainAreasLayer);
         }
-        console.log('Map fitted to bounds');
+        if (this.initialBounds) {
+            this.map.fitBounds(this.initialBounds);
+            console.log('Map fitted to bounds');
+        } else {
+            console.error('Unable to fit map to bounds: initialBounds is null');
+        }
     }
 
     flyTo(center, zoom) {
