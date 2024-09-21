@@ -117,9 +117,9 @@ export class UIManager {
             return;
         }
 
-        // Get only visible polygons
-        const visibleNames = this.layerManager.getVisibleMountainAreaNames();
-        const matchingNames = this.getMatchingNames(searchValue, visibleNames);
+        // Get mountain area names for the current hierarchy level
+        const currentLevelNames = this.layerManager.getCurrentHierLevelMountainAreaNames();
+        const matchingNames = this.getMatchingNames(searchValue, currentLevelNames);
 
         if (matchingNames.length > 0) {
             const ul = document.createElement('ul');
@@ -146,8 +146,8 @@ export class UIManager {
         }
     }
 
-    getMatchingNames(searchValue, visibleNames) {
-        return visibleNames
+    getMatchingNames(searchValue, names) {
+        return names
             .filter(name => name.toLowerCase().includes(searchValue.toLowerCase()))
             .sort((a, b) => a.localeCompare(b)); // Sort alphabetically
     }

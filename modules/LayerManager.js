@@ -6,6 +6,7 @@ export class LayerManager {
         this.allMountainAreas = null;
         this.allOsmPeaks = null;
         this.filteredMountainAreas = [];
+        this.currentHierLevel = null;
     }
 
     initMountainAreasLayer() {
@@ -94,7 +95,7 @@ export class LayerManager {
     }
 
     filterMountainAreas(selectedValue) {
-        console.log('Filtering mountain areas for level:', selectedValue);
+        this.currentHierLevel = selectedValue;
         this.mountainAreasLayer.clearLayers();
         this.filteredMountainAreas = this.allMountainAreas.features.filter(feature => 
             String(feature.properties.Hier_lvl).trim() === selectedValue
@@ -104,7 +105,10 @@ export class LayerManager {
             type: "FeatureCollection",
             features: this.filteredMountainAreas
         });
-        console.log('Filtered mountain areas added to layer');
+    }
+
+    getCurrentHierLevelMountainAreaNames() {
+        return this.filteredMountainAreas.map(feature => feature.properties.MapName);
     }
 
     filterAndDisplayPeaks(hierLvl, mapName = null) {
