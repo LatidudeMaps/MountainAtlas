@@ -1,7 +1,7 @@
 import { debounce } from '../utils/helpers.js';
 
 export class UIManager {
-    constructor(searchHandler, filterHandler) {
+    constructor(searchHandler, filterHandler, layerManager) {
         this.searchHandler = searchHandler;
         this.filterHandler = filterHandler;
         this.layerManager = layerManager;
