@@ -1,7 +1,7 @@
 export class MapManager {
     constructor(mapId) {
-        this.map = this.initMap(mapId);
         this.baseMaps = this.initBaseMaps();
+        this.map = this.initMap(mapId);
         this.initialBounds = null;
     }
 
@@ -43,7 +43,7 @@ export class MapManager {
     addResetViewControl(map) {
         const ResetViewControl = L.Control.extend({
             options: { position: 'topleft' },
-            onAdd: function (map) {
+            onAdd: (map) => {
                 const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
                 const button = L.DomUtil.create('a', '', container);
                 button.innerHTML = '&#8634;';
@@ -52,12 +52,12 @@ export class MapManager {
                 button.style.fontSize = '22px';
                 button.style.lineHeight = '30px';
                 
-                L.DomEvent.on(button, 'click', function (e) {
+                L.DomEvent.on(button, 'click', (e) => {
                     L.DomEvent.preventDefault(e);
                     if (this.initialBounds) {
                         map.fitBounds(this.initialBounds);
                     }
-                }.bind(this));
+                });
 
                 return container;
             }
