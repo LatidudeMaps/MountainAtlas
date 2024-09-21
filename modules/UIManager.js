@@ -26,47 +26,27 @@ export class UIManager {
         console.log('Hierarchy level value found:', !!this.hierLvlValue);
     }
 
-    setupSearchListeners() {
-        if (!this.searchInput || !this.searchSuggestions) {
-            console.error('Search elements not found in the DOM');
+    setupFilterListeners() {
+        console.log('Setting up filter listeners');
+        if (!this.hierLvlSlider || !this.hierLvlValue) {
+            console.error('Hierarchy level elements not found in the DOM');
             return;
         }
 
-        this.searchInput.addEventListener('focus', () => this.toggleSuggestions(true));
-        this.searchInput.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.toggleSuggestions(true);
+        this.hierLvlSlider.addEventListener('input', () => {
+            console.log('Slider value changed:', this.hierLvlSlider.value);
+            this.hierLvlValue.textContent = this.hierLvlSlider.value;
         });
-        this.searchInput.addEventListener('input', debounce(() => this.updateSearchSuggestions(), 300));
-        this.searchInput.addEventListener('keydown', (e) => this.handleSearchKeydown(e));
-        
-        const clearSearchButton = this.filterControl.getContainer().querySelector('#clear-search');
-        if (clearSearchButton) {
-            clearSearchButton.addEventListener('click', () => this.clearSearch());
-        } else {
-            console.error('Clear search button not found');
-        }
 
-        const selectArrow = this.filterControl.getContainer().querySelector('.select-arrow');
-        if (selectArrow) {
-            selectArrow.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.toggleSuggestions(this.searchSuggestions.style.display === 'none');
-            });
-        } else {
-            console.error('Select arrow not found');
-        }
+        this.hierLvlSlider.addEventListener('change', () => {
+            console.log('Slider change event fired');
+            this.filterHandler(this.hierLvlSlider.value);
+        });
 
-        document.addEventListener('click', (e) => this.handleDocumentClick(e));
-    }
-
-    toggleSuggestions(show) {
-        if (show) {
-            this.updateSearchSuggestions(true);
-            this.searchSuggestions.style.display = 'block';
-        } else {
-            this.searchSuggestions.style.display = 'none';
-        }
+        this.hierLvlSlider.addEventListener('mousedown', (e) => {
+            console.log('Slider mousedown event fired');
+            e.stopPropagation();
+        });
     }
 
     updateHierLevelSlider(min, max, value) {
