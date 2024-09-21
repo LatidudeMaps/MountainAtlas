@@ -10,11 +10,16 @@ export class MapManager {
         console.log('Initializing map...');
         const map = L.map(mapId, {
             zoomAnimation: true,
-            preferCanvas: true,
-            zoomSnap: 0.1,
-            zoomDelta: 0.1,
+            zoomSnap: 0,
+            zoomDelta: 0.25,
+            wheelDebounceTime: 40,
+            wheelPxPerZoomLevel: 80,
             fadeAnimation: true,
         });
+
+        // Create a custom pane for basemaps
+        map.createPane('basemap');
+        map.getPane('basemap').style.zIndex = 100;
 
         this.addResetViewControl(map);
 
@@ -26,15 +31,15 @@ export class MapManager {
         const createTileLayer = (url, options) => {
             return L.tileLayer(url, {
                 ...options,
-                className: 'map-tile',
+                pane: 'basemap',
                 updateWhenIdle: false,
                 updateWhenZooming: false,
-                updateInterval: 200,
-                keepBuffer: 2,
-                maxZoom: 20,
-                maxNativeZoom: 18,
+                keepBuffer: 4,
+                maxZoom: 22,
+                maxNativeZoom: 19,
                 tileSize: 256,
                 zoomOffset: 0,
+                bounceAtZoomLimits: false,
             });
         };
 

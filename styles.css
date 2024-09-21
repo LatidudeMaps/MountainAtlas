@@ -23,6 +23,21 @@ body, html {
     background: #000;  /* Dark background to match Dark Positron */
 }
 
+.leaflet-tile-container {
+    will-change: transform;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+}
+
+.leaflet-tile {
+    filter: brightness(100%) contrast(100%);
+    transition: opacity 0.2s linear;
+}
+
+.leaflet-tile-loaded {
+    opacity: 1 !important;
+}
+
 /* Leaflet Controls - excluding attribution */
 .leaflet-control:not(.leaflet-control-attribution) {
     font-family: 'Montserrat', Arial, sans-serif;
