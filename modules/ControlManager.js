@@ -2,6 +2,9 @@ export class ControlManager {
     constructor(mapManager, layerManager) {
         this.mapManager = mapManager;
         this.layerManager = layerManager;
+    }
+
+    initControls() {
         this.layerControl = this.addLayerControl();
         this.filterControl = this.addFilterControl();
     }
@@ -38,8 +41,7 @@ export class ControlManager {
             `;
             return div;
         };
-        filterControl.addTo(this.map);
-        return filterControl;
+        return filterControl.addTo(this.mapManager.map);
     }
 
     addOpacitySlider() {

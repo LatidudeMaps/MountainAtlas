@@ -21,11 +21,13 @@ class App {
             this.layerManager.setMountainAreasData(mountainAreasData);
             this.layerManager.setOsmPeaksData(osmPeaksData);
             
-            this.setupUI();
-            this.applyInitialFilter();
-            this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
-            
-            setTimeout(() => this.controlManager.addOpacitySlider(), 100);
+            this.mapManager.map.on('load', () => {
+                this.controlManager.initControls();
+                this.setupUI();
+                this.applyInitialFilter();
+                this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
+                setTimeout(() => this.controlManager.addOpacitySlider(), 100);
+            });
         } catch (error) {
             console.error('Error initializing app:', error);
         }
