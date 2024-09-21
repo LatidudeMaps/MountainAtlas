@@ -12,11 +12,10 @@ export class MapManager {
         const map = L.map(mapId, {
             zoomAnimation: true,
             preferCanvas: true,
-            zoomControl: false // Disable default zoom control
+            zoomControl: true // Re-enable default zoom control
         });
 
         this.addResetViewControl(map);
-        this.addResponsiveZoomControl(map);
 
         console.log('Map initialized');
         return map;

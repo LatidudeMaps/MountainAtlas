@@ -37,7 +37,10 @@ export class ControlManager {
             "OSM Peaks": this.layerManager.markers
         };
 
-        const control = L.control.layers(this.mapManager.baseMaps, overlayMaps, { collapsed: false }).addTo(this.mapManager.map);
+        const control = L.control.layers(this.mapManager.baseMaps, overlayMaps, { 
+            collapsed: false,
+            position: 'topright'
+        }).addTo(this.mapManager.map);
 
         // Manually check the active base map in the layer control
         setTimeout(() => {
