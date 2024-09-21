@@ -28,7 +28,7 @@ export class MapManager {
                 subdomains: 'abcd',
                 detectRetina: true,
                 tileSize: 512,
-                zoomOffset: -1,
+                zoomOffset: -1, // THIS PARAMETER SETS THE BASEMAP LABELS SIZE IN CONJUNCTION WITH THE TILESIZE PARAMETER
                 updateWhenZooming: false,
                 keepBuffer: 4,
             }),
