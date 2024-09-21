@@ -164,13 +164,20 @@ export class UIManager {
     selectSuggestion(name) {
         if (this.searchInput) {
             this.searchInput.value = name;
-            this.toggleSuggestions(false);
+            this.toggleSuggestions(false);  // Close the dropdown
             this.searchHandler(name);
         }
     }
 
     handleSearchKeydown(e) {
-        if (e.key === 'ArrowDown' && this.searchSuggestions && this.searchSuggestions.style.display !== 'none') {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const searchValue = this.searchInput.value.trim();
+            if (searchValue) {
+                this.toggleSuggestions(false);  // Close the dropdown
+                this.searchHandler(searchValue);
+            }
+        } else if (e.key === 'ArrowDown' && this.searchSuggestions.style.display !== 'none') {
             e.preventDefault();
             const firstItem = this.searchSuggestions.querySelector('li');
             if (firstItem) firstItem.focus();
