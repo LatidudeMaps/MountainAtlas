@@ -11,11 +11,7 @@ export class MapManager {
         console.log('Initializing map...');
         const map = L.map(mapId, {
             zoomAnimation: true,
-            zoomSnap: 0.25,
-            zoomDelta: 0.25,
-            wheelDebounceTime: 40,
-            wheelPxPerZoomLevel: 80,
-            fadeAnimation: true,
+            preferCanvas: true,
         });
 
         this.addResetViewControl(map);
@@ -30,15 +26,24 @@ export class MapManager {
             "Dark Positron": L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
                 subdomains: 'abcd',
-                maxZoom: 20
+                detectRetina: true,
+                tileSize: 256,
+                updateWhenZooming: false,
+                keepBuffer: 4,
             }),
             "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom: 19
+                detectRetina: true,
+                tileSize: 256,
+                updateWhenZooming: false,
+                keepBuffer: 4,
             }),
             "Esri World Imagery": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-                maxZoom: 18
+                detectRetina: true,
+                tileSize: 256,
+                updateWhenZooming: false,
+                keepBuffer: 4,
             })
         };
 
