@@ -92,11 +92,9 @@ const initLayers = (map) => {
 const addControls = (map, baseMaps, overlayMaps) => {
     console.log('Adding controls...');
     
-    const layerControl = L.control.layers(baseMaps, overlayMaps, { 
-        collapsed: false,
-        position: 'topright'
-    });
-    
+    const layerControl = L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
+    console.log('Layer control added:', layerControl);
+
     const filterControl = L.control({ position: 'topright' });
     filterControl.onAdd = () => {
         const div = L.DomUtil.create('div', 'filter-control');
@@ -494,34 +492,6 @@ const clearSearch = () => {
     console.log('Search cleared');
 };
 
-const createSidebar = () => {
-    const sidebar = L.DomUtil.create('div', 'sidebar');
-    sidebar.innerHTML = `
-        <div class="sidebar-toggle">&#9776;</div>
-        <div class="sidebar-content">
-            <div id="layer-control"></div>
-            <div id="filter-control"></div>
-        </div>
-    `;
-    document.body.appendChild(sidebar);
-
-    // Move the filter control into the sidebar
-    const filterControl = document.querySelector('.filter-control');
-    if (filterControl) document.getElementById('filter-control').appendChild(filterControl);
-};
-
-const initSidebarToggle = () => {
-    const sidebar = document.querySelector('.sidebar');
-    const toggle = document.querySelector('.sidebar-toggle');
-    const mapContainer = document.getElementById('map');
-
-    toggle.addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
-        mapContainer.style.right = sidebar.classList.contains('collapsed') ? '0' : '300px';
-        map.invalidateSize();
-    });
-};
-
 // Data Loading
 const loadMountainAreas = async () => {
     console.log('Loading mountain areas...');
@@ -641,16 +611,6 @@ const initializeMap = async () => {
     
     console.log('Applying initial filter...');
     handleFilterChange("4");
-    
-    createSidebar();
-
-    // Move the layer control into the sidebar
-    const layerControlContainer = document.getElementById('layer-control');
-    if (controls.layerControl && layerControlContainer) {
-        layerControlContainer.appendChild(controls.layerControl.getContainer());
-    }
-
-    initSidebarToggle();
     
     // Ensure search suggestions are hidden at startup
     document.getElementById('search-suggestions').style.display = 'none';

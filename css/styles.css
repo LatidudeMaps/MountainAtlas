@@ -7,111 +7,16 @@ body, html {
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden;
 }
 
 #map {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 300px; /* Initial width, same as sidebar */
-    bottom: 0;
-    transition: right 0.3s ease-in-out;
-}
-
-/* Ensure content doesn't overflow */
-#layer-control,
-#filter-control {
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.sidebar {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 300px;
     height: 100%;
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: -2px 0 5px rgba(0,0,0,0.2);
-    transition: transform 0.3s ease-in-out;
-    z-index: 1000;
-    overflow-y: auto;
-}
-
-.sidebar.collapsed {
-    transform: translateX(100%);
-}
-
-.sidebar-toggle {
-    position: absolute;
-    left: -30px;
-    top: 10px;
-    width: 30px;
-    height: 30px;
-    background: white;
-    text-align: center;
-    line-height: 30px;
-    cursor: pointer;
-    border-radius: 4px 0 0 4px;
-    box-shadow: -2px 0 5px rgba(0,0,0,0.2);
-    z-index: 1001;
-}
-
-.sidebar-content {
-    padding: 15px;
+    width: 100%;
 }
 
 /* Leaflet Controls - excluding attribution */
 .leaflet-control:not(.leaflet-control-attribution) {
     font-family: 'Montserrat', Arial, sans-serif;
-}
-
-.leaflet-control-layers {
-    display: block !important;
-}
-
-#layer-control, #filter-control {
-    margin-bottom: 15px;
-}
-
-.leaflet-control-layers,
-.filter-control {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    width: 100% !important;
-    max-width: none !important;
-    margin: 0 0 10px 0 !important;
-}
-
-.leaflet-control-layers-list {
-    padding: 0 !important;
-}
-
-.leaflet-control-layers-base,
-.leaflet-control-layers-overlays {
-    margin-bottom: 10px;
-}
-
-.leaflet-control-layers-expanded {
-    padding: 0 !important;
-    background: transparent !important;
-    color: black;
-}
-
-/* Style control labels */
-.leaflet-control-layers label,
-.filter-control label {
-    font-weight: bold;
-    margin-bottom: 5px;
-    display: block;
-}
-
-/* Style checkboxes and radio buttons */
-.leaflet-control-layers input[type="radio"],
-.leaflet-control-layers input[type="checkbox"] {
-    margin-right: 5px;
 }
 
 /* Tooltip Styles */
