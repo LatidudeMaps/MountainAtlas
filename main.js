@@ -27,12 +27,14 @@ class App {
             
             console.log('Data set in LayerManager');
 
-            // Set initial extent after data is loaded
-            this.mapManager.setInitialExtent(this.layerManager.mountainAreasLayer);
-
             const filterControl = this.controlManager.initControls();
             console.log('Controls initialized');
 
+            this.uiManager = new UIManager(
+                this.handleSearch.bind(this),
+                this.handleFilterChange.bind(this),
+                this.layerManager
+            );
             this.uiManager.initializeElements(filterControl);
             this.setupUI();
             console.log('UI setup complete');
@@ -40,7 +42,6 @@ class App {
             this.applyInitialFilter();
             console.log('Initial filter applied');
 
-            // This will now use the initial bounds set earlier
             this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
             console.log('Map fitted to bounds');
 
