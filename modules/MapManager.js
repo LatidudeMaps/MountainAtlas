@@ -28,6 +28,7 @@ export class MapManager {
                 subdomains: 'abcd',
                 detectRetina: true,
                 tileSize: 512,
+                zoomOffset: -1,
                 updateWhenZooming: false,
                 keepBuffer: 4,
             }),
@@ -35,6 +36,7 @@ export class MapManager {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 detectRetina: true,
                 tileSize: 512,
+                zoomOffset: -1,
                 updateWhenZooming: false,
                 keepBuffer: 4,
             }),
@@ -42,6 +44,7 @@ export class MapManager {
                 attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
                 detectRetina: true,
                 tileSize: 512,
+                zoomOffset: -1,
                 updateWhenZooming: false,
                 keepBuffer: 4,
             })
