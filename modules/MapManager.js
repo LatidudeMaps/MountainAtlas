@@ -13,6 +13,7 @@ export class MapManager {
             preferCanvas: true,
             zoomSnap: 0.1,
             zoomDelta: 0.1,
+            fadeAnimation: true,
         });
 
         this.addResetViewControl(map);
@@ -22,34 +23,31 @@ export class MapManager {
     }
 
     initBaseMaps() {
+        const createTileLayer = (url, options) => {
+            return L.tileLayer(url, {
+                ...options,
+                className: 'map-tile',
+                updateWhenIdle: false,
+                updateWhenZooming: false,
+                updateInterval: 200,
+                keepBuffer: 2,
+                maxZoom: 20,
+                maxNativeZoom: 18,
+                tileSize: 256,
+                zoomOffset: 0,
+            });
+        };
+
         const baseMaps = {
-            "Dark Positron": L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            "Dark Positron": createTileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
                 subdomains: 'abcd',
-                detectRetina: true,
-                maxZoom: 20,
-                maxNativeZoom: 18,
-                tileSize: 512,
-                zoomOffset: -1,
-                updateWhenZooming: false,
-                keepBuffer: 2,
-                noWrap: true,
             }),
-            "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            "OpenStreetMap": createTileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom: 20,
-                maxNativeZoom: 19,
-                tileSize: 512,
-                zoomOffset: -1,
-                noWrap: true,
             }),
-            "Esri World Imagery": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            "Esri World Imagery": createTileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-                maxZoom: 20,
-                maxNativeZoom: 18,
-                tileSize: 512,
-                zoomOffset: -1,
-                noWrap: true,
             })
         };
 
