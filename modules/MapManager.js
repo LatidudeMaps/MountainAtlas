@@ -3,7 +3,7 @@ export class MapManager {
         this.map = this.initMap(mapId);
         this.baseMaps = this.initBaseMaps();
         this.initialBounds = null;
-        this.activeBaseMap = "Dark Positron";  // Add this line to keep track of the active base map
+        this.activeBaseMap = "Dark Positron";
     }
 
     initMap(mapId) {
@@ -11,6 +11,8 @@ export class MapManager {
         const map = L.map(mapId, {
             zoomAnimation: true,
             preferCanvas: true,
+            zoomSnap: 0.1,
+            zoomDelta: 0.1,
         });
 
         this.addResetViewControl(map);
@@ -25,15 +27,29 @@ export class MapManager {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
                 subdomains: 'abcd',
                 detectRetina: true,
-                tileSize: 256,
+                maxZoom: 20,
+                maxNativeZoom: 18,
+                tileSize: 512,
+                zoomOffset: -1,
                 updateWhenZooming: false,
-                keepBuffer: 4,
+                keepBuffer: 2,
+                noWrap: true,
             }),
             "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 20,
+                maxNativeZoom: 19,
+                tileSize: 512,
+                zoomOffset: -1,
+                noWrap: true,
             }),
             "Esri World Imagery": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+                maxZoom: 20,
+                maxNativeZoom: 18,
+                tileSize: 512,
+                zoomOffset: -1,
+                noWrap: true,
             })
         };
 
