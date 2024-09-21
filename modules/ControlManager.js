@@ -11,6 +11,7 @@ export class ControlManager {
         console.log('Initializing controls');
         this.layerControl = this.addLayerControl();
         this.filterControl = this.addFilterControl();
+        return this.filterControl;
     }
 
     addLayerControl() {
@@ -47,7 +48,8 @@ export class ControlManager {
             `;
             return div;
         };
-        return filterControl.addTo(this.mapManager.map);
+        const control = filterControl.addTo(this.mapManager.map);
+        return control;
     }
 
     addOpacitySlider() {

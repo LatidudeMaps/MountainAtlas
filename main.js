@@ -27,9 +27,10 @@ class App {
             
             console.log('Data set in LayerManager');
 
-            this.controlManager.initControls();
+            const filterControl = this.controlManager.initControls();
             console.log('Controls initialized');
 
+            this.uiManager.initializeElements(filterControl);
             this.setupUI();
             console.log('UI setup complete');
 
@@ -58,12 +59,6 @@ class App {
         );
         this.uiManager.setupSearchListeners();
         this.uiManager.setupFilterListeners();
-    }
-
-    applyInitialFilter() {
-        const initialHierLevel = "4";
-        console.log('Applying initial filter with level:', initialHierLevel);
-        this.handleFilterChange(initialHierLevel);
     }
 
     handleSearch(searchValue) {

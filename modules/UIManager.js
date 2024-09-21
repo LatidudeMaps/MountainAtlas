@@ -5,12 +5,21 @@ export class UIManager {
         console.log('UIManager constructor called');
         this.searchHandler = searchHandler;
         this.filterHandler = filterHandler;
-        this.searchInput = document.getElementById('search-input');
-        this.searchSuggestions = document.getElementById('search-suggestions');
-        this.hierLvlSlider = document.getElementById('hier-lvl-slider');
-        this.hierLvlValue = document.getElementById('hier-lvl-value');
+        this.filterControl = null;
+        this.searchInput = null;
+        this.searchSuggestions = null;
+        this.hierLvlSlider = null;
+        this.hierLvlValue = null;
+    }
 
-        // Log the elements found or not found
+    initializeElements(filterControl) {
+        console.log('Initializing UI elements');
+        this.filterControl = filterControl;
+        this.searchInput = this.filterControl.getContainer().querySelector('#search-input');
+        this.searchSuggestions = this.filterControl.getContainer().querySelector('#search-suggestions');
+        this.hierLvlSlider = this.filterControl.getContainer().querySelector('#hier-lvl-slider');
+        this.hierLvlValue = this.filterControl.getContainer().querySelector('#hier-lvl-value');
+
         console.log('Search input found:', !!this.searchInput);
         console.log('Search suggestions found:', !!this.searchSuggestions);
         console.log('Hierarchy level slider found:', !!this.hierLvlSlider);
@@ -32,7 +41,7 @@ export class UIManager {
         this.searchInput.addEventListener('input', debounce(() => this.updateSearchSuggestions(), 300));
         this.searchInput.addEventListener('keydown', (e) => this.handleSearchKeydown(e));
         
-        const clearSearchButton = document.getElementById('clear-search');
+        const clearSearchButton = this.filterControl.getContainer().querySelector('#clear-search');
         if (clearSearchButton) {
             clearSearchButton.addEventListener('click', () => this.clearSearch());
         } else {
