@@ -117,7 +117,9 @@ export class UIManager {
             return;
         }
 
-        const matchingNames = this.getMatchingNames(searchValue);
+        // Get only visible polygons
+        const visibleNames = this.layerManager.getVisibleMountainAreaNames();
+        const matchingNames = this.getMatchingNames(searchValue, visibleNames);
 
         if (matchingNames.length > 0) {
             const ul = document.createElement('ul');
@@ -134,17 +136,20 @@ export class UIManager {
 
             this.searchSuggestions.appendChild(ul);
             this.searchSuggestions.style.display = 'block';
+
+            // Prevent map zoom on scroll
+            this.searchSuggestions.addEventListener('wheel', (e) => {
+                e.stopPropagation();
+            });
         } else {
             this.searchSuggestions.style.display = 'none';
         }
     }
 
-    getMatchingNames(searchValue) {
-        const allNames = this.layerManager.getAllMountainAreaNames();
-        console.log('All mountain area names:', allNames);
-        return allNames.filter(name => 
-            name.toLowerCase().includes(searchValue.toLowerCase())
-        );
+    getMatchingNames(searchValue, visibleNames) {
+        return visibleNames
+            .filter(name => name.toLowerCase().includes(searchValue.toLowerCase()))
+            .sort((a, b) => a.localeCompare(b)); // Sort alphabetically
     }
 
     selectSuggestion(name) {
