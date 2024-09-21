@@ -18,9 +18,6 @@ export class MapManager {
         // Add the default base map
         this.initBaseMaps()["Dark Positron"].addTo(map);
 
-        // Set an initial view
-        map.setView([0, 0], 2);
-
         console.log('Map initialized');
         return map;
     }
