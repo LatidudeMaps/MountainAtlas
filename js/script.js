@@ -630,18 +630,8 @@ const initializeMap = async () => {
     };
     console.log('Overlay maps:', overlayMaps);
 
-    createSidebar();
-
     const controls = addControls(map, baseMaps, overlayMaps);
     console.log('Controls added:', controls);
-
-    // Move the layer control into the sidebar
-    const layerControlContainer = document.getElementById('layer-control');
-    if (controls.layerControl && layerControlContainer) {
-        layerControlContainer.appendChild(controls.layerControl.getContainer());
-    }
-
-    initSidebarToggle();
 
     addEventListeners(map, mountainAreasLayer);
 
@@ -651,6 +641,16 @@ const initializeMap = async () => {
     
     console.log('Applying initial filter...');
     handleFilterChange("4");
+    
+    createSidebar();
+
+    // Move the layer control into the sidebar
+    const layerControlContainer = document.getElementById('layer-control');
+    if (controls.layerControl && layerControlContainer) {
+        layerControlContainer.appendChild(controls.layerControl.getContainer());
+    }
+
+    initSidebarToggle();
     
     // Ensure search suggestions are hidden at startup
     document.getElementById('search-suggestions').style.display = 'none';

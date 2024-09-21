@@ -71,6 +71,10 @@ body, html {
     display: block !important;
 }
 
+#layer-control, #filter-control {
+    margin-bottom: 15px;
+}
+
 .leaflet-control-layers,
 .filter-control {
     background: transparent !important;
