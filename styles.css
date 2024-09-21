@@ -221,6 +221,42 @@ body, html {
     color: #777;
 }
 
+/* Unified Control Styles */
+.unified-control {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+    font-family: 'Montserrat', Arial, sans-serif;
+    padding: 10px;
+    max-width: 300px;
+    width: 100%;
+}
+
+.control-section {
+    margin-bottom: 15px;
+}
+
+.control-section h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.layer-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.layer-list li {
+    margin-bottom: 5px;
+}
+
+.layer-list input[type="radio"],
+.layer-list input[type="checkbox"] {
+    margin-right: 5px;
+}
+
 /* Responsive styles */
 @media screen and (max-width: 768px) {
     .filter-control {
@@ -236,6 +272,34 @@ body, html {
         max-width: none;
         width: calc(100% - 20px);
         margin: 10px;
+    }
+
+    .input-button-group {
+        flex-direction: column;
+    }
+
+    .custom-button {
+        margin-left: 0;
+        margin-top: 5px;
+    }
+
+    .opacity-slider-container {
+        padding-left: 0;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .unified-control {
+        max-width: none;
+        width: calc(100% - 20px);
+        margin: 10px;
+        position: relative;
+        top: auto;
+        left: auto;
+    }
+
+    .control-section {
+        margin-bottom: 10px;
     }
 
     .input-button-group {

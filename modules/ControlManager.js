@@ -2,50 +2,79 @@ export class ControlManager {
     constructor(mapManager, layerManager) {
         this.mapManager = mapManager;
         this.layerManager = layerManager;
-        this.layerControl = null;
-        this.filterControl = null;
+        this.unifiedControl = null;
     }
 
     initControls() {
         console.log('Initializing controls');
-        this.layerControl = this.addLayerControl(); // Add layer control FIRST
-        this.filterControl = this.addFilterControl(); // Add filter control SECOND
+        this.unifiedControl = this.addUnifiedControl();
         this.handleResponsiveControls();
-        return this.filterControl;
+        return this.unifiedControl;
     }
 
-    addLayerControl() {
-        console.log('Adding layer control');
-        const overlayMaps = {
-            "Mountain Areas": this.layerManager.mountainAreasLayer,
-            "OSM Peaks": this.layerManager.markers
-        };
-
-        const control = L.control.layers(this.mapManager.baseMaps, overlayMaps, { 
-            collapsed: false,
-            position: 'topright'
-        }).addTo(this.mapManager.map);
-
-        // Manually check the active base map in the layer control
-        setTimeout(() => {
-            const inputs = control._baseLayersList.getElementsByTagName('input');
-            for (let input of inputs) {
-                if (input.nextSibling.textContent.trim() === this.mapManager.activeBaseMap) {
+    addUnifiedControl() {
+        console.log('Adding unified control');
+        const unifiedControl = L.control({ position: 'topright' });
+        
+        unifiedControl.onAdd = () => {
+            const container = L.DomUtil.create('div', 'unified-control');
+            
+            // Layer Control Section
+            const layerSection = L.DomUtil.create('div', 'control-section layer-control-section', container);
+            layerSection.innerHTML = '<h3>Layers</h3>';
+            
+            const layerList = L.DomUtil.create('ul', 'layer-list', layerSection);
+            
+            // Base Layers
+            Object.entries(this.mapManager.baseMaps).forEach(([name, layer]) => {
+                const li = L.DomUtil.create('li', '', layerList);
+                const input = L.DomUtil.create('input', '', li);
+                input.type = 'radio';
+                input.name = 'base-layer';
+                input.id = `base-${name}`;
+                if (name === this.mapManager.activeBaseMap) {
                     input.checked = true;
-                    break;
                 }
-            }
-        }, 0);
-
-        return control;
-    }
-
-    addFilterControl() {
-        console.log('Adding filter control');
-        const filterControl = L.control({ position: 'topright' });
-        filterControl.onAdd = () => {
-            const div = L.DomUtil.create('div', 'filter-control');
-            div.innerHTML = `
+                const label = L.DomUtil.create('label', '', li);
+                label.htmlFor = `base-${name}`;
+                label.textContent = name;
+                
+                L.DomEvent.on(input, 'change', () => {
+                    this.mapManager.map.removeLayer(this.mapManager.baseMaps[this.mapManager.activeBaseMap]);
+                    this.mapManager.map.addLayer(layer);
+                    this.mapManager.activeBaseMap = name;
+                });
+            });
+            
+            // Overlay Layers
+            const overlayMaps = {
+                "Mountain Areas": this.layerManager.mountainAreasLayer,
+                "OSM Peaks": this.layerManager.markers
+            };
+            
+            Object.entries(overlayMaps).forEach(([name, layer]) => {
+                const li = L.DomUtil.create('li', '', layerList);
+                const input = L.DomUtil.create('input', '', li);
+                input.type = 'checkbox';
+                input.id = `overlay-${name}`;
+                input.checked = true;
+                const label = L.DomUtil.create('label', '', li);
+                label.htmlFor = `overlay-${name}`;
+                label.textContent = name;
+                
+                L.DomEvent.on(input, 'change', () => {
+                    if (input.checked) {
+                        this.mapManager.map.addLayer(layer);
+                    } else {
+                        this.mapManager.map.removeLayer(layer);
+                    }
+                });
+            });
+            
+            // Filter Section
+            const filterSection = L.DomUtil.create('div', 'control-section filter-control-section', container);
+            filterSection.innerHTML = `
+                <h3>Filters</h3>
                 <div class="control-group">
                     <label for="hier-lvl-slider">GMBA Hierarchy Level: <span id="hier-lvl-value"></span></label>
                     <input type="range" id="hier-lvl-slider" class="custom-slider">
@@ -62,21 +91,20 @@ export class ControlManager {
                     </div>
                 </div>
             `;
-            return div;
+            
+            return container;
         };
-        const control = filterControl.addTo(this.mapManager.map);
-        return control;
+        
+        return unifiedControl.addTo(this.mapManager.map);
     }
 
     handleResponsiveControls() {
         const handleResize = () => {
             const isMobile = window.innerWidth <= 768;
             if (isMobile) {
-                this.layerControl.setPosition('topleft');
-                this.filterControl.setPosition('topleft');
+                this.unifiedControl.setPosition('topleft');
             } else {
-                this.layerControl.setPosition('topright');
-                this.filterControl.setPosition('topright');
+                this.unifiedControl.setPosition('topright');
             }
         };
 
