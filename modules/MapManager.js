@@ -10,16 +10,13 @@ export class MapManager {
         console.log('Initializing map...');
         const map = L.map(mapId, {
             zoomAnimation: true,
-            zoomSnap: 0,
+            zoomSnap: 0.25,
             zoomDelta: 0.25,
             wheelDebounceTime: 40,
             wheelPxPerZoomLevel: 80,
             fadeAnimation: true,
+            maxBoundsViscosity: 1.0
         });
-
-        // Create a custom pane for basemaps
-        map.createPane('basemap');
-        map.getPane('basemap').style.zIndex = 100;
 
         this.addResetViewControl(map);
 
@@ -62,6 +59,23 @@ export class MapManager {
         return baseMaps;
     }
 
+    setInitialExtent(mountainAreasLayer) {
+        const bounds = mountainAreasLayer.getBounds();
+        const center = bounds.getCenter();
+        
+        // Set the initial view
+        this.map.setView(center, 5);
+        
+        // Set the initial bounds
+        this.initialBounds = this.map.getBounds();
+        
+        // Set max bounds (with some padding)
+        const maxBounds = this.initialBounds.pad(0.1);
+        this.map.setMaxBounds(maxBounds);
+        
+        console.log('Initial extent set');
+    }
+
     addResetViewControl(map) {
         const ResetViewControl = L.Control.extend({
             options: { position: 'topleft' },
@@ -90,15 +104,10 @@ export class MapManager {
 
     fitMapToBounds(mountainAreasLayer, markers) {
         console.log('Fitting map to bounds...');
-        const bounds = L.latLngBounds([]);
-        if (mountainAreasLayer.getLayers().length > 0) bounds.extend(mountainAreasLayer.getBounds());
-        if (markers.getLayers().length > 0) bounds.extend(markers.getBounds());
-        if (bounds.isValid()) {
-            this.map.fitBounds(bounds);
-            this.initialBounds = bounds;
-        } else {
-            console.warn('No valid bounds to fit, keeping initial view');
+        if (!this.initialBounds) {
+            this.setInitialExtent(mountainAreasLayer);
         }
+        this.map.fitBounds(this.initialBounds);
         console.log('Map fitted to bounds');
     }
 
