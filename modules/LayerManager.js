@@ -1,6 +1,5 @@
 export class LayerManager {
     constructor(map) {
-        console.log('LayerManager constructor called');
         this.map = map;
         this.mountainAreasLayer = this.initMountainAreasLayer();
         this.markers = this.initMarkers();
