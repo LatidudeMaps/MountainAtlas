@@ -63,7 +63,7 @@ export class MapManager {
         const center = bounds.getCenter();
         
         // Set the initial view based on the mountain areas layer
-        this.map.setView(center, 5);
+        this.map.setView(center);
         
         // Set the initial bounds
         this.initialBounds = this.map.getBounds();
