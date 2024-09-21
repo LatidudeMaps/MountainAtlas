@@ -19,13 +19,6 @@ body, html {
     font-family: 'Montserrat', Arial, sans-serif;
 }
 
-/* Popup Styles */
-.leaflet.popup.content {
-    font-family: 'Montserrat', Arial, sans-serif;
-    font-size: 12px;
-    font-weight: bold;
-}
-
 /* Tooltip Styles */
 .leaflet-tooltip {
     background: none !important;
