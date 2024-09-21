@@ -21,7 +21,6 @@ export class ControlManager {
             
             // Layer Control Section
             const layerSection = L.DomUtil.create('div', 'control-section layer-control-section', container);
-            layerSection.innerHTML = '<h3>Layers</h3>';
             
             const layerList = L.DomUtil.create('ul', 'layer-list', layerSection);
             
@@ -94,7 +93,6 @@ export class ControlManager {
             // Filter Section
             const filterSection = L.DomUtil.create('div', 'control-section filter-control-section', container);
             filterSection.innerHTML = `
-                <h3>Filters</h3>
                 <div class="control-group">
                     <label for="hier-lvl-slider">GMBA Hierarchy Level: <span id="hier-lvl-value"></span></label>
                     <input type="range" id="hier-lvl-slider" class="custom-slider">
