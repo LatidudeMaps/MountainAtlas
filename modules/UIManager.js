@@ -185,10 +185,10 @@ export class UIManager {
             this.searchSuggestions.appendChild(ul);
             this.searchSuggestions.style.display = 'block';
 
-            // Prevent map zoom on scroll
+            // Use a passive event listener for the wheel event
             this.searchSuggestions.addEventListener('wheel', (e) => {
-                e.stopPropagation();
-            });
+                e.preventDefault();
+            }, { passive: false });
         } else {
             this.searchSuggestions.style.display = 'none';
         }

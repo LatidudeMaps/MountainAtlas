@@ -27,7 +27,7 @@ class App {
             
             console.log('Data set in LayerManager');
 
-            const filterControl = this.controlManager.initControls();
+            const unifiedControl = this.controlManager.initControls();
             console.log('Controls initialized');
 
             this.uiManager = new UIManager(
@@ -35,7 +35,7 @@ class App {
                 this.handleFilterChange.bind(this),
                 this.layerManager
             );
-            this.uiManager.initializeElements(filterControl);
+            this.uiManager.initializeElements(unifiedControl);
             this.setupUI();
             console.log('UI setup complete');
 
@@ -45,10 +45,7 @@ class App {
             this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
             console.log('Map fitted to bounds');
 
-            setTimeout(() => {
-                this.controlManager.addOpacitySlider();
-                console.log('Opacity slider added');
-            }, 100);
+            // Remove the setTimeout and addOpacitySlider call
         } catch (error) {
             console.error('Error initializing app:', error);
         }
