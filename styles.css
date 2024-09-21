@@ -203,16 +203,27 @@ body, html {
 
 /* Opacity slider container */
 .opacity-slider-container {
-    margin-top: 5px;
     display: flex;
     align-items: center;
-    padding-left: 20px;
+    margin-top: 5px;
+    margin-left: 20px;
 }
 
 /* Opacity slider */
 .opacity-slider {
     width: 100px;
     margin-right: 5px;
+}
+
+/* Opacity value display */
+.opacity-value {
+    font-size: 0.8em;
+    color: #777;
+    min-width: 30px;
+}
+
+.layer-list li {
+    margin-bottom: 10px;
 }
 
 /* Opacity value display */
@@ -285,6 +296,7 @@ body, html {
 
     .opacity-slider-container {
         padding-left: 0;
+        margin-left: 0;
     }
 }
 

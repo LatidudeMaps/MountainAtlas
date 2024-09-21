@@ -69,6 +69,26 @@ export class ControlManager {
                         this.mapManager.map.removeLayer(layer);
                     }
                 });
+
+                // Add opacity slider for Mountain Areas
+                if (name === "Mountain Areas") {
+                    const opacityContainer = L.DomUtil.create('div', 'opacity-slider-container', li);
+                    opacityContainer.innerHTML = `
+                        <input type="range" class="opacity-slider" min="0" max="1" step="0.1" value="0.65">
+                        <span class="opacity-value">65%</span>
+                    `;
+                    
+                    const slider = opacityContainer.getElementsByClassName('opacity-slider')[0];
+                    const opacityValue = opacityContainer.getElementsByClassName('opacity-value')[0];
+                    
+                    L.DomEvent.on(slider, 'input', (e) => {
+                        const opacity = parseFloat(e.target.value);
+                        this.layerManager.setMountainAreasOpacity(opacity);
+                        opacityValue.textContent = Math.round(opacity * 100) + '%';
+                    });
+                    
+                    L.DomEvent.on(slider, 'click', L.DomEvent.stopPropagation);
+                }
             });
             
             // Filter Section
@@ -110,44 +130,5 @@ export class ControlManager {
 
         window.addEventListener('resize', handleResize);
         handleResize(); // Call once to set initial state
-    }
-
-    addOpacitySlider() {
-        console.log('Adding opacity slider');
-        if (!this.layerControl || !this.layerControl._overlaysList) {
-            console.error('Layer control is not available');
-            return;
-        }
-
-        const layerInputs = this.layerControl._overlaysList.querySelectorAll('input[type="checkbox"]');
-        let mountainAreasItem;
-
-        for (let input of layerInputs) {
-            if (input.nextElementSibling && input.nextElementSibling.textContent.trim() === "Mountain Areas") {
-                mountainAreasItem = input.parentNode;
-                break;
-            }
-        }
-
-        if (mountainAreasItem) {
-            const sliderContainer = L.DomUtil.create('div', 'opacity-slider-container', mountainAreasItem);
-            sliderContainer.innerHTML = `
-                <input type="range" class="opacity-slider" min="0" max="1" step="0.1" value="0.65">
-                <span class="opacity-value">65%</span>
-            `;
-            
-            const slider = sliderContainer.getElementsByClassName('opacity-slider')[0];
-            const opacityValue = sliderContainer.getElementsByClassName('opacity-value')[0];
-            
-            L.DomEvent.on(slider, 'input', (e) => {
-                const opacity = parseFloat(e.target.value);
-                this.layerManager.setMountainAreasOpacity(opacity);
-                opacityValue.textContent = Math.round(opacity * 100) + '%';
-            });
-            
-            L.DomEvent.on(slider, 'click', L.DomEvent.stopPropagation);
-        } else {
-            console.error("Mountain Areas layer not found in the layer control");
-        }
     }
 }
