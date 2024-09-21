@@ -13,32 +13,53 @@ export class UIManager {
     }
 
     initializeElements(filterControl) {
+        console.log('Initializing UI elements');
         this.filterControl = filterControl;
         this.searchInput = this.filterControl.getContainer().querySelector('#search-input');
         this.searchSuggestions = this.filterControl.getContainer().querySelector('#search-suggestions');
         this.hierLvlSlider = this.filterControl.getContainer().querySelector('#hier-lvl-slider');
         this.hierLvlValue = this.filterControl.getContainer().querySelector('#hier-lvl-value');
+
+        console.log('Search input found:', !!this.searchInput);
+        console.log('Search suggestions found:', !!this.searchSuggestions);
+        console.log('Hierarchy level slider found:', !!this.hierLvlSlider);
+        console.log('Hierarchy level value found:', !!this.hierLvlValue);
     }
 
     setupFilterListeners() {
+        console.log('Setting up filter listeners');
         if (!this.hierLvlSlider || !this.hierLvlValue) {
             console.error('Hierarchy level elements not found in the DOM');
             return;
         }
 
         this.hierLvlSlider.addEventListener('input', () => {
+            console.log('Slider value changed:', this.hierLvlSlider.value);
             this.hierLvlValue.textContent = this.hierLvlSlider.value;
         });
 
         this.hierLvlSlider.addEventListener('change', () => {
+            console.log('Slider change event fired');
             this.filterHandler(this.hierLvlSlider.value);
         });
 
         this.hierLvlSlider.addEventListener('mousedown', (e) => {
+            console.log('Slider mousedown event fired');
             e.stopPropagation();
-            document.addEventListener('mouseup', this.enableMapDragging);
-            document.addEventListener('mouseleave', this.enableMapDragging);
         });
+    }
+
+    updateHierLevelSlider(min, max, value) {
+        console.log('Updating hierarchy level slider:', { min, max, value });
+        if (!this.hierLvlSlider || !this.hierLvlValue) {
+            console.error('Hierarchy level elements not found, cannot update slider');
+            return;
+        }
+
+        this.hierLvlSlider.min = min;
+        this.hierLvlSlider.max = max;
+        this.hierLvlSlider.value = value;
+        this.hierLvlValue.textContent = value;
     }
 
     enableMapDragging = () => {
@@ -116,7 +137,9 @@ export class UIManager {
     }
 
     getMatchingNames(searchValue) {
-        return this.layerManager.getAllMountainAreaNames().filter(name => 
+        const allNames = this.layerManager.getAllMountainAreaNames();
+        console.log('All mountain area names:', allNames);
+        return allNames.filter(name => 
             name.toLowerCase().includes(searchValue.toLowerCase())
         );
     }

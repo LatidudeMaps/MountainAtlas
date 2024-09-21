@@ -40,8 +40,14 @@ export class LayerManager {
     }
 
     getAllMountainAreaNames() {
-        if (!this.allMountainAreas) return [];
-        return this.allMountainAreas.features.map(feature => feature.properties.MapName);
+        console.log('Getting all mountain area names');
+        if (!this.allMountainAreas) {
+            console.warn('No mountain areas data available');
+            return [];
+        }
+        const names = this.allMountainAreas.features.map(feature => feature.properties.MapName);
+        console.log('Number of mountain area names:', names.length);
+        return names;
     }
 
     setOsmPeaksData(data) {

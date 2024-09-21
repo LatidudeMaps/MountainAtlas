@@ -11,7 +11,7 @@ class App {
         this.layerManager = new LayerManager(this.mapManager.map);
         this.controlManager = new ControlManager(this.mapManager, this.layerManager);
         this.dataLoader = new DataLoader();
-        this.uiManager = null;  // We'll initialize this in the init method
+        this.uiManager = null;
     }
 
     async init() {
@@ -30,7 +30,6 @@ class App {
             const filterControl = this.controlManager.initControls();
             console.log('Controls initialized');
 
-            // Initialize UIManager here
             this.uiManager = new UIManager(
                 this.handleSearch.bind(this),
                 this.handleFilterChange.bind(this),
