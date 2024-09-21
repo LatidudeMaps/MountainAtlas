@@ -92,9 +92,9 @@ const initLayers = (map) => {
 const addControls = (map, baseMaps, overlayMaps) => {
     console.log('Adding controls...');
     
-    const layerControl = L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
-    console.log('Layer control added:', layerControl);
-
+    const layerControl = L.control.layers(baseMaps, overlayMaps, { collapsed: false });
+    layerControl.addTo(map);
+    
     const filterControl = L.control({ position: 'topright' });
     filterControl.onAdd = () => {
         const div = L.DomUtil.create('div', 'filter-control');
@@ -492,6 +492,34 @@ const clearSearch = () => {
     console.log('Search cleared');
 };
 
+const createSidebar = () => {
+    const sidebar = L.DomUtil.create('div', 'sidebar');
+    sidebar.innerHTML = `
+        <div class="sidebar-toggle">&#9776;</div>
+        <div class="sidebar-content">
+            <div id="layer-control"></div>
+            <div id="filter-control"></div>
+        </div>
+    `;
+    document.body.appendChild(sidebar);
+
+    // Move existing controls into the sidebar
+    const layerControl = document.querySelector('.leaflet-control-layers');
+    const filterControl = document.querySelector('.filter-control');
+    
+    if (layerControl) document.getElementById('layer-control').appendChild(layerControl);
+    if (filterControl) document.getElementById('filter-control').appendChild(filterControl);
+};
+
+const initSidebarToggle = () => {
+    const sidebar = document.querySelector('.sidebar');
+    const toggle = document.querySelector('.sidebar-toggle');
+
+    toggle.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+    });
+};
+
 // Data Loading
 const loadMountainAreas = async () => {
     console.log('Loading mountain areas...');
@@ -611,6 +639,12 @@ const initializeMap = async () => {
     
     console.log('Applying initial filter...');
     handleFilterChange("4");
+    
+    // Add createSidebar() call here
+    createSidebar();
+    
+    // Initialize sidebar toggle
+    initSidebarToggle();
     
     // Ensure search suggestions are hidden at startup
     document.getElementById('search-suggestions').style.display = 'none';
