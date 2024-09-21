@@ -100,7 +100,6 @@ class App {
 
         this.layerManager.filterMountainAreas(selectedValue);
         this.layerManager.filterAndDisplayPeaks(selectedValue);
-        this.uiManager.clearSearch();
     }
 }
 

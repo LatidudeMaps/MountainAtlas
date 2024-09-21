@@ -66,18 +66,7 @@ export class UIManager {
         document.removeEventListener('mouseup', this.enableMapDragging);
         document.removeEventListener('mouseleave', this.enableMapDragging);
     }
-
-    toggleSuggestions(show) {
-        if (this.searchSuggestions) {
-            if (show) {
-                this.updateSearchSuggestions(true);
-                this.searchSuggestions.style.display = 'block';
-            } else {
-                this.searchSuggestions.style.display = 'none';
-            }
-        }
-    }
-
+    
     setupSearchListeners() {
         if (!this.searchInput || !this.searchSuggestions) {
             console.error('Search elements not found in the DOM');
@@ -85,13 +74,19 @@ export class UIManager {
         }
 
         this.searchInput.addEventListener('focus', () => this.toggleSuggestions(true));
-        this.searchInput.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.toggleSuggestions(true);
-        });
         this.searchInput.addEventListener('input', debounce(() => this.updateSearchSuggestions(), 300));
         this.searchInput.addEventListener('keydown', (e) => this.handleSearchKeydown(e));
-        
+
+        const searchContainer = this.filterControl.getContainer().querySelector('.custom-search');
+        if (searchContainer) {
+            searchContainer.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleSuggestions(true);
+            });
+        } else {
+            console.error('Search container not found');
+        }
+
         const clearSearchButton = this.filterControl.getContainer().querySelector('#clear-search');
         if (clearSearchButton) {
             clearSearchButton.addEventListener('click', () => this.clearSearch());
@@ -100,6 +95,15 @@ export class UIManager {
         }
 
         document.addEventListener('click', (e) => this.handleDocumentClick(e));
+    }
+
+    toggleSuggestions(show) {
+        if (show) {
+            this.updateSearchSuggestions(true);
+            this.searchSuggestions.style.display = 'block';
+        } else {
+            this.searchSuggestions.style.display = 'none';
+        }
     }
 
     updateSearchSuggestions(showAll = false) {
@@ -113,7 +117,6 @@ export class UIManager {
             return;
         }
 
-        // Get matching names from LayerManager
         const matchingNames = this.getMatchingNames(searchValue);
 
         if (matchingNames.length > 0) {
@@ -173,9 +176,8 @@ export class UIManager {
     }
 
     handleDocumentClick(e) {
-        if (this.searchInput && this.searchSuggestions && 
-            !this.searchInput.contains(e.target) && 
-            !this.searchSuggestions.contains(e.target)) {
+        const searchContainer = this.filterControl.getContainer().querySelector('.custom-search');
+        if (searchContainer && !searchContainer.contains(e.target)) {
             this.toggleSuggestions(false);
         }
     }
