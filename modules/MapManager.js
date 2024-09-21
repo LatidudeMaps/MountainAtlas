@@ -1,37 +1,24 @@
 export class MapManager {
     constructor(mapId) {
-        this.mapId = mapId;
-        this.map = null;
-        this.baseMaps = null;
+        this.map = this.initMap(mapId);
+        this.baseMaps = this.initBaseMaps();
         this.initialBounds = null;
     }
 
-    async initMap() {
+    initMap(mapId) {
         console.log('Initializing map...');
-        this.map = L.map(this.mapId, {
+        const map = L.map(mapId, {
             zoomAnimation: true,
             preferCanvas: true,
         });
 
-        this.baseMaps = this.initBaseMaps();
-        this.addResetViewControl(this.map);
+        this.addResetViewControl(map);
 
         // Add the default base map
-        this.baseMaps["Dark Positron"].addTo(this.map);
-
-        // Set an initial view
-        this.map.setView([0, 0], 2);
-
-        // Wait for the map to be ready
-        await new Promise(resolve => {
-            if (this.map.isInit) {
-                resolve();
-            } else {
-                this.map.on('load', resolve);
-            }
-        });
+        this.initBaseMaps()["Dark Positron"].addTo(map);
 
         console.log('Map initialized');
+        return map;
     }
 
     initBaseMaps() {
@@ -92,14 +79,9 @@ export class MapManager {
     }
 
     flyTo(center, zoom) {
-        if (this.map.isInit) {
-            this.map.flyTo(center, zoom, {
-                duration: 1.5,
-                easeLinearity: 0.25
-            });
-        } else {
-            console.warn('Map not initialized, setting view instead of flying');
-            this.map.setView(center, zoom);
-        }
+        this.map.flyTo(center, zoom, {
+            duration: 1.5,
+            easeLinearity: 0.25
+        });
     }
 }
