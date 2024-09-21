@@ -61,6 +61,12 @@ class App {
         this.uiManager.setupFilterListeners();
     }
 
+    applyInitialFilter() {
+        console.log('Applying initial filter');
+        const initialHierLevel = "4";
+        this.handleFilterChange(initialHierLevel);
+    }
+
     handleSearch(searchValue) {
         console.log('Search initiated with value:', searchValue);
         this.layerManager.highlightSearchedAreas(searchValue);
