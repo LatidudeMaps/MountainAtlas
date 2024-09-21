@@ -14,6 +14,9 @@ export class MapManager {
 
         this.addResetViewControl(map);
 
+        // Add the default base map
+        this.baseMaps["Dark Positron"].addTo(map);
+
         console.log('Map initialized');
         return map;
     }

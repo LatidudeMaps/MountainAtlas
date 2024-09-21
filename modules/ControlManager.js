@@ -1,24 +1,18 @@
 export class ControlManager {
-    constructor(map, layerManager) {
-        this.map = map;
+    constructor(mapManager, layerManager) {
+        this.mapManager = mapManager;
         this.layerManager = layerManager;
         this.layerControl = this.addLayerControl();
         this.filterControl = this.addFilterControl();
     }
 
     addLayerControl() {
-        const baseMaps = {
-            "Dark Positron": this.layerManager.baseMaps["Dark Positron"],
-            "OpenStreetMap": this.layerManager.baseMaps["OpenStreetMap"],
-            "Esri World Imagery": this.layerManager.baseMaps["Esri World Imagery"]
-        };
-
         const overlayMaps = {
             "Mountain Areas": this.layerManager.mountainAreasLayer,
             "OSM Peaks": this.layerManager.markers
         };
 
-        return L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(this.map);
+        return L.control.layers(this.mapManager.baseMaps, overlayMaps, { collapsed: false }).addTo(this.mapManager.map);
     }
 
     addFilterControl() {
