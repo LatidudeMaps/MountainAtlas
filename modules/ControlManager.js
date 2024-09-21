@@ -19,6 +19,10 @@ export class ControlManager {
         unifiedControl.onAdd = () => {
             const container = L.DomUtil.create('div', 'unified-control');
             
+            // Prevent propagation for the entire container
+            L.DomEvent.disableClickPropagation(container);
+            L.DomEvent.disableScrollPropagation(container);
+            
             // Layer Control Section
             const layerSection = L.DomUtil.create('div', 'control-section layer-control-section', container);
             
@@ -38,7 +42,8 @@ export class ControlManager {
                 label.htmlFor = `base-${name}`;
                 label.textContent = name;
                 
-                L.DomEvent.on(input, 'change', () => {
+                L.DomEvent.on(input, 'change', (e) => {
+                    L.DomEvent.stop(e);
                     this.mapManager.map.removeLayer(this.mapManager.baseMaps[this.mapManager.activeBaseMap]);
                     this.mapManager.map.addLayer(layer);
                     this.mapManager.activeBaseMap = name;
@@ -61,7 +66,8 @@ export class ControlManager {
                 label.htmlFor = `overlay-${name}`;
                 label.textContent = name;
                 
-                L.DomEvent.on(input, 'change', () => {
+                L.DomEvent.on(input, 'change', (e) => {
+                    L.DomEvent.stop(e);
                     if (input.checked) {
                         this.mapManager.map.addLayer(layer);
                     } else {
@@ -81,12 +87,11 @@ export class ControlManager {
                     const opacityValue = opacityContainer.getElementsByClassName('opacity-value')[0];
                     
                     L.DomEvent.on(slider, 'input', (e) => {
+                        L.DomEvent.stop(e);
                         const opacity = parseFloat(e.target.value);
                         this.layerManager.setMountainAreasOpacity(opacity);
                         opacityValue.textContent = Math.round(opacity * 100) + '%';
                     });
-                    
-                    L.DomEvent.on(slider, 'click', L.DomEvent.stopPropagation);
                 }
             });
             
@@ -109,6 +114,21 @@ export class ControlManager {
                     </div>
                 </div>
             `;
+            
+            // Prevent propagation for hierarchy level slider
+            const hierLvlSlider = filterSection.querySelector('#hier-lvl-slider');
+            L.DomEvent.on(hierLvlSlider, 'input', L.DomEvent.stop);
+            L.DomEvent.on(hierLvlSlider, 'change', L.DomEvent.stop);
+            
+            // Prevent propagation for search input
+            const searchInput = filterSection.querySelector('#search-input');
+            L.DomEvent.on(searchInput, 'focus', L.DomEvent.stop);
+            L.DomEvent.on(searchInput, 'blur', L.DomEvent.stop);
+            L.DomEvent.on(searchInput, 'input', L.DomEvent.stop);
+            
+            // Prevent propagation for clear search button
+            const clearSearchButton = filterSection.querySelector('#clear-search');
+            L.DomEvent.on(clearSearchButton, 'click', L.DomEvent.stop);
             
             return container;
         };
