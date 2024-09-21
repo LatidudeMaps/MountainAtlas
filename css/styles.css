@@ -14,9 +14,9 @@ body, html {
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
+    right: 300px; /* Initial width, same as sidebar */
     bottom: 0;
-    z-index: 1; /* Ensure it's below the sidebar */
+    transition: right 0.3s ease-in-out;
 }
 
 /* Ensure content doesn't overflow */
@@ -27,19 +27,20 @@ body, html {
 }
 
 .sidebar {
-    position: fixed; /* Change from absolute to fixed */
+    position: fixed;
     top: 0;
     right: 0;
     width: 300px;
     height: 100%;
-    background: rgba(255, 255, 255, 0.9); /* Make sidebar slightly transparent */
+    background: rgba(255, 255, 255, 0.9);
     box-shadow: -2px 0 5px rgba(0,0,0,0.2);
     transition: transform 0.3s ease-in-out;
     z-index: 1000;
+    overflow-y: auto;
 }
 
 .sidebar.collapsed {
-    transform: translateX(100%); /* Hide completely when collapsed */
+    transform: translateX(100%);
 }
 
 .sidebar-toggle {
@@ -54,18 +55,20 @@ body, html {
     cursor: pointer;
     border-radius: 4px 0 0 4px;
     box-shadow: -2px 0 5px rgba(0,0,0,0.2);
-    z-index: 1001; /* Ensure it's above the sidebar */
+    z-index: 1001;
 }
 
 .sidebar-content {
     padding: 15px;
-    height: 100%;
-    overflow-y: auto;
 }
 
 /* Leaflet Controls - excluding attribution */
 .leaflet-control:not(.leaflet-control-attribution) {
     font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.leaflet-control-layers {
+    display: block !important;
 }
 
 .leaflet-control-layers,

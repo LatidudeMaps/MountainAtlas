@@ -505,20 +505,20 @@ const createSidebar = () => {
     `;
     document.body.appendChild(sidebar);
 
-    // Move existing controls into the sidebar
-    const layerControl = document.querySelector('.leaflet-control-layers');
+    // Move the filter control into the sidebar
     const filterControl = document.querySelector('.filter-control');
-    
-    if (layerControl) document.getElementById('layer-control').appendChild(layerControl);
     if (filterControl) document.getElementById('filter-control').appendChild(filterControl);
 };
 
 const initSidebarToggle = () => {
     const sidebar = document.querySelector('.sidebar');
     const toggle = document.querySelector('.sidebar-toggle');
+    const mapContainer = document.getElementById('map');
 
     toggle.addEventListener('click', () => {
         sidebar.classList.toggle('collapsed');
+        mapContainer.style.right = sidebar.classList.contains('collapsed') ? '0' : '300px';
+        map.invalidateSize();
     });
 };
 
@@ -630,8 +630,18 @@ const initializeMap = async () => {
     };
     console.log('Overlay maps:', overlayMaps);
 
+    createSidebar();
+
     const controls = addControls(map, baseMaps, overlayMaps);
     console.log('Controls added:', controls);
+
+    // Move the layer control into the sidebar
+    const layerControlContainer = document.getElementById('layer-control');
+    if (controls.layerControl && layerControlContainer) {
+        layerControlContainer.appendChild(controls.layerControl.getContainer());
+    }
+
+    initSidebarToggle();
 
     addEventListeners(map, mountainAreasLayer);
 
@@ -641,12 +651,6 @@ const initializeMap = async () => {
     
     console.log('Applying initial filter...');
     handleFilterChange("4");
-    
-    // Add createSidebar() call here
-    createSidebar();
-    
-    // Initialize sidebar toggle
-    initSidebarToggle();
     
     // Ensure search suggestions are hidden at startup
     document.getElementById('search-suggestions').style.display = 'none';
