@@ -8,8 +8,8 @@ export class ControlManager {
 
     initControls() {
         console.log('Initializing controls');
+        this.layerControl = this.addLayerControl();
         this.filterControl = this.addFilterControl();
-        this.layerControl = this.addLayerControl(); // Add layer control after filter control
         this.handleResponsiveControls();
         return this.filterControl;
     }
