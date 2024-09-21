@@ -1,6 +1,5 @@
 export class ControlManager {
     constructor(mapManager, layerManager) {
-        console.log('ControlManager constructor called');
         this.mapManager = mapManager;
         this.layerManager = layerManager;
         this.layerControl = null;
@@ -21,7 +20,20 @@ export class ControlManager {
             "OSM Peaks": this.layerManager.markers
         };
 
-        return L.control.layers(this.mapManager.baseMaps, overlayMaps, { collapsed: false }).addTo(this.mapManager.map);
+        const control = L.control.layers(this.mapManager.baseMaps, overlayMaps, { collapsed: false }).addTo(this.mapManager.map);
+
+        // Manually check the active base map in the layer control
+        setTimeout(() => {
+            const inputs = control._baseLayersList.getElementsByTagName('input');
+            for (let input of inputs) {
+                if (input.nextSibling.textContent.trim() === this.mapManager.activeBaseMap) {
+                    input.checked = true;
+                    break;
+                }
+            }
+        }, 0);
+
+        return control;
     }
 
     addFilterControl() {

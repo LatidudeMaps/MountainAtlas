@@ -1,9 +1,9 @@
 export class MapManager {
     constructor(mapId) {
-        console.log('MapManager constructor called');
         this.map = this.initMap(mapId);
         this.baseMaps = this.initBaseMaps();
         this.initialBounds = null;
+        this.activeBaseMap = "Dark Positron";  // Add this line to keep track of the active base map
     }
 
     initMap(mapId) {
@@ -15,15 +15,12 @@ export class MapManager {
 
         this.addResetViewControl(map);
 
-        // Add the default base map
-        this.initBaseMaps()["Dark Positron"].addTo(map);
-
         console.log('Map initialized');
         return map;
     }
 
     initBaseMaps() {
-        return {
+        const baseMaps = {
             "Dark Positron": L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
                 subdomains: 'abcd',
@@ -39,6 +36,11 @@ export class MapManager {
                 attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
             })
         };
+
+        // Add the default base map
+        baseMaps["Dark Positron"].addTo(this.map);
+
+        return baseMaps;
     }
 
     addResetViewControl(map) {
