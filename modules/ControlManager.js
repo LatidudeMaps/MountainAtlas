@@ -8,8 +8,8 @@ export class ControlManager {
 
     initControls() {
         console.log('Initializing controls');
-        this.layerControl = this.addLayerControl();
-        this.filterControl = this.addFilterControl();
+        this.layerControl = this.addLayerControl(); // Add layer control FIRST
+        this.filterControl = this.addFilterControl(); // Add filter control SECOND
         this.handleResponsiveControls();
         return this.filterControl;
     }
@@ -72,11 +72,11 @@ export class ControlManager {
         const handleResize = () => {
             const isMobile = window.innerWidth <= 768;
             if (isMobile) {
-                this.filterControl.setPosition('topleft');
                 this.layerControl.setPosition('topleft');
+                this.filterControl.setPosition('topleft');
             } else {
-                this.filterControl.setPosition('topright');
                 this.layerControl.setPosition('topright');
+                this.filterControl.setPosition('topright');
             }
         };
 
