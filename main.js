@@ -4,7 +4,7 @@ import { ControlManager } from './modules/ControlManager.js';
 import { DataLoader } from './modules/DataLoader.js';
 import { UIManager } from './modules/UIManager.js';
 
-export class App {
+class App {
     constructor() {
         this.mapManager = new MapManager('map');
         this.layerManager = new LayerManager(this.mapManager.map);
@@ -72,3 +72,8 @@ export class App {
         this.uiManager.clearSearch();
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const app = new App();
+    app.init();
+});
