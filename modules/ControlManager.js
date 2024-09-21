@@ -1,15 +1,20 @@
 export class ControlManager {
     constructor(mapManager, layerManager) {
+        console.log('ControlManager constructor called');
         this.mapManager = mapManager;
         this.layerManager = layerManager;
+        this.layerControl = null;
+        this.filterControl = null;
     }
 
     initControls() {
+        console.log('Initializing controls');
         this.layerControl = this.addLayerControl();
         this.filterControl = this.addFilterControl();
     }
 
     addLayerControl() {
+        console.log('Adding layer control');
         const overlayMaps = {
             "Mountain Areas": this.layerManager.mountainAreasLayer,
             "OSM Peaks": this.layerManager.markers
@@ -19,6 +24,7 @@ export class ControlManager {
     }
 
     addFilterControl() {
+        console.log('Adding filter control');
         const filterControl = L.control({ position: 'topright' });
         filterControl.onAdd = () => {
             const div = L.DomUtil.create('div', 'filter-control');
@@ -45,6 +51,7 @@ export class ControlManager {
     }
 
     addOpacitySlider() {
+        console.log('Adding opacity slider');
         if (!this.layerControl || !this.layerControl._overlaysList) {
             console.error('Layer control is not available');
             return;

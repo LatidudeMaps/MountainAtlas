@@ -2,15 +2,28 @@ import { debounce } from '../utils/helpers.js';
 
 export class UIManager {
     constructor(searchHandler, filterHandler) {
+        console.log('UIManager constructor called');
         this.searchHandler = searchHandler;
         this.filterHandler = filterHandler;
         this.searchInput = document.getElementById('search-input');
         this.searchSuggestions = document.getElementById('search-suggestions');
         this.hierLvlSlider = document.getElementById('hier-lvl-slider');
         this.hierLvlValue = document.getElementById('hier-lvl-value');
+
+        // Log the elements found or not found
+        console.log('Search input found:', !!this.searchInput);
+        console.log('Search suggestions found:', !!this.searchSuggestions);
+        console.log('Hierarchy level slider found:', !!this.hierLvlSlider);
+        console.log('Hierarchy level value found:', !!this.hierLvlValue);
     }
 
     setupSearchListeners() {
+        console.log('Setting up search listeners');
+        if (!this.searchInput || !this.searchSuggestions) {
+            console.error('Search elements not found in the DOM');
+            return;
+        }
+
         this.searchInput.addEventListener('focus', () => this.toggleSuggestions(true));
         this.searchInput.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -18,11 +31,24 @@ export class UIManager {
         });
         this.searchInput.addEventListener('input', debounce(() => this.updateSearchSuggestions(), 300));
         this.searchInput.addEventListener('keydown', (e) => this.handleSearchKeydown(e));
-        document.getElementById('clear-search').addEventListener('click', () => this.clearSearch());
+        
+        const clearSearchButton = document.getElementById('clear-search');
+        if (clearSearchButton) {
+            clearSearchButton.addEventListener('click', () => this.clearSearch());
+        } else {
+            console.error('Clear search button not found');
+        }
+
         document.addEventListener('click', (e) => this.handleDocumentClick(e));
     }
 
     setupFilterListeners() {
+        console.log('Setting up filter listeners');
+        if (!this.hierLvlSlider || !this.hierLvlValue) {
+            console.error('Hierarchy level elements not found in the DOM');
+            return;
+        }
+
         this.hierLvlSlider.addEventListener('input', () => {
             this.hierLvlValue.textContent = this.hierLvlSlider.value;
         });
@@ -43,15 +69,19 @@ export class UIManager {
     }
 
     toggleSuggestions(show) {
-        if (show) {
-            this.updateSearchSuggestions(true);
-            this.searchSuggestions.style.display = 'block';
-        } else {
-            this.searchSuggestions.style.display = 'none';
+        if (this.searchSuggestions) {
+            if (show) {
+                this.updateSearchSuggestions(true);
+                this.searchSuggestions.style.display = 'block';
+            } else {
+                this.searchSuggestions.style.display = 'none';
+            }
         }
     }
 
     updateSearchSuggestions(showAll = false) {
+        if (!this.searchInput || !this.searchSuggestions) return;
+
         const searchValue = this.searchInput.value.trim().toLowerCase();
         this.searchSuggestions.innerHTML = '';
 
@@ -84,13 +114,15 @@ export class UIManager {
     }
 
     selectSuggestion(name) {
-        this.searchInput.value = name;
-        this.searchSuggestions.style.display = 'none';
-        this.searchHandler(name);
+        if (this.searchInput) {
+            this.searchInput.value = name;
+            this.toggleSuggestions(false);
+            this.searchHandler(name);
+        }
     }
 
     handleSearchKeydown(e) {
-        if (e.key === 'ArrowDown' && this.searchSuggestions.style.display !== 'none') {
+        if (e.key === 'ArrowDown' && this.searchSuggestions && this.searchSuggestions.style.display !== 'none') {
             e.preventDefault();
             const firstItem = this.searchSuggestions.querySelector('li');
             if (firstItem) firstItem.focus();
@@ -110,17 +142,27 @@ export class UIManager {
     }
 
     handleDocumentClick(e) {
-        if (!this.searchInput.contains(e.target) && !this.searchSuggestions.contains(e.target)) {
+        if (this.searchInput && this.searchSuggestions && 
+            !this.searchInput.contains(e.target) && 
+            !this.searchSuggestions.contains(e.target)) {
             this.toggleSuggestions(false);
         }
     }
 
     clearSearch() {
-        this.searchInput.value = '';
-        this.searchHandler('');
+        if (this.searchInput) {
+            this.searchInput.value = '';
+            this.searchHandler('');
+        }
     }
 
     updateHierLevelSlider(min, max, value) {
+        console.log('Updating hierarchy level slider:', { min, max, value });
+        if (!this.hierLvlSlider || !this.hierLvlValue) {
+            console.error('Hierarchy level elements not found, cannot update slider');
+            return;
+        }
+
         this.hierLvlSlider.min = min;
         this.hierLvlSlider.max = max;
         this.hierLvlSlider.value = value;
