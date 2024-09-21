@@ -6,22 +6,6 @@ export class MapManager {
         this.initialBounds = null;
     }
 
-    initMap(mapId) {
-        console.log('Initializing map...');
-        const map = L.map(mapId, {
-            zoomAnimation: true,
-            preferCanvas: true,
-        });
-
-        this.addResetViewControl(map);
-
-        // Add the default base map
-        this.initBaseMaps()["Dark Positron"].addTo(map);
-
-        console.log('Map initialized');
-        return map;
-    }
-
     initBaseMaps() {
         return {
             "Dark Positron": L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -39,6 +23,22 @@ export class MapManager {
                 attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
             })
         };
+    }
+
+    initMap(mapId) {
+        console.log('Initializing map...');
+        const map = L.map(mapId, {
+            zoomAnimation: true,
+            preferCanvas: true,
+        });
+
+        this.addResetViewControl(map);
+
+        // Add the default base map
+        this.initBaseMaps()["Dark Positron"].addTo(map);
+
+        console.log('Map initialized');
+        return map;
     }
 
     addResetViewControl(map) {
