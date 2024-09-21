@@ -8,15 +8,21 @@ class App {
     constructor() {
         console.log('App constructor called');
         this.mapManager = new MapManager('map');
-        this.layerManager = new LayerManager(this.mapManager.map);
-        this.controlManager = new ControlManager(this.mapManager, this.layerManager);
+        this.layerManager = null;
+        this.controlManager = null;
         this.dataLoader = new DataLoader();
-        this.uiManager = new UIManager(this.handleSearch.bind(this), this.handleFilterChange.bind(this));
+        this.uiManager = null;
     }
 
     async init() {
         console.log('App init started');
         try {
+            await this.mapManager.initMap();
+            
+            this.layerManager = new LayerManager(this.mapManager.map);
+            this.controlManager = new ControlManager(this.mapManager, this.layerManager);
+            this.uiManager = new UIManager(this.handleSearch.bind(this), this.handleFilterChange.bind(this));
+
             const mountainAreasData = await this.dataLoader.loadMountainAreas();
             console.log('Mountain areas data loaded:', mountainAreasData);
             const osmPeaksData = await this.dataLoader.loadOsmPeaks();
