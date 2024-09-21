@@ -166,4 +166,11 @@ export class LayerManager {
         console.log(`Setting mountain areas opacity to ${opacity}`);
         this.mountainAreasLayer.setStyle({ fillOpacity: opacity });
     }
+
+    resetHighlight() {
+        this.mountainAreasLayer.eachLayer(layer => {
+            layer.setStyle(this.defaultPolygonStyle());
+        });
+        this.filterAndDisplayPeaks(this.currentHierLevel);
+    }
 }

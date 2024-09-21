@@ -74,6 +74,14 @@ class App {
 
     handleSearch(searchValue) {
         console.log('Search initiated with value:', searchValue);
+        
+        // If searchValue is null, it means the clear button was pressed
+        if (searchValue === null) {
+            // Reset the search without changing the map view
+            this.layerManager.resetHighlight();
+            return;
+        }
+
         this.layerManager.highlightSearchedAreas(searchValue);
         const matchingLayers = this.layerManager.getMatchingLayers(searchValue);
 

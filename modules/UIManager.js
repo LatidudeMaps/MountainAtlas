@@ -97,6 +97,15 @@ export class UIManager {
         document.addEventListener('click', (e) => this.handleDocumentClick(e));
     }
 
+    clearSearch() {
+        if (this.searchInput) {
+            this.searchInput.value = '';
+            this.toggleSuggestions(false);
+            // Call searchHandler with null to indicate a clear action
+            this.searchHandler(null);
+        }
+    }
+
     toggleSuggestions(show) {
         if (show) {
             this.updateSearchSuggestions(true);
@@ -184,13 +193,6 @@ export class UIManager {
         const searchContainer = this.filterControl.getContainer().querySelector('.custom-search');
         if (searchContainer && !searchContainer.contains(e.target)) {
             this.toggleSuggestions(false);
-        }
-    }
-
-    clearSearch() {
-        if (this.searchInput) {
-            this.searchInput.value = '';
-            this.searchHandler('');
         }
     }
 
