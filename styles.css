@@ -252,6 +252,18 @@ body, html {
     }
 }
 
+@media (max-width: 768px) {
+    .custom-slider::-webkit-slider-thumb {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .custom-slider::-moz-range-thumb {
+        width: 28px;
+        height: 28px;
+    }
+}
+
 /* Adjust the layer control width if needed */
 .leaflet-control-layers {
     min-width: 200px;

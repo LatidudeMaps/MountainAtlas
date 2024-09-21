@@ -33,20 +33,59 @@ export class UIManager {
             return;
         }
 
+        const updateSliderValue = (value) => {
+            this.hierLvlValue.textContent = value;
+            this.filterHandler(value);
+        };
+
+        // Handle input events (for immediate feedback)
         this.hierLvlSlider.addEventListener('input', () => {
-            console.log('Slider value changed:', this.hierLvlSlider.value);
             this.hierLvlValue.textContent = this.hierLvlSlider.value;
         });
 
+        // Handle change events (when the user finishes interacting)
         this.hierLvlSlider.addEventListener('change', () => {
-            console.log('Slider change event fired');
-            this.filterHandler(this.hierLvlSlider.value);
+            updateSliderValue(this.hierLvlSlider.value);
         });
 
-        this.hierLvlSlider.addEventListener('mousedown', (e) => {
-            console.log('Slider mousedown event fired');
-            e.stopPropagation();
+        // Touch event handling
+        let isDragging = false;
+
+        this.hierLvlSlider.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            this.handleSliderTouch(e);
+        }, { passive: false });
+
+        this.hierLvlSlider.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                this.handleSliderTouch(e);
+            }
+        }, { passive: false });
+
+        this.hierLvlSlider.addEventListener('touchend', () => {
+            isDragging = false;
+            updateSliderValue(this.hierLvlSlider.value);
         });
+
+        // Prevent map interactions while using the slider
+        this.hierLvlSlider.addEventListener('mousedown', (e) => {
+            e.stopPropagation();
+            this.layerManager.map.dragging.disable();
+        });
+
+        document.addEventListener('mouseup', () => {
+            this.layerManager.map.dragging.enable();
+        });
+    }
+
+    handleSliderTouch(e) {
+        e.preventDefault(); // Prevent scrolling
+        const touch = e.touches[0];
+        const sliderRect = this.hierLvlSlider.getBoundingClientRect();
+        const pos = (touch.clientX - sliderRect.left) / sliderRect.width;
+        const value = Math.round(pos * (this.hierLvlSlider.max - this.hierLvlSlider.min) + parseFloat(this.hierLvlSlider.min));
+        this.hierLvlSlider.value = value;
+        this.hierLvlValue.textContent = value;
     }
 
     updateHierLevelSlider(min, max, value) {
