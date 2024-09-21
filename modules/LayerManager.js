@@ -3,7 +3,8 @@ export class LayerManager {
         this.map = map;
         this.mountainAreasLayer = this.initMountainAreasLayer();
         this.markers = this.initMarkers();
-        this.allOsmPeaks = [];
+        this.allMountainAreas = null;
+        this.allOsmPeaks = null;
         this.filteredMountainAreas = [];
     }
 
@@ -26,6 +27,16 @@ export class LayerManager {
             chunkInterval: 200,
             chunkDelay: 50
         }).addTo(this.map);
+    }
+
+    setMountainAreasData(data) {
+        this.allMountainAreas = data;
+        this.mountainAreasLayer.clearLayers();
+        this.mountainAreasLayer.addData(data);
+    }
+
+    setOsmPeaksData(data) {
+        this.allOsmPeaks = data;
     }
 
     defaultPolygonStyle() {
