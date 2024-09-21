@@ -108,8 +108,7 @@ class App {
 
         this.layerManager.filterMountainAreas(selectedValue);
         this.layerManager.filterAndDisplayPeaks(selectedValue);
-        // Update search suggestions after filter change
-        this.uiManager.updateSearchSuggestions();
+        this.uiManager.clearSearch();  // Clear search when filter changes
     }
 }
 

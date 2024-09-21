@@ -27,19 +27,17 @@ export class UIManager {
     }
 
     setupFilterListeners() {
-        console.log('Setting up filter listeners');
         if (!this.hierLvlSlider || !this.hierLvlValue) {
             console.error('Hierarchy level elements not found in the DOM');
             return;
         }
 
         this.hierLvlSlider.addEventListener('input', () => {
-            console.log('Slider value changed:', this.hierLvlSlider.value);
             this.hierLvlValue.textContent = this.hierLvlSlider.value;
         });
 
         this.hierLvlSlider.addEventListener('change', () => {
-            console.log('Slider change event fired');
+            this.clearSearch();  // Clear search when filter changes
             this.filterHandler(this.hierLvlSlider.value);
         });
 
@@ -107,11 +105,11 @@ export class UIManager {
     }
 
     toggleSuggestions(show) {
-        if (show) {
-            this.updateSearchSuggestions(true);
-            this.searchSuggestions.style.display = 'block';
-        } else {
-            this.searchSuggestions.style.display = 'none';
+        if (this.searchSuggestions) {
+            this.searchSuggestions.style.display = show ? 'block' : 'none';
+            if (show) {
+                this.updateSearchSuggestions();
+            }
         }
     }
 
