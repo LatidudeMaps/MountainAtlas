@@ -22,7 +22,7 @@ class App {
             await this.setupMapAndControls();
             this.setupUI();
             this.applyInitialFilter();
-            this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
+            await this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
             
             // Ensure map is fully rendered before hiding loader
             this.mapManager.map.whenReady(() => {
