@@ -44,8 +44,6 @@ class App {
 
             this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
             console.log('Map fitted to bounds');
-
-            // Remove the setTimeout and addOpacitySlider call
         } catch (error) {
             console.error('Error initializing app:', error);
         }
@@ -60,7 +58,7 @@ class App {
             4  // Default value
         );
         this.uiManager.setupSearchListeners();
-        this.uiManager.setupFilterListeners();
+        // Remove the call to setupFilterListeners as it no longer exists
     }
 
     applyInitialFilter() {
