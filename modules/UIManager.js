@@ -115,6 +115,9 @@ export class UIManager {
         this.searchInput.addEventListener('focus', () => this.toggleSuggestions(true));
         this.searchInput.addEventListener('input', debounce(() => this.updateSearchSuggestions(), 300));
         this.searchInput.addEventListener('keydown', (e) => this.handleSearchKeydown(e));
+        
+        // Add listener for the custom event
+        this.searchInput.addEventListener('showAllSuggestions', () => this.updateSearchSuggestions(true));
 
         const searchContainer = this.filterControl.getContainer().querySelector('.custom-search');
         if (searchContainer) {
@@ -131,16 +134,6 @@ export class UIManager {
             clearSearchButton.addEventListener('click', () => this.clearSearch());
         } else {
             console.error('Clear search button not found');
-        }
-
-        const selectArrowContainer = this.filterControl.getContainer().querySelector('.select-arrow-container');
-        if (selectArrowContainer) {
-            selectArrowContainer.addEventListener('click', () => {
-                this.searchInput.focus();
-                this.updateSearchSuggestions(true);
-            });
-        } else {
-            console.error('Select arrow container not found');
         }
 
         document.addEventListener('click', (e) => this.handleDocumentClick(e));

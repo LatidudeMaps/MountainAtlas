@@ -138,8 +138,8 @@ export class ControlManager {
                 L.DomEvent.stop(e);
                 const searchInput = filterSection.querySelector('#search-input');
                 searchInput.focus();
-                // Trigger the display of all suggestions
-                this.uiManager.updateSearchSuggestions(true);
+                // Dispatch a custom event to trigger the display of all suggestions
+                searchInput.dispatchEvent(new CustomEvent('showAllSuggestions'));
             });
             
             return container;
