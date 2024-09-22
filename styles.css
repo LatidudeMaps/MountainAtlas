@@ -421,24 +421,6 @@ body, html {
     text-decoration: underline;
 }
 
-/* Improve scrollbar visibility for Wikipedia panel */
-#wikipedia-panel::-webkit-scrollbar {
-    width: 8px;
-}
-
-#wikipedia-panel::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-#wikipedia-panel::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
-
-#wikipedia-panel::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
 /* Responsive styles */
 @media screen and (max-width: 768px) {
     .unified-control,
