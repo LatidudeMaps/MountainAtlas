@@ -26,56 +26,37 @@ export class UIManager {
         console.log('Hierarchy level value found:', !!this.hierLvlValue);
     }
 
-    setupFilterListeners() {
-        console.log('Setting up filter listeners');
-        if (!this.hierLvlSlider || !this.hierLvlValue) {
-            console.error('Hierarchy level elements not found in the DOM');
+    setupSearchListeners() {
+        if (!this.searchInput || !this.searchSuggestions) {
+            console.error('Search elements not found in the DOM');
             return;
         }
 
-        const updateSliderValue = (value) => {
-            this.hierLvlValue.textContent = value;
-            this.filterHandler(value);
-        };
+        this.searchInput.addEventListener('focus', () => this.showSuggestions());
+        this.searchInput.addEventListener('input', debounce(() => this.updateSearchSuggestions(), 300));
+        this.searchInput.addEventListener('keydown', (e) => this.handleSearchKeydown(e));
+        
+        // Add listener for the custom event
+        this.searchInput.addEventListener('showAllSuggestions', () => this.updateSearchSuggestions(true));
 
-        // Handle input events (for immediate feedback)
-        this.hierLvlSlider.addEventListener('input', () => {
-            this.hierLvlValue.textContent = this.hierLvlSlider.value;
-        });
+        const searchContainer = this.filterControl.getContainer().querySelector('.custom-search');
+        if (searchContainer) {
+            searchContainer.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.showSuggestions();
+            });
+        } else {
+            console.error('Search container not found');
+        }
 
-        // Handle change events (when the user finishes interacting)
-        this.hierLvlSlider.addEventListener('change', () => {
-            updateSliderValue(this.hierLvlSlider.value);
-        });
+        const clearSearchButton = this.filterControl.getContainer().querySelector('#clear-search');
+        if (clearSearchButton) {
+            clearSearchButton.addEventListener('click', () => this.clearSearch());
+        } else {
+            console.error('Clear search button not found');
+        }
 
-        // Touch event handling
-        let isDragging = false;
-
-        this.hierLvlSlider.addEventListener('touchstart', (e) => {
-            isDragging = true;
-            this.handleSliderTouch(e);
-        }, { passive: false });
-
-        this.hierLvlSlider.addEventListener('touchmove', (e) => {
-            if (isDragging) {
-                this.handleSliderTouch(e);
-            }
-        }, { passive: false });
-
-        this.hierLvlSlider.addEventListener('touchend', () => {
-            isDragging = false;
-            updateSliderValue(this.hierLvlSlider.value);
-        });
-
-        // Prevent map interactions while using the slider
-        this.hierLvlSlider.addEventListener('mousedown', (e) => {
-            e.stopPropagation();
-            this.layerManager.map.dragging.disable();
-        });
-
-        document.addEventListener('mouseup', () => {
-            this.layerManager.map.dragging.enable();
-        });
+        document.addEventListener('click', (e) => this.handleDocumentClick(e));
     }
 
     handleSliderTouch(e) {
@@ -142,15 +123,20 @@ export class UIManager {
     clearSearch() {
         if (this.searchInput) {
             this.searchInput.value = '';
-            this.toggleSuggestions(false);
-            // Call searchHandler with null to indicate a clear action
+            this.hideSuggestions();
             this.searchHandler(null);
         }
     }
 
-    toggleSuggestions(show) {
+    showSuggestions() {
         if (this.searchSuggestions) {
-            this.searchSuggestions.style.display = show ? 'block' : 'none';
+            this.searchSuggestions.style.display = 'block';
+        }
+    }
+
+    hideSuggestions() {
+        if (this.searchSuggestions) {
+            this.searchSuggestions.style.display = 'none';
         }
     }
 
@@ -161,11 +147,10 @@ export class UIManager {
         this.searchSuggestions.innerHTML = '';
 
         if (!showAll && searchValue.length === 0) {
-            this.toggleSuggestions(false);
+            this.hideSuggestions();
             return;
         }
 
-        // Get mountain area names for the current hierarchy level
         const currentLevelNames = this.layerManager.getCurrentHierLevelMountainAreaNames();
         const matchingNames = showAll ? currentLevelNames : this.getMatchingNames(searchValue, currentLevelNames);
 
@@ -177,18 +162,17 @@ export class UIManager {
                 const li = document.createElement('li');
                 li.textContent = name;
                 li.setAttribute('tabindex', '0');
-                li.addEventListener('click', () => {
+                li.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     this.selectSuggestion(name);
-                    this.toggleSuggestions(false);  // Close the suggestions list
                 });
                 li.addEventListener('keydown', (e) => this.handleSuggestionKeydown(e, index, ul));
                 ul.appendChild(li);
             });
 
             this.searchSuggestions.appendChild(ul);
-            this.toggleSuggestions(true);
+            this.showSuggestions();
 
-            // Allow scrolling within the suggestions list, but prevent map zoom
             this.searchSuggestions.addEventListener('wheel', (e) => {
                 const isAtTop = this.searchSuggestions.scrollTop === 0;
                 const isAtBottom = this.searchSuggestions.scrollHeight - this.searchSuggestions.scrollTop === this.searchSuggestions.clientHeight;
@@ -199,20 +183,20 @@ export class UIManager {
                 e.stopPropagation();
             }, { passive: false });
         } else {
-            this.toggleSuggestions(false);
+            this.hideSuggestions();
         }
     }
 
     getMatchingNames(searchValue, names) {
         return names
             .filter(name => name.toLowerCase().includes(searchValue.toLowerCase()))
-            .sort((a, b) => a.localeCompare(b)); // Sort alphabetically
+            .sort((a, b) => a.localeCompare(b));
     }
 
     selectSuggestion(name) {
         if (this.searchInput) {
             this.searchInput.value = name;
-            this.toggleSuggestions(false);  // Close the dropdown
+            this.hideSuggestions();
             this.searchHandler(name);
         }
     }
@@ -222,7 +206,7 @@ export class UIManager {
             e.preventDefault();
             const searchValue = this.searchInput.value.trim();
             if (searchValue) {
-                this.toggleSuggestions(false);  // Close the dropdown
+                this.hideSuggestions();
                 this.searchHandler(searchValue);
             }
         } else if (e.key === 'ArrowDown' && this.searchSuggestions.style.display !== 'none') {
@@ -236,7 +220,6 @@ export class UIManager {
         if (e.key === 'Enter') {
             e.preventDefault();
             this.selectSuggestion(e.target.textContent);
-            this.toggleSuggestions(false);  // Close the suggestions list
         }
         if (e.key === 'ArrowDown') this.moveFocus(1, index, ul);
         if (e.key === 'ArrowUp') this.moveFocus(-1, index, ul);
@@ -251,7 +234,7 @@ export class UIManager {
     handleDocumentClick(e) {
         const searchContainer = this.filterControl.getContainer().querySelector('.custom-search');
         if (searchContainer && !searchContainer.contains(e.target)) {
-            this.toggleSuggestions(false);
+            this.hideSuggestions();
         }
     }
 
