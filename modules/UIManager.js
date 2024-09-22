@@ -34,7 +34,6 @@ export class UIManager {
     setupWikipediaPanel() {
         this.wikipediaPanel = document.createElement('div');
         this.wikipediaPanel.id = 'wikipedia-panel';
-        this.wikipediaPanel.className = 'wikipedia-panel';
         this.wikipediaPanel.style.display = 'none';
 
         const controlContainer = this.filterControl.getContainer();
@@ -43,6 +42,19 @@ export class UIManager {
         // Prevent click propagation
         L.DomEvent.disableClickPropagation(this.wikipediaPanel);
         L.DomEvent.disableScrollPropagation(this.wikipediaPanel);
+
+        // Add touch event listeners for mobile devices
+        this.wikipediaPanel.addEventListener('touchstart', (e) => {
+            e.stopPropagation();
+        }, { passive: false });
+
+        this.wikipediaPanel.addEventListener('touchmove', (e) => {
+            e.stopPropagation();
+        }, { passive: false });
+
+        this.wikipediaPanel.addEventListener('touchend', (e) => {
+            e.stopPropagation();
+        }, { passive: false });
     }
 
     setupSearchListeners() {
