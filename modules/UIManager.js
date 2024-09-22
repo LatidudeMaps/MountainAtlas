@@ -59,6 +59,87 @@ export class UIManager {
         document.addEventListener('click', (e) => this.handleDocumentClick(e));
     }
 
+    handleSliderTouch(e) {
+        e.preventDefault(); // Prevent scrolling
+        const touch = e.touches[0];
+        const sliderRect = this.hierLvlSlider.getBoundingClientRect();
+        const pos = (touch.clientX - sliderRect.left) / sliderRect.width;
+        const value = Math.round(pos * (this.hierLvlSlider.max - this.hierLvlSlider.min) + parseFloat(this.hierLvlSlider.min));
+        this.hierLvlSlider.value = value;
+        this.hierLvlValue.textContent = value;
+    }
+
+    updateHierLevelSlider(min, max, value) {
+        console.log('Updating hierarchy level slider:', { min, max, value });
+        if (!this.hierLvlSlider || !this.hierLvlValue) {
+            console.error('Hierarchy level elements not found, cannot update slider');
+            return;
+        }
+
+        this.hierLvlSlider.min = min;
+        this.hierLvlSlider.max = max;
+        this.hierLvlSlider.value = value;
+        this.hierLvlValue.textContent = value;
+    }
+
+    enableMapDragging = () => {
+        document.removeEventListener('mouseup', this.enableMapDragging);
+        document.removeEventListener('mouseleave', this.enableMapDragging);
+    }
+    
+    setupSearchListeners() {
+        if (!this.searchInput || !this.searchSuggestions) {
+            console.error('Search elements not found in the DOM');
+            return;
+        }
+
+        this.searchInput.addEventListener('focus', () => this.toggleSuggestions(true));
+        this.searchInput.addEventListener('input', debounce(() => this.updateSearchSuggestions(), 300));
+        this.searchInput.addEventListener('keydown', (e) => this.handleSearchKeydown(e));
+        
+        // Add listener for the custom event
+        this.searchInput.addEventListener('showAllSuggestions', () => this.updateSearchSuggestions(true));
+
+        const searchContainer = this.filterControl.getContainer().querySelector('.custom-search');
+        if (searchContainer) {
+            searchContainer.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleSuggestions(true);
+            });
+        } else {
+            console.error('Search container not found');
+        }
+
+        const clearSearchButton = this.filterControl.getContainer().querySelector('#clear-search');
+        if (clearSearchButton) {
+            clearSearchButton.addEventListener('click', () => this.clearSearch());
+        } else {
+            console.error('Clear search button not found');
+        }
+
+        document.addEventListener('click', (e) => this.handleDocumentClick(e));
+    }
+
+    clearSearch() {
+        if (this.searchInput) {
+            this.searchInput.value = '';
+            this.hideSuggestions();
+            this.searchHandler(null);
+        }
+    }
+
+    showSuggestions() {
+        if (this.searchSuggestions) {
+            this.searchSuggestions.style.display = 'block';
+        }
+    }
+
+    hideSuggestions() {
+        if (this.searchSuggestions) {
+            this.searchSuggestions.style.display = 'none';
+        }
+    }
+
     updateSearchSuggestions(showAll = false) {
         if (!this.searchInput || !this.searchSuggestions) return;
 
@@ -106,6 +187,12 @@ export class UIManager {
         }
     }
 
+    getMatchingNames(searchValue, names) {
+        return names
+            .filter(name => name.toLowerCase().includes(searchValue.toLowerCase()))
+            .sort((a, b) => a.localeCompare(b));
+    }
+
     selectSuggestion(name) {
         if (this.searchInput) {
             this.searchInput.value = name;
@@ -149,32 +236,6 @@ export class UIManager {
         if (searchContainer && !searchContainer.contains(e.target)) {
             this.hideSuggestions();
         }
-    }
-
-    showSuggestions() {
-        if (this.searchSuggestions) {
-            this.searchSuggestions.style.display = 'block';
-        }
-    }
-
-    hideSuggestions() {
-        if (this.searchSuggestions) {
-            this.searchSuggestions.style.display = 'none';
-        }
-    }
-
-    clearSearch() {
-        if (this.searchInput) {
-            this.searchInput.value = '';
-            this.hideSuggestions();
-            this.searchHandler(null);
-        }
-    }
-
-    getMatchingNames(searchValue, names) {
-        return names
-            .filter(name => name.toLowerCase().includes(searchValue.toLowerCase()))
-            .sort((a, b) => a.localeCompare(b));
     }
 
     // Add these methods if they're not already present
