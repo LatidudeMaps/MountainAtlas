@@ -149,11 +149,8 @@ export class UIManager {
     }
 
     toggleSuggestions(show) {
-        if (show) {
-            this.updateSearchSuggestions(true);
-            this.searchSuggestions.style.display = 'block';
-        } else {
-            this.searchSuggestions.style.display = 'none';
+        if (this.searchSuggestions) {
+            this.searchSuggestions.style.display = show ? 'block' : 'none';
         }
     }
 
@@ -164,7 +161,7 @@ export class UIManager {
         this.searchSuggestions.innerHTML = '';
 
         if (!showAll && searchValue.length === 0) {
-            this.searchSuggestions.style.display = 'none';
+            this.toggleSuggestions(false);
             return;
         }
 
@@ -180,13 +177,16 @@ export class UIManager {
                 const li = document.createElement('li');
                 li.textContent = name;
                 li.setAttribute('tabindex', '0');
-                li.addEventListener('click', () => this.selectSuggestion(name));
+                li.addEventListener('click', () => {
+                    this.selectSuggestion(name);
+                    this.toggleSuggestions(false);  // Close the suggestions list
+                });
                 li.addEventListener('keydown', (e) => this.handleSuggestionKeydown(e, index, ul));
                 ul.appendChild(li);
             });
 
             this.searchSuggestions.appendChild(ul);
-            this.searchSuggestions.style.display = 'block';
+            this.toggleSuggestions(true);
 
             // Allow scrolling within the suggestions list, but prevent map zoom
             this.searchSuggestions.addEventListener('wheel', (e) => {
@@ -199,7 +199,7 @@ export class UIManager {
                 e.stopPropagation();
             }, { passive: false });
         } else {
-            this.searchSuggestions.style.display = 'none';
+            this.toggleSuggestions(false);
         }
     }
 
@@ -233,7 +233,11 @@ export class UIManager {
     }
 
     handleSuggestionKeydown(e, index, ul) {
-        if (e.key === 'Enter') this.selectSuggestion(e.target.textContent);
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            this.selectSuggestion(e.target.textContent);
+            this.toggleSuggestions(false);  // Close the suggestions list
+        }
         if (e.key === 'ArrowDown') this.moveFocus(1, index, ul);
         if (e.key === 'ArrowUp') this.moveFocus(-1, index, ul);
     }
