@@ -433,3 +433,8 @@ body, html {
         height: 300px; /* Adjust height for mobile devices */
     }
 }
+
+/* Ensure proper alignment and responsiveness */
+.leaflet-right .leaflet-control {
+    margin-right: 10px;
+}
