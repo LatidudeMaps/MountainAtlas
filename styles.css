@@ -400,11 +400,6 @@ body, html {
     margin-right: 10px;
 }
 
-.unified-control *, #wikipedia-panel * {
-    max-width: 100%;
-    word-wrap: break-word;
-}
-
 #wikipedia-panel h1, #wikipedia-panel h2, #wikipedia-panel h3 {
     font-family: 'Montserrat', Arial, sans-serif;
     margin-top: 0;
@@ -423,24 +418,6 @@ body, html {
 
 #wikipedia-panel a:hover {
     text-decoration: underline;
-}
-
-/* Improve scroll bar visibility for Wikipedia panel */
-#wikipedia-panel::-webkit-scrollbar {
-    width: 8px;
-}
-
-#wikipedia-panel::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-#wikipedia-panel::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
-
-#wikipedia-panel::-webkit-scrollbar-thumb:hover {
-    background: #555;
 }
 
 /* Responsive styles */
