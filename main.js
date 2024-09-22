@@ -12,40 +12,60 @@ class App {
         this.controlManager = new ControlManager(this.mapManager, this.layerManager);
         this.dataLoader = new DataLoader();
         this.uiManager = null;
+        this.loaderContainer = document.getElementById('loader-container');
     }
 
     async init() {
         console.log('App init started');
         try {
-            const mountainAreasData = await this.dataLoader.loadMountainAreas();
-            console.log('Mountain areas data loaded:', mountainAreasData);
-            const osmPeaksData = await this.dataLoader.loadOsmPeaks();
-            console.log('OSM peaks data loaded:', osmPeaksData);
-            
-            this.layerManager.setMountainAreasData(mountainAreasData);
-            this.layerManager.setOsmPeaksData(osmPeaksData);
-            
-            console.log('Data set in LayerManager');
-
-            const unifiedControl = this.controlManager.initControls();
-            console.log('Controls initialized');
-
-            this.uiManager = new UIManager(
-                this.handleSearch.bind(this),
-                this.handleFilterChange.bind(this),
-                this.layerManager
-            );
-            this.uiManager.initializeElements(unifiedControl);
+            await this.loadData();
+            await this.setupMapAndControls();
             this.setupUI();
-            console.log('UI setup complete');
-
             this.applyInitialFilter();
-            console.log('Initial filter applied');
-
             this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
-            console.log('Map fitted to bounds');
+            
+            // Ensure map is fully rendered before hiding loader
+            this.mapManager.map.whenReady(() => {
+                setTimeout(() => {
+                    this.hideLoader();
+                }, 500); // Additional delay to ensure smooth transition
+            });
         } catch (error) {
             console.error('Error initializing app:', error);
+            this.hideLoader();
+        }
+    }
+
+    async loadData() {
+        const mountainAreasData = await this.dataLoader.loadMountainAreas();
+        console.log('Mountain areas data loaded:', mountainAreasData);
+        const osmPeaksData = await this.dataLoader.loadOsmPeaks();
+        console.log('OSM peaks data loaded:', osmPeaksData);
+        
+        this.layerManager.setMountainAreasData(mountainAreasData);
+        this.layerManager.setOsmPeaksData(osmPeaksData);
+        console.log('Data set in LayerManager');
+    }
+
+    async setupMapAndControls() {
+        const unifiedControl = this.controlManager.initControls();
+        console.log('Controls initialized');
+
+        this.uiManager = new UIManager(
+            this.handleSearch.bind(this),
+            this.handleFilterChange.bind(this),
+            this.layerManager
+        );
+        this.uiManager.initializeElements(unifiedControl);
+        console.log('UI setup complete');
+    }
+
+    hideLoader() {
+        if (this.loaderContainer) {
+            this.loaderContainer.style.opacity = '0';
+            setTimeout(() => {
+                this.loaderContainer.style.display = 'none';
+            }, 500); // Wait for the fade-out transition to complete
         }
     }
 
@@ -57,8 +77,6 @@ class App {
             Math.max(...uniqueHierLevels),
             4  // Default value
         );
-        this.uiManager.setupSearchListeners();
-        // Remove the call to setupFilterListeners as it no longer exists
     }
 
     applyInitialFilter() {
