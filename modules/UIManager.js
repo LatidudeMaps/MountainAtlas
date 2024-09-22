@@ -34,15 +34,8 @@ export class UIManager {
     setupWikipediaPanel() {
         this.wikipediaPanel = document.createElement('div');
         this.wikipediaPanel.id = 'wikipedia-panel';
+        this.wikipediaPanel.className = 'wikipedia-panel';
         this.wikipediaPanel.style.display = 'none';
-        this.wikipediaPanel.style.width = '100%';
-        this.wikipediaPanel.style.height = '300px';
-        this.wikipediaPanel.style.overflow = 'auto';
-        this.wikipediaPanel.style.backgroundColor = 'white';
-        this.wikipediaPanel.style.border = '1px solid #ccc';
-        this.wikipediaPanel.style.borderTop = 'none';
-        this.wikipediaPanel.style.boxSizing = 'border-box';
-        this.wikipediaPanel.style.padding = '10px';
 
         const controlContainer = this.filterControl.getContainer();
         controlContainer.parentNode.insertBefore(this.wikipediaPanel, controlContainer.nextSibling);
@@ -244,10 +237,10 @@ export class UIManager {
         const elementsToRemove = tempDiv.querySelectorAll('.mw-empty-elt, .mw-editsection, .reference, .navbox');
         elementsToRemove.forEach(el => el.remove());
 
-        // Get only the first few paragraphs
+        // Get all paragraphs
         const paragraphs = tempDiv.querySelectorAll('p');
         let content = '';
-        for (let i = 0; i < Math.min(3, paragraphs.length); i++) {
+        for (let i = 0; i < paragraphs.length; i++) {
             content += paragraphs[i].outerHTML;
         }
 

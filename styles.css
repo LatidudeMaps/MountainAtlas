@@ -386,16 +386,39 @@ body, html {
 #wikipedia-panel {
     background-color: white;
     border: 1px solid #ccc;
-    border-top: none;
+    border-radius: 5px;
     box-sizing: border-box;
+    font-family: 'Montserrat', Arial, sans-serif;
     height: 300px;
+    margin-top: 10px;
     overflow: auto;
+    padding: 15px;
     width: 100%;
 }
 
-#wikipedia-panel iframe {
-    border: none;
-    height: 100%;
+#wikipedia-panel h1, #wikipedia-panel h2, #wikipedia-panel h3 {
+    font-family: 'Montserrat', Arial, sans-serif;
+    margin-top: 0;
+}
+
+#wikipedia-panel p {
+    font-family: 'Montserrat', Arial, sans-serif;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+#wikipedia-panel a {
+    color: #0078A8;
+    text-decoration: none;
+}
+
+#wikipedia-panel a:hover {
+    text-decoration: underline;
+}
+
+/* Ensure the Wikipedia panel has the same width as the unified control panel */
+.unified-control, #wikipedia-panel {
+    max-width: 300px;
     width: 100%;
 }
 
@@ -403,5 +426,11 @@ body, html {
 @media screen and (max-width: 768px) {
     #wikipedia-panel {
         height: 200px;
+    }
+
+    .unified-control, #wikipedia-panel {
+        max-width: none;
+        width: calc(100% - 20px);
+        margin: 10px;
     }
 }
