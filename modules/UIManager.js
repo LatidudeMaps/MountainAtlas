@@ -42,9 +42,14 @@ export class UIManager {
         this.wikipediaPanel.style.border = '1px solid #ccc';
         this.wikipediaPanel.style.borderTop = 'none';
         this.wikipediaPanel.style.boxSizing = 'border-box';
+        this.wikipediaPanel.style.padding = '10px';
 
         const controlContainer = this.filterControl.getContainer();
         controlContainer.parentNode.insertBefore(this.wikipediaPanel, controlContainer.nextSibling);
+
+        // Prevent click propagation
+        L.DomEvent.disableClickPropagation(this.wikipediaPanel);
+        L.DomEvent.disableScrollPropagation(this.wikipediaPanel);
     }
 
     setupSearchListeners() {
@@ -198,7 +203,7 @@ export class UIManager {
             
             if (wikiUrl) {
                 this.wikipediaPanel.style.display = 'block';
-                this.wikipediaPanel.innerHTML = `<iframe src="${wikiUrl}" width="100%" height="100%" frameborder="0"></iframe>`;
+                this.fetchWikipediaContent(wikiUrl);
             } else {
                 this.wikipediaPanel.style.display = 'block';
                 this.wikipediaPanel.innerHTML = '<p>Info non disponibili</p>';
@@ -206,6 +211,53 @@ export class UIManager {
         } else {
             this.wikipediaPanel.style.display = 'none';
         }
+    }
+
+    fetchWikipediaContent(wikiUrl) {
+        const pageName = wikiUrl.split('/').pop();
+        const apiUrl = `https://it.wikipedia.org/w/api.php?action=parse&format=json&prop=text&section=0&page=${pageName}&origin=*`;
+
+        this.wikipediaPanel.innerHTML = 'Caricamento...';
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.parse && data.parse.text) {
+                    const markup = data.parse.text['*'];
+                    const content = this.cleanWikipediaContent(markup);
+                    this.wikipediaPanel.innerHTML = content;
+                } else {
+                    this.wikipediaPanel.innerHTML = '<p>Errore nel caricamento del contenuto.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching Wikipedia content:', error);
+                this.wikipediaPanel.innerHTML = '<p>Errore nel caricamento del contenuto.</p>';
+            });
+    }
+
+    cleanWikipediaContent(markup) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = markup;
+
+        // Remove unwanted elements
+        const elementsToRemove = tempDiv.querySelectorAll('.mw-empty-elt, .mw-editsection, .reference, .navbox');
+        elementsToRemove.forEach(el => el.remove());
+
+        // Get only the first few paragraphs
+        const paragraphs = tempDiv.querySelectorAll('p');
+        let content = '';
+        for (let i = 0; i < Math.min(3, paragraphs.length); i++) {
+            content += paragraphs[i].outerHTML;
+        }
+
+        // Add a "Read more" link
+        const readMoreLink = tempDiv.querySelector('a.external');
+        if (readMoreLink) {
+            content += `<p><a href="${readMoreLink.href}" target="_blank">Leggi di più su Wikipedia</a></p>`;
+        }
+
+        return content;
     }
 
     handleSearchKeydown(e) {
