@@ -185,9 +185,15 @@ export class UIManager {
             this.searchSuggestions.appendChild(ul);
             this.searchSuggestions.style.display = 'block';
 
-            // Use a passive event listener for the wheel event
+            // Allow scrolling within the suggestions list, but prevent map zoom
             this.searchSuggestions.addEventListener('wheel', (e) => {
-                e.preventDefault();
+                const isAtTop = this.searchSuggestions.scrollTop === 0;
+                const isAtBottom = this.searchSuggestions.scrollHeight - this.searchSuggestions.scrollTop === this.searchSuggestions.clientHeight;
+
+                if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
+                    e.preventDefault();
+                }
+                e.stopPropagation();
             }, { passive: false });
         } else {
             this.searchSuggestions.style.display = 'none';
