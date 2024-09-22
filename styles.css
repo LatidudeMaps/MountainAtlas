@@ -392,13 +392,19 @@ body, html {
     box-shadow: 0 1px 5px rgba(0,0,0,0.65);
     box-sizing: border-box;
     font-family: 'Montserrat', Arial, sans-serif;
-    margin-top: 10px; /* Space between unified control and Wikipedia panel */
-    overflow-y: auto; /* Allow vertical scrolling */
+    margin-top: 10px;
+    overflow-y: auto;
     padding: 15px;
-    width: 300px; /* Fixed width */
-    height: 450px; /* Approximately 1.5 times the width (300px) */
-    margin-right: 10px; /* Add right margin to match unified control */
-    z-index: 1000; /* Ensure it's above the map */
+    width: 300px;
+    height: 450px;
+    margin-right: 10px;
+    z-index: 1000;
+    position: relative;
+    pointer-events: auto !important;
+}
+
+#wikipedia-panel * {
+    pointer-events: auto !important;
 }
 
 #wikipedia-panel h1, #wikipedia-panel h2, #wikipedia-panel h3 {

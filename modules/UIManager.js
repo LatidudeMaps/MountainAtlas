@@ -43,18 +43,30 @@ export class UIManager {
         L.DomEvent.disableClickPropagation(this.wikipediaPanel);
         L.DomEvent.disableScrollPropagation(this.wikipediaPanel);
 
-        // Add touch event listeners for mobile devices
-        this.wikipediaPanel.addEventListener('touchstart', (e) => {
-            e.stopPropagation();
-        }, { passive: false });
+        // Add custom event listeners
+        this.wikipediaPanel.addEventListener('mousedown', this.handleWikiPanelInteraction.bind(this));
+        this.wikipediaPanel.addEventListener('touchstart', this.handleWikiPanelInteraction.bind(this));
+        this.wikipediaPanel.addEventListener('wheel', this.handleWikiPanelInteraction.bind(this));
 
-        this.wikipediaPanel.addEventListener('touchmove', (e) => {
-            e.stopPropagation();
-        }, { passive: false });
+        // Prevent map drag when mouse leaves the panel while button is pressed
+        document.addEventListener('mouseup', () => {
+            if (this.isDraggingWikiPanel) {
+                this.isDraggingWikiPanel = false;
+                this.mapManager.map.dragging.enable();
+            }
+        });
+    }
 
-        this.wikipediaPanel.addEventListener('touchend', (e) => {
-            e.stopPropagation();
-        }, { passive: false });
+    handleWikiPanelInteraction(e) {
+        e.stopPropagation();
+        if (!this.isDraggingWikiPanel) {
+            this.isDraggingWikiPanel = true;
+            this.mapManager.map.dragging.disable();
+        }
+        if (e.type === 'wheel') {
+            e.preventDefault();
+            this.wikipediaPanel.scrollTop += e.deltaY;
+        }
     }
 
     setupSearchListeners() {
