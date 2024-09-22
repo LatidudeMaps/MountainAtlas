@@ -188,7 +188,7 @@ export class UIManager {
             // Use a passive event listener for the wheel event
             this.searchSuggestions.addEventListener('wheel', (e) => {
                 e.preventDefault();
-            }, { passive: false });
+            }, { passive: true });
         } else {
             this.searchSuggestions.style.display = 'none';
         }
