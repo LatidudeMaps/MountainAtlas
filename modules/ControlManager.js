@@ -108,7 +108,9 @@ export class ControlManager {
                         <div class="custom-search">
                             <input type="text" id="search-input" class="custom-select" placeholder="Search...">
                             <button id="clear-search" class="clear-search-button" aria-label="Clear search">×</button>
-                            <div class="select-arrow"></div>
+                            <div class="select-arrow-container">
+                                <div class="select-arrow"></div>
+                            </div>
                             <div id="search-suggestions" class="search-suggestions"></div>
                         </div>
                     </div>
@@ -129,6 +131,16 @@ export class ControlManager {
             // Prevent propagation for clear search button
             const clearSearchButton = filterSection.querySelector('#clear-search');
             L.DomEvent.on(clearSearchButton, 'click', L.DomEvent.stop);
+            
+            // Add event listener for the new select-arrow-container
+            const selectArrowContainer = filterSection.querySelector('.select-arrow-container');
+            L.DomEvent.on(selectArrowContainer, 'click', (e) => {
+                L.DomEvent.stop(e);
+                const searchInput = filterSection.querySelector('#search-input');
+                searchInput.focus();
+                // Trigger the display of all suggestions
+                this.uiManager.updateSearchSuggestions(true);
+            });
             
             return container;
         };

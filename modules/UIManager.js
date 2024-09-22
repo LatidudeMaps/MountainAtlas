@@ -133,6 +133,16 @@ export class UIManager {
             console.error('Clear search button not found');
         }
 
+        const selectArrowContainer = this.filterControl.getContainer().querySelector('.select-arrow-container');
+        if (selectArrowContainer) {
+            selectArrowContainer.addEventListener('click', () => {
+                this.searchInput.focus();
+                this.updateSearchSuggestions(true);
+            });
+        } else {
+            console.error('Select arrow container not found');
+        }
+
         document.addEventListener('click', (e) => this.handleDocumentClick(e));
     }
 
@@ -167,7 +177,7 @@ export class UIManager {
 
         // Get mountain area names for the current hierarchy level
         const currentLevelNames = this.layerManager.getCurrentHierLevelMountainAreaNames();
-        const matchingNames = this.getMatchingNames(searchValue, currentLevelNames);
+        const matchingNames = showAll ? currentLevelNames : this.getMatchingNames(searchValue, currentLevelNames);
 
         if (matchingNames.length > 0) {
             const ul = document.createElement('ul');
