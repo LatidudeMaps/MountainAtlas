@@ -86,39 +86,6 @@ export class UIManager {
         document.removeEventListener('mouseup', this.enableMapDragging);
         document.removeEventListener('mouseleave', this.enableMapDragging);
     }
-    
-    setupSearchListeners() {
-        if (!this.searchInput || !this.searchSuggestions) {
-            console.error('Search elements not found in the DOM');
-            return;
-        }
-
-        this.searchInput.addEventListener('focus', () => this.toggleSuggestions(true));
-        this.searchInput.addEventListener('input', debounce(() => this.updateSearchSuggestions(), 300));
-        this.searchInput.addEventListener('keydown', (e) => this.handleSearchKeydown(e));
-        
-        // Add listener for the custom event
-        this.searchInput.addEventListener('showAllSuggestions', () => this.updateSearchSuggestions(true));
-
-        const searchContainer = this.filterControl.getContainer().querySelector('.custom-search');
-        if (searchContainer) {
-            searchContainer.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.toggleSuggestions(true);
-            });
-        } else {
-            console.error('Search container not found');
-        }
-
-        const clearSearchButton = this.filterControl.getContainer().querySelector('#clear-search');
-        if (clearSearchButton) {
-            clearSearchButton.addEventListener('click', () => this.clearSearch());
-        } else {
-            console.error('Clear search button not found');
-        }
-
-        document.addEventListener('click', (e) => this.handleDocumentClick(e));
-    }
 
     clearSearch() {
         if (this.searchInput) {
@@ -235,16 +202,6 @@ export class UIManager {
         const searchContainer = this.filterControl.getContainer().querySelector('.custom-search');
         if (searchContainer && !searchContainer.contains(e.target)) {
             this.hideSuggestions();
-        }
-    }
-
-    // Add these methods if they're not already present
-    updateHierLevelSlider(min, max, value) {
-        if (this.hierLvlSlider && this.hierLvlValue) {
-            this.hierLvlSlider.min = min;
-            this.hierLvlSlider.max = max;
-            this.hierLvlSlider.value = value;
-            this.hierLvlValue.textContent = value;
         }
     }
 
