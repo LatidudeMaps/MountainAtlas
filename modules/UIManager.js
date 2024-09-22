@@ -121,7 +121,8 @@ export class UIManager {
         }
 
         const currentLevelNames = this.layerManager.getCurrentHierLevelMountainAreaNames();
-        const matchingNames = showAll ? currentLevelNames : this.getMatchingNames(searchValue, currentLevelNames);
+        // Use getMatchingNames even when showing all names to ensure sorting
+        const matchingNames = this.getMatchingNames(searchValue, currentLevelNames);
 
         if (matchingNames.length > 0) {
             const ul = document.createElement('ul');
@@ -158,7 +159,7 @@ export class UIManager {
 
     getMatchingNames(searchValue, names) {
         return names
-            .filter(name => name.toLowerCase().includes(searchValue.toLowerCase()))
+            .filter(name => searchValue === '' || name.toLowerCase().includes(searchValue.toLowerCase()))
             .sort((a, b) => a.localeCompare(b));
     }
 
