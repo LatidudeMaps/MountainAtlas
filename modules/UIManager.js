@@ -215,7 +215,7 @@ export class UIManager {
 
     fetchWikipediaContent(wikiUrl) {
         const pageName = wikiUrl.split('/').pop();
-        const apiUrl = `https://it.wikipedia.org/w/api.php?action=parse&format=json&prop=text&section=0&page=${pageName}&origin=*`;
+        const apiUrl = `https://it.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=${pageName}&origin=*`;
 
         this.wikipediaPanel.innerHTML = 'Caricamento...';
 
