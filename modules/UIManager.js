@@ -24,6 +24,9 @@ export class UIManager {
         console.log('Search suggestions found:', !!this.searchSuggestions);
         console.log('Hierarchy level slider found:', !!this.hierLvlSlider);
         console.log('Hierarchy level value found:', !!this.hierLvlValue);
+
+        this.setupSearchListeners();
+        this.setupFilterListeners();
     }
 
     setupSearchListeners() {
@@ -36,7 +39,6 @@ export class UIManager {
         this.searchInput.addEventListener('input', debounce(() => this.updateSearchSuggestions(), 300));
         this.searchInput.addEventListener('keydown', (e) => this.handleSearchKeydown(e));
         
-        // Add listener for the custom event
         this.searchInput.addEventListener('showAllSuggestions', () => this.updateSearchSuggestions(true));
 
         const searchContainer = this.filterControl.getContainer().querySelector('.custom-search');
@@ -206,14 +208,37 @@ export class UIManager {
     }
 
     setupFilterListeners() {
-        if (this.hierLvlSlider && this.hierLvlValue) {
-            this.hierLvlSlider.addEventListener('input', () => {
-                this.hierLvlValue.textContent = this.hierLvlSlider.value;
-            });
-
-            this.hierLvlSlider.addEventListener('change', () => {
-                this.filterHandler(this.hierLvlSlider.value);
-            });
+        if (!this.hierLvlSlider || !this.hierLvlValue) {
+            console.error('Hierarchy level elements not found in the DOM');
+            return;
         }
+
+        this.hierLvlSlider.addEventListener('input', () => {
+            this.hierLvlValue.textContent = this.hierLvlSlider.value;
+        });
+
+        this.hierLvlSlider.addEventListener('change', () => {
+            console.log('Slider value changed to:', this.hierLvlSlider.value);
+            this.filterHandler(this.hierLvlSlider.value);
+        });
+
+        // Touch event handling for mobile devices
+        let isDragging = false;
+
+        this.hierLvlSlider.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            this.handleSliderTouch(e);
+        }, { passive: false });
+
+        this.hierLvlSlider.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                this.handleSliderTouch(e);
+            }
+        }, { passive: false });
+
+        this.hierLvlSlider.addEventListener('touchend', () => {
+            isDragging = false;
+            this.filterHandler(this.hierLvlSlider.value);
+        });
     }
 }
