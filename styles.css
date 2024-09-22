@@ -276,10 +276,10 @@ body, html {
     box-shadow: 0 1px 5px rgba(0,0,0,0.65);
     font-family: 'Montserrat', Arial, sans-serif;
     padding: 10px;
-    width: 250px; /* Fixed width */
+    width: 300px; /* Fixed width */
     box-sizing: border-box;
     margin-right: 10px;
-    overflow-x: hidden; /* Prevent horizontal scrolling */
+    overflow: visible; /* Allow content to overflow for dropdown */
 }
 
 .control-section {
@@ -394,14 +394,12 @@ body, html {
     font-family: 'Montserrat', Arial, sans-serif;
     margin-top: 10px;
     overflow-y: auto; /* Allow vertical scrolling */
-    overflow-x: hidden; /* Prevent horizontal scrolling */
     padding: 15px;
-    width: 250px; /* Fixed width */
+    width: 300px; /* Fixed width */
     height: 450px;
     margin-right: 10px;
 }
 
-/* Ensure content inside panels doesn't overflow */
 .unified-control *, #wikipedia-panel * {
     max-width: 100%;
     word-wrap: break-word;
@@ -427,20 +425,38 @@ body, html {
     text-decoration: underline;
 }
 
+/* Improve scroll bar visibility for Wikipedia panel */
+#wikipedia-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+#wikipedia-panel::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+#wikipedia-panel::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+#wikipedia-panel::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
 /* Responsive styles */
 @media screen and (max-width: 768px) {
     .unified-control,
     #wikipedia-panel {
+        max-width: none;
         width: calc(100% - 20px);
         margin-left: 10px;
         margin-right: 10px;
     }
 
     #wikipedia-panel {
-        height: 300px;
+        height: 300px; /* Adjust height for mobile devices */
     }
 }
-
 
 /* Ensure proper alignment and responsiveness */
 .leaflet-right .leaflet-control {
