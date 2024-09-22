@@ -97,26 +97,18 @@ export class LayerManager {
     filterMountainAreas(selectedValue) {
         this.currentHierLevel = selectedValue;
         this.mountainAreasLayer.clearLayers();
-        
-        const filteredFeatures = this.allMountainAreas.features.filter(feature => 
+        this.filteredMountainAreas = this.allMountainAreas.features.filter(feature => 
             String(feature.properties.Hier_lvl).trim() === selectedValue
         );
         
-        const chunkedAdd = (features, index) => {
-            const chunkSize = 100;
-            const chunk = features.slice(index, index + chunkSize);
-            
-            if (chunk.length > 0) {
-                this.mountainAreasLayer.addData({
-                    type: "FeatureCollection",
-                    features: chunk
-                });
-                setTimeout(() => chunkedAdd(features, index + chunkSize), 0);
-            }
-        };
-        
-        chunkedAdd(filteredFeatures, 0);
-        this.filteredMountainAreas = filteredFeatures;
+        this.mountainAreasLayer.addData({
+            type: "FeatureCollection",
+            features: this.filteredMountainAreas
+        });
+    }
+
+    getCurrentHierLevelMountainAreaNames() {
+        return this.filteredMountainAreas.map(feature => feature.properties.MapName);
     }
 
     filterAndDisplayPeaks(hierLvl, mapName = null) {

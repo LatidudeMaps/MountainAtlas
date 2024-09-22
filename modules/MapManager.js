@@ -113,17 +113,13 @@ export class MapManager {
     fitMapToBounds(mountainAreasLayer, markers) {
         console.log('Fitting map to bounds...');
         if (!this.initialBounds) {
-            const bounds = mountainAreasLayer.getBounds();
-            if (bounds.isValid()) {
-                this.initialBounds = bounds;
-                this.map.fitBounds(this.initialBounds);
-                console.log('Map fitted to bounds');
-            } else {
-                console.error('Invalid bounds for mountain areas layer');
-            }
-        } else {
+            this.setInitialExtent(mountainAreasLayer);
+        }
+        if (this.initialBounds) {
             this.map.fitBounds(this.initialBounds);
-            console.log('Map fitted to initial bounds');
+            console.log('Map fitted to bounds');
+        } else {
+            console.error('Unable to fit map to bounds: initialBounds is null');
         }
     }
 
