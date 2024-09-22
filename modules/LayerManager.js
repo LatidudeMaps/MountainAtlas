@@ -14,7 +14,12 @@ export class LayerManager {
         return L.geoJSON(null, {
             style: this.defaultPolygonStyle,
             onEachFeature: (feature, layer) => {
-                layer.bindPopup(feature.properties.MapName);
+                const popupContent = `
+                    <b>${feature.properties.MapName}</b><br>
+                    <a href="${feature.properties.wiki_url_it}" target="_blank">Wikipedia (IT)</a><br>
+                    <a href="${feature.properties.wiki_url_en}" target="_blank">Wikipedia (EN)</a>
+                `;
+                layer.bindPopup(popupContent);
             }
         }).addTo(this.map);
     }
@@ -87,7 +92,10 @@ export class LayerManager {
         const matchingLayers = [];
         this.mountainAreasLayer.eachLayer(layer => {
             if (layer.feature?.properties?.MapName.trim().toLowerCase().includes(searchValue.toLowerCase())) {
-                matchingLayers.push(layer);
+                matchingLayers.push({
+                    layer: layer,
+                    properties: layer.feature.properties
+                });
             }
         });
         console.log('Matching layers found:', matchingLayers.length);

@@ -381,3 +381,27 @@ body, html {
 .leaflet-control-layers {
     min-width: 200px;
 }
+
+/* Wikipedia Panel Styles */
+#wikipedia-panel {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    box-sizing: border-box;
+    height: 300px;
+    overflow: auto;
+    width: 100%;
+}
+
+#wikipedia-panel iframe {
+    border: none;
+    height: 100%;
+    width: 100%;
+}
+
+/* Responsive styles for Wikipedia Panel */
+@media screen and (max-width: 768px) {
+    #wikipedia-panel {
+        height: 200px;
+    }
+}

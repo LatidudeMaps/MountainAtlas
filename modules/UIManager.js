@@ -10,6 +10,7 @@ export class UIManager {
         this.searchSuggestions = null;
         this.hierLvlSlider = null;
         this.hierLvlValue = null;
+        this.wikipediaPanel = null;
     }
 
     initializeElements(filterControl) {
@@ -27,6 +28,23 @@ export class UIManager {
 
         this.setupSearchListeners();
         this.setupFilterListeners();
+        this.setupWikipediaPanel();
+    }
+
+    setupWikipediaPanel() {
+        this.wikipediaPanel = document.createElement('div');
+        this.wikipediaPanel.id = 'wikipedia-panel';
+        this.wikipediaPanel.style.display = 'none';
+        this.wikipediaPanel.style.width = '100%';
+        this.wikipediaPanel.style.height = '300px';
+        this.wikipediaPanel.style.overflow = 'auto';
+        this.wikipediaPanel.style.backgroundColor = 'white';
+        this.wikipediaPanel.style.border = '1px solid #ccc';
+        this.wikipediaPanel.style.borderTop = 'none';
+        this.wikipediaPanel.style.boxSizing = 'border-box';
+
+        const controlContainer = this.filterControl.getContainer();
+        controlContainer.parentNode.insertBefore(this.wikipediaPanel, controlContainer.nextSibling);
     }
 
     setupSearchListeners() {
@@ -168,6 +186,25 @@ export class UIManager {
             this.searchInput.value = name;
             this.hideSuggestions();
             this.searchHandler(name);
+            this.updateWikipediaPanel(name);
+        }
+    }
+
+    updateWikipediaPanel(name) {
+        const matchingLayers = this.layerManager.getMatchingLayers(name);
+        if (matchingLayers.length > 0) {
+            const properties = matchingLayers[0].properties;
+            const wikiUrl = properties.wiki_url_it;
+            
+            if (wikiUrl) {
+                this.wikipediaPanel.style.display = 'block';
+                this.wikipediaPanel.innerHTML = `<iframe src="${wikiUrl}" width="100%" height="100%" frameborder="0"></iframe>`;
+            } else {
+                this.wikipediaPanel.style.display = 'block';
+                this.wikipediaPanel.innerHTML = '<p>Info non disponibili</p>';
+            }
+        } else {
+            this.wikipediaPanel.style.display = 'none';
         }
     }
 

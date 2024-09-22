@@ -74,6 +74,7 @@ class App {
         if (searchValue === null) {
             // Reset the search without changing the map view
             this.layerManager.resetHighlight();
+            this.uiManager.updateWikipediaPanel(null);
             return;
         }
 
@@ -81,16 +82,18 @@ class App {
         const matchingLayers = this.layerManager.getMatchingLayers(searchValue);
 
         if (matchingLayers.length > 0) {
-            const bounds = matchingLayers[0].getBounds();
+            const bounds = matchingLayers[0].layer.getBounds();
             const center = bounds.getCenter();
             const zoom = this.mapManager.map.getBoundsZoom(bounds);
             this.mapManager.flyTo(center, zoom);
 
-            const matchingMapName = matchingLayers[0].feature.properties.MapName;
+            const matchingMapName = matchingLayers[0].properties.MapName;
             this.layerManager.filterAndDisplayPeaks(null, matchingMapName);
+            this.uiManager.updateWikipediaPanel(searchValue);
         } else {
             console.log('No matching polygons found');
             alert('No matching polygons found.');
+            this.uiManager.updateWikipediaPanel(null);
         }
     }
 
