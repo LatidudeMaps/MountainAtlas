@@ -276,10 +276,10 @@ body, html {
     box-shadow: 0 1px 5px rgba(0,0,0,0.65);
     font-family: 'Montserrat', Arial, sans-serif;
     padding: 10px;
-    max-width: 300px;
-    width: 100%;
+    width: 250px; /* Fixed width */
     box-sizing: border-box;
-    margin-right: 10px; /* Add right margin */
+    margin-right: 10px;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 .control-section {
@@ -392,13 +392,19 @@ body, html {
     box-shadow: 0 1px 5px rgba(0,0,0,0.65);
     box-sizing: border-box;
     font-family: 'Montserrat', Arial, sans-serif;
-    margin-top: 10px; /* Space between unified control and Wikipedia panel */
-    overflow: auto;
+    margin-top: 10px;
+    overflow-y: auto; /* Allow vertical scrolling */
+    overflow-x: hidden; /* Prevent horizontal scrolling */
     padding: 15px;
-    max-width: 300px;
-    width: 100%;
-    height: 450px; /* Approximately 1.5 times the width (300px) */
-    margin-right: 10px; /* Add right margin to match unified control */
+    width: 250px; /* Fixed width */
+    height: 450px;
+    margin-right: 10px;
+}
+
+/* Ensure content inside panels doesn't overflow */
+.unified-control *, #wikipedia-panel * {
+    max-width: 100%;
+    word-wrap: break-word;
 }
 
 #wikipedia-panel h1, #wikipedia-panel h2, #wikipedia-panel h3 {
@@ -425,16 +431,16 @@ body, html {
 @media screen and (max-width: 768px) {
     .unified-control,
     #wikipedia-panel {
-        max-width: none;
         width: calc(100% - 20px);
         margin-left: 10px;
         margin-right: 10px;
     }
 
     #wikipedia-panel {
-        height: 300px; /* Adjust height for mobile devices */
+        height: 300px;
     }
 }
+
 
 /* Ensure proper alignment and responsiveness */
 .leaflet-right .leaflet-control {
