@@ -12,7 +12,6 @@ class App {
         this.controlManager = new ControlManager(this.mapManager, this.layerManager);
         this.dataLoader = new DataLoader();
         this.uiManager = null;
-        this.loaderContainer = document.getElementById('loader-container');
     }
 
     async init() {
@@ -45,22 +44,8 @@ class App {
 
             this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
             console.log('Map fitted to bounds');
-
-            // Hide the loader
-            this.hideLoader();
         } catch (error) {
             console.error('Error initializing app:', error);
-            // Hide the loader even if there's an error
-            this.hideLoader();
-        }
-    }
-
-    hideLoader() {
-        if (this.loaderContainer) {
-            this.loaderContainer.style.opacity = '0';
-            setTimeout(() => {
-                this.loaderContainer.style.display = 'none';
-            }, 500); // Wait for the fade-out transition to complete
         }
     }
 
