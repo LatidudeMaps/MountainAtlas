@@ -149,13 +149,41 @@ body, html {
 
 .custom-search .custom-select {
     width: 100%;
+    padding-right: 30px; /* Make room for the clear button */
     text-overflow: ellipsis;
     cursor: text;
 }
 
+.clear-search-button {
+    position: absolute;
+    right: 25px; /* Position to the left of the select arrow */
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.clear-search-button:hover {
+    color: #333;
+}
+
+.custom-search .custom-select:not(:placeholder-shown) + .clear-search-button {
+    opacity: 1;
+}
+
 .custom-search .select-arrow {
-    cursor: default !important;
-    pointer-events: auto;
+    right: 10px;
 }
 
 .select-arrow {
