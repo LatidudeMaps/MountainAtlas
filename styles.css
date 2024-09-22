@@ -279,6 +279,7 @@ body, html {
     max-width: 300px;
     width: 100%;
     box-sizing: border-box;
+    margin-right: 10px; /* Add right margin */
 }
 
 .control-section {
@@ -397,6 +398,7 @@ body, html {
     max-width: 300px;
     width: 100%;
     height: 450px; /* Approximately 1.5 times the width (300px) */
+    margin-right: 10px; /* Add right margin to match unified control */
 }
 
 #wikipedia-panel h1, #wikipedia-panel h2, #wikipedia-panel h3 {
@@ -437,4 +439,10 @@ body, html {
 /* Ensure proper alignment and responsiveness */
 .leaflet-right .leaflet-control {
     margin-right: 10px;
+}
+
+.leaflet-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
 }
