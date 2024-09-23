@@ -329,8 +329,6 @@ export class UIManager {
         for (let el of contentElements) {
             if (sectionAnchor && el.id === sectionAnchor) {
                 startExtraction = true;
-                // Include the section title
-                content += `<h2>${el.textContent}</h2>`;
                 continue;
             }
     
@@ -339,23 +337,16 @@ export class UIManager {
                     // Stop extraction when we reach the next section
                     break;
                 }
-                content += el.outerHTML;
+                // Only add paragraphs and lists to the content
+                if (el.tagName === 'P' || el.tagName === 'UL' || el.tagName === 'OL') {
+                    content += el.outerHTML;
+                }
             }
         }
     
         if (!content) {
             return null; // Return null if no content found
         }
-    
-        // Add a title
-        let title = displayTitle;
-        if (sectionAnchor) {
-            const section = sections.find(s => s.anchor === sectionAnchor);
-            if (section) {
-                title += ` - ${section.line}`;
-            }
-        }
-        content = `<h1>${title}</h1>` + content;
     
         // Modify remaining links
         const tempContent = document.createElement('div');
