@@ -1,3 +1,9 @@
+import { MapManager } from './modules/MapManager.js';
+import { LayerManager } from './modules/LayerManager.js';
+import { ControlManager } from './modules/ControlManager.js';
+import { DataLoader } from './modules/DataLoader.js';
+import { UIManager } from './modules/UIManager.js';
+
 class App {
     constructor() {
         console.log('App constructor called');
