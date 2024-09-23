@@ -257,8 +257,11 @@ export class UIManager {
     }
 
     updateWikipediaPanel(name) {
+        this.wikipediaPanel.style.display = 'block'; // Always show the panel
+        this.wikipediaPanel.innerHTML = this.createLanguageToggle(); // Always add the language toggle
+
         if (!name) {
-            this.wikipediaPanel.style.display = 'none';
+            this.wikipediaPanel.innerHTML += '<p>No content selected</p>';
             return;
         }
 
@@ -268,17 +271,15 @@ export class UIManager {
             const wikiUrl = this.currentLanguage === 'it' ? properties.wiki_url_it : properties.wiki_url_en;
             
             if (wikiUrl) {
-                this.wikipediaPanel.style.display = 'block';
                 this.fetchWikipediaContent(wikiUrl);
             } else {
-                this.wikipediaPanel.style.display = 'block';
                 const message = this.currentLanguage === 'it' 
                     ? '<p>Info non disponibili</p>'
                     : '<p>Information not available in English</p>';
-                this.wikipediaPanel.innerHTML = message;
+                this.wikipediaPanel.innerHTML += message;
             }
         } else {
-            this.wikipediaPanel.style.display = 'none';
+            this.wikipediaPanel.innerHTML += '<p>No matching content found</p>';
         }
     }
 
@@ -307,8 +308,7 @@ export class UIManager {
                     let content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections);
                     
                     if (content) {
-                        const languageToggle = this.createLanguageToggle();
-                        this.wikipediaPanel.innerHTML = languageToggle + content;
+                        this.wikipediaPanel.innerHTML += content;
                     } else {
                         const noContentMessage = this.currentLanguage === 'it'
                             ? 'Nessun contenuto trovato per questa sezione.'
@@ -316,8 +316,7 @@ export class UIManager {
                         const viewFullPageMessage = this.currentLanguage === 'it'
                             ? 'Puoi visualizzare l\'intera pagina qui:'
                             : 'You can view the full page here:';
-                        this.wikipediaPanel.innerHTML = `
-                            ${this.createLanguageToggle()}
+                        this.wikipediaPanel.innerHTML += `
                             <p>${noContentMessage}</p>
                             <p>${viewFullPageMessage}
                             <a href="https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}" target="_blank">
@@ -328,7 +327,7 @@ export class UIManager {
                     const errorMessage = this.currentLanguage === 'it'
                         ? 'Errore nel caricamento del contenuto.'
                         : 'Error loading content.';
-                    this.wikipediaPanel.innerHTML = `${this.createLanguageToggle()}<p>${errorMessage}</p>`;
+                    this.wikipediaPanel.innerHTML += `<p>${errorMessage}</p>`;
                 }
             })
             .catch(error => {
@@ -336,7 +335,7 @@ export class UIManager {
                 const errorMessage = this.currentLanguage === 'it'
                     ? 'Errore nel caricamento del contenuto.'
                     : 'Error loading content.';
-                this.wikipediaPanel.innerHTML = `${this.createLanguageToggle()}<p>${errorMessage}</p>`;
+                this.wikipediaPanel.innerHTML += `<p>${errorMessage}</p>`;
             });
     }
 

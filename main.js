@@ -1,9 +1,3 @@
-import { MapManager } from './modules/MapManager.js';
-import { LayerManager } from './modules/LayerManager.js';
-import { ControlManager } from './modules/ControlManager.js';
-import { DataLoader } from './modules/DataLoader.js';
-import { UIManager } from './modules/UIManager.js';
-
 class App {
     constructor() {
         console.log('App constructor called');
@@ -17,39 +11,42 @@ class App {
     async init() {
         console.log('App init started');
         try {
-            const mountainAreasData = await this.dataLoader.loadMountainAreas();
-            console.log('Mountain areas data loaded:', mountainAreasData);
-            const osmPeaksData = await this.dataLoader.loadOsmPeaks();
-            console.log('OSM peaks data loaded:', osmPeaksData);
-            
-            this.layerManager.setMountainAreasData(mountainAreasData);
-            this.layerManager.setOsmPeaksData(osmPeaksData);
-            
-            console.log('Data set in LayerManager');
-
-            this.uiManager = new UIManager(
-                this.handleSearch.bind(this),
-                this.handleFilterChange.bind(this),
-                this.layerManager,
-                this.mapManager
-            );
-
-            this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
-            const unifiedControl = this.controlManager.initControls();
-            console.log('Controls initialized');
-
-            this.uiManager.initializeElements(unifiedControl);
-            this.setupUI();
-            console.log('UI setup complete');
-
+            await this.loadData();
+            this.initializeUI();
             this.applyInitialFilter();
-            console.log('Initial filter applied');
-
             this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
-            console.log('Map fitted to bounds');
+            console.log('App initialization complete');
         } catch (error) {
             console.error('Error initializing app:', error);
         }
+    }
+
+    async loadData() {
+        const [mountainAreasData, osmPeaksData] = await Promise.all([
+            this.dataLoader.loadMountainAreas(),
+            this.dataLoader.loadOsmPeaks()
+        ]);
+        
+        this.layerManager.setMountainAreasData(mountainAreasData);
+        this.layerManager.setOsmPeaksData(osmPeaksData);
+        
+        console.log('Data loaded and set in LayerManager');
+    }
+
+    initializeUI() {
+        this.uiManager = new UIManager(
+            this.handleSearch.bind(this),
+            this.handleFilterChange.bind(this),
+            this.layerManager,
+            this.mapManager
+        );
+
+        this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
+        const unifiedControl = this.controlManager.initControls();
+        
+        this.uiManager.initializeElements(unifiedControl);
+        this.setupUI();
+        console.log('UI setup complete');
     }
 
     setupUI() {
