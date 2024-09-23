@@ -12,9 +12,11 @@ class App {
         this.dataLoader = new DataLoader();
         this.uiManager = null;
         this.controlManager = null;
+        this.loadingIndicator = document.getElementById('loading-indicator');
     }
 
     async init() {
+        this.showLoading();
         console.log('App init started');
         try {
             await this.loadData();
@@ -24,6 +26,20 @@ class App {
             console.log('App initialization complete');
         } catch (error) {
             console.error('Error initializing app:', error);
+        } finally {
+            this.hideLoading();
+        }
+    }
+
+    showLoading() {
+        if (this.loadingIndicator) {
+            this.loadingIndicator.style.display = 'block';
+        }
+    }
+
+    hideLoading() {
+        if (this.loadingIndicator) {
+            this.loadingIndicator.style.display = 'none';
         }
     }
 

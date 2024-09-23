@@ -295,7 +295,8 @@ export class UIManager {
         const sectionAnchor = urlParts[1].split('#')[1] || ''; // Get the section anchor if it exists
         const apiUrl = `https://${this.currentLanguage}.wikipedia.org/w/api.php?action=parse&format=json&prop=text|sections|displaytitle&page=${pageName}&origin=*`;
     
-        this.wikipediaPanel.innerHTML = this.currentLanguage === 'it' ? 'Caricamento...' : 'Loading...';
+        const loadingMessage = this.currentLanguage === 'it' ? 'Caricamento...' : 'Loading...';
+        this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `<p>${loadingMessage}</p>`;
     
         fetch(apiUrl)
             .then(response => response.json())
@@ -308,7 +309,7 @@ export class UIManager {
                     let content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections);
                     
                     if (content) {
-                        this.wikipediaPanel.innerHTML += content;
+                        this.wikipediaPanel.innerHTML = this.createLanguageToggle() + content;
                     } else {
                         const noContentMessage = this.currentLanguage === 'it'
                             ? 'Nessun contenuto trovato per questa sezione.'
@@ -316,7 +317,7 @@ export class UIManager {
                         const viewFullPageMessage = this.currentLanguage === 'it'
                             ? 'Puoi visualizzare l\'intera pagina qui:'
                             : 'You can view the full page here:';
-                        this.wikipediaPanel.innerHTML += `
+                        this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `
                             <p>${noContentMessage}</p>
                             <p>${viewFullPageMessage}
                             <a href="https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}" target="_blank">
@@ -327,7 +328,7 @@ export class UIManager {
                     const errorMessage = this.currentLanguage === 'it'
                         ? 'Errore nel caricamento del contenuto.'
                         : 'Error loading content.';
-                    this.wikipediaPanel.innerHTML += `<p>${errorMessage}</p>`;
+                    this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `<p>${errorMessage}</p>`;
                 }
             })
             .catch(error => {
@@ -335,7 +336,7 @@ export class UIManager {
                 const errorMessage = this.currentLanguage === 'it'
                     ? 'Errore nel caricamento del contenuto.'
                     : 'Error loading content.';
-                this.wikipediaPanel.innerHTML += `<p>${errorMessage}</p>`;
+                this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `<p>${errorMessage}</p>`;
             });
     }
 
