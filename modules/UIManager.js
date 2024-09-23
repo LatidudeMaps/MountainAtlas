@@ -59,6 +59,9 @@ export class UIManager {
                 }
             }
         });
+
+        // Add event listener for link clicks
+        this.wikipediaPanel.addEventListener('click', this.handleWikiPanelLinkClick.bind(this));
     }
 
     handleWikiPanelInteraction(e) {
@@ -79,6 +82,23 @@ export class UIManager {
                 if (this.mapManager && this.mapManager.map) {
                     this.mapManager.map.dragging.disable();
                 }
+            }
+        }
+    }
+
+    handleWikiPanelLinkClick(e) {
+        if (e.target.tagName === 'A') {
+            e.preventDefault();
+            const href = e.target.getAttribute('href');
+            if (href && href.startsWith('/wiki/')) {
+                const pageName = href.split('/wiki/')[1];
+                this.fetchWikipediaContent(`https://it.wikipedia.org/wiki/${pageName}`);
+            } else if (href && !href.startsWith('http')) {
+                // For other internal links, prepend the Wikipedia base URL
+                this.fetchWikipediaContent(`https://it.wikipedia.org${href}`);
+            } else if (href) {
+                // For external links, open in a new tab
+                window.open(href, '_blank');
             }
         }
     }
@@ -251,7 +271,7 @@ export class UIManager {
     }
 
     fetchWikipediaContent(wikiUrl) {
-        const pageName = wikiUrl.split('/').pop();
+        const pageName = wikiUrl.split('/wiki/').pop();
         const apiUrl = `https://it.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=${pageName}&origin=*`;
 
         this.wikipediaPanel.innerHTML = 'Caricamento...';
@@ -281,6 +301,15 @@ export class UIManager {
         const elementsToRemove = tempDiv.querySelectorAll('.mw-empty-elt, .mw-editsection, .reference, .navbox');
         elementsToRemove.forEach(el => el.remove());
 
+        // Modify links
+        const links = tempDiv.querySelectorAll('a');
+        links.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && href.startsWith('./')) {
+                link.setAttribute('href', href.replace('./', '/wiki/'));
+            }
+        });
+
         // Get all paragraphs
         const paragraphs = tempDiv.querySelectorAll('p');
         let content = '';
@@ -289,10 +318,8 @@ export class UIManager {
         }
 
         // Add a "Read more" link
-        const readMoreLink = tempDiv.querySelector('a.external');
-        if (readMoreLink) {
-            content += `<p><a href="${readMoreLink.href}" target="_blank">Leggi di più su Wikipedia</a></p>`;
-        }
+        const readMoreLink = `https://it.wikipedia.org/wiki/${encodeURIComponent(tempDiv.querySelector('h1').textContent)}`;
+        content += `<p><a href="${readMoreLink}" target="_blank">Leggi di più su Wikipedia</a></p>`;
 
         return content;
     }
