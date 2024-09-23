@@ -297,7 +297,12 @@ export class UIManager {
                     if (content) {
                         this.wikipediaPanel.innerHTML = content;
                     } else {
-                        this.wikipediaPanel.innerHTML = '<p>Nessun contenuto trovato per questa sezione.</p>';
+                        this.wikipediaPanel.innerHTML = `
+                            <p>Nessun contenuto trovato per questa sezione.</p>
+                            <p>Puoi visualizzare l'intera pagina qui: 
+                            <a href="https://it.wikipedia.org/wiki/${encodeURIComponent(pageName)}" target="_blank">
+                                ${displayTitle}
+                            </a></p>`;
                     }
                 } else {
                     this.wikipediaPanel.innerHTML = '<p>Errore nel caricamento del contenuto.</p>';
@@ -318,25 +323,24 @@ export class UIManager {
         elementsToRemove.forEach(el => el.remove());
     
         let content = '';
+        let startExtraction = !sectionAnchor; // Start extraction immediately if no section anchor
     
-        if (sectionAnchor) {
-            // Find the section
-            const sectionElement = tempDiv.querySelector(`#${sectionAnchor}`);
-            if (sectionElement) {
-                let currentElement = sectionElement.nextElementSibling;
-                while (currentElement && !currentElement.classList.contains('mw-headline')) {
-                    if (currentElement.tagName === 'P' || currentElement.tagName === 'UL' || currentElement.tagName === 'OL') {
-                        content += currentElement.outerHTML;
-                    }
-                    currentElement = currentElement.nextElementSibling;
-                }
+        const contentElements = tempDiv.querySelectorAll('p, ul, ol, h2, h3, h4, h5, h6');
+        for (let el of contentElements) {
+            if (sectionAnchor && el.id === sectionAnchor) {
+                startExtraction = true;
+                // Include the section title
+                content += `<h2>${el.textContent}</h2>`;
+                continue;
             }
-        } else {
-            // Get all content if no specific section
-            const contentElements = tempDiv.querySelectorAll('p, ul, ol');
-            contentElements.forEach(el => {
+    
+            if (startExtraction) {
+                if (el.tagName.toLowerCase().startsWith('h') && el.id && el.id !== sectionAnchor) {
+                    // Stop extraction when we reach the next section
+                    break;
+                }
                 content += el.outerHTML;
-            });
+            }
         }
     
         if (!content) {
