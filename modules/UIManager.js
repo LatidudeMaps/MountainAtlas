@@ -346,10 +346,10 @@ export class UIManager {
         return `
             <div class="language-toggle">
                 <button class="${this.currentLanguage === 'it' ? 'active' : ''}" onclick="uiManager.toggleLanguage('it')">
-                    <span class="flag">🇮🇹</span> IT
+                    <span class="fi fi-it"></span> IT
                 </button>
                 <button class="${this.currentLanguage === 'en' ? 'active' : ''}" onclick="uiManager.toggleLanguage('en')">
-                    <span class="flag">🇬🇧</span> EN
+                    <span class="fi fi-gb"></span> EN
                 </button>
             </div>
         `;
