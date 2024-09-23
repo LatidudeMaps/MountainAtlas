@@ -248,11 +248,13 @@ export class UIManager {
         }
     }
 
-    toggleLanguage() {
-        this.currentLanguage = this.currentLanguage === 'it' ? 'en' : 'it';
-        const currentSearchValue = this.searchInput.value.trim();
-        if (currentSearchValue) {
-            this.updateWikipediaPanel(currentSearchValue);
+    toggleLanguage(lang) {
+        if (lang === 'it' || lang === 'en') {
+            this.currentLanguage = lang;
+            const currentSearchValue = this.searchInput.value.trim();
+            if (currentSearchValue) {
+                this.updateWikipediaPanel(currentSearchValue);
+            }
         }
     }
 
@@ -343,8 +345,12 @@ export class UIManager {
     createLanguageToggle() {
         return `
             <div class="language-toggle">
-                <button class="${this.currentLanguage === 'it' ? 'active' : ''}" onclick="uiManager.toggleLanguage()">IT</button>
-                <button class="${this.currentLanguage === 'en' ? 'active' : ''}" onclick="uiManager.toggleLanguage()">EN</button>
+                <button class="${this.currentLanguage === 'it' ? 'active' : ''}" onclick="uiManager.toggleLanguage('it')">
+                    <span class="flag">🇮🇹</span> IT
+                </button>
+                <button class="${this.currentLanguage === 'en' ? 'active' : ''}" onclick="uiManager.toggleLanguage('en')">
+                    <span class="flag">🇬🇧</span> EN
+                </button>
             </div>
         `;
     }

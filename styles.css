@@ -458,9 +458,12 @@ body, html {
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
-    display: flex;
-    justify-content: center;
     z-index: 1000;
+    background-color: white;
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: flex;
 }
 
 .language-toggle button {
@@ -469,12 +472,9 @@ body, html {
     padding: 5px 10px;
     cursor: pointer;
     font-size: 14px;
-}
-
-.language-toggle button.active {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .language-toggle button:first-child {
@@ -487,7 +487,18 @@ body, html {
     border-bottom-right-radius: 4px;
 }
 
+.language-toggle button.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.language-toggle .flag {
+    margin-right: 5px;
+    font-size: 16px;
+}
+
 #wikipedia-panel {
     position: relative;
-    padding-top: 40px; /* Make room for the language toggle */
+    padding-top: 50px;  /* Increased to accommodate larger toggle buttons */
 }
