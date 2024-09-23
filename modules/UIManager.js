@@ -272,7 +272,7 @@ export class UIManager {
 
     fetchWikipediaContent(wikiUrl) {
         const pageName = wikiUrl.split('/wiki/').pop();
-        const apiUrl = `https://it.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=${pageName}&origin=*`;
+        const apiUrl = `https://it.wikipedia.org/w/api.php?action=parse&format=json&prop=text|displaytitle&page=${pageName}&origin=*`;
 
         this.wikipediaPanel.innerHTML = 'Caricamento...';
 
@@ -281,7 +281,8 @@ export class UIManager {
             .then(data => {
                 if (data.parse && data.parse.text) {
                     const markup = data.parse.text['*'];
-                    const content = this.cleanWikipediaContent(markup);
+                    const displayTitle = data.parse.displaytitle;
+                    const content = this.cleanWikipediaContent(markup, displayTitle, pageName);
                     this.wikipediaPanel.innerHTML = content;
                 } else {
                     this.wikipediaPanel.innerHTML = '<p>Errore nel caricamento del contenuto.</p>';
@@ -293,7 +294,7 @@ export class UIManager {
             });
     }
 
-    cleanWikipediaContent(markup) {
+    cleanWikipediaContent(markup, displayTitle, pageName) {
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = markup;
 
@@ -317,8 +318,13 @@ export class UIManager {
             content += paragraphs[i].outerHTML;
         }
 
+        // Add a title if it's available
+        if (displayTitle) {
+            content = `<h1>${displayTitle}</h1>` + content;
+        }
+
         // Add a "Read more" link
-        const readMoreLink = `https://it.wikipedia.org/wiki/${encodeURIComponent(tempDiv.querySelector('h1').textContent)}`;
+        const readMoreLink = `https://it.wikipedia.org/wiki/${encodeURIComponent(pageName)}`;
         content += `<p><a href="${readMoreLink}" target="_blank">Leggi di più su Wikipedia</a></p>`;
 
         return content;
