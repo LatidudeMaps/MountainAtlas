@@ -1,16 +1,18 @@
 import { debounce } from '../utils/helpers.js';
 
 export class UIManager {
-    constructor(searchHandler, filterHandler, layerManager) {
+    constructor(searchHandler, filterHandler, layerManager, mapManager) {
         this.searchHandler = searchHandler;
         this.filterHandler = filterHandler;
         this.layerManager = layerManager;
+        this.mapManager = mapManager;
         this.filterControl = null;
         this.searchInput = null;
         this.searchSuggestions = null;
         this.hierLvlSlider = null;
         this.hierLvlValue = null;
         this.wikipediaPanel = null;
+        this.isDraggingWikiPanel = false;
     }
 
     initializeElements(filterControl) {
@@ -52,7 +54,9 @@ export class UIManager {
         document.addEventListener('mouseup', () => {
             if (this.isDraggingWikiPanel) {
                 this.isDraggingWikiPanel = false;
-                this.mapManager.map.dragging.enable();
+                if (this.mapManager && this.mapManager.map) {
+                    this.mapManager.map.dragging.enable();
+                }
             }
         });
     }
@@ -61,7 +65,9 @@ export class UIManager {
         e.stopPropagation();
         if (!this.isDraggingWikiPanel) {
             this.isDraggingWikiPanel = true;
-            this.mapManager.map.dragging.disable();
+            if (this.mapManager && this.mapManager.map) {
+                this.mapManager.map.dragging.disable();
+            }
         }
         if (e.type === 'wheel') {
             e.preventDefault();

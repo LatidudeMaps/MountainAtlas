@@ -33,7 +33,8 @@ class App {
             this.uiManager = new UIManager(
                 this.handleSearch.bind(this),
                 this.handleFilterChange.bind(this),
-                this.layerManager
+                this.layerManager,
+                this.mapManager
             );
             this.uiManager.initializeElements(unifiedControl);
             this.setupUI();
