@@ -280,11 +280,7 @@ export class UIManager {
         const urlParts = wikiUrl.split('/wiki/');
         const pageName = urlParts[1].split('#')[0]; // Remove the section anchor
         const sectionAnchor = urlParts[1].split('#')[1] || ''; // Get the section anchor if it exists
-        let apiUrl = `https://it.wikipedia.org/w/api.php?action=parse&format=json&prop=text|displaytitle&page=${pageName}&origin=*`;
-    
-        if (sectionAnchor) {
-            apiUrl += `&section=${sectionAnchor}`;
-        }
+        const apiUrl = `https://it.wikipedia.org/w/api.php?action=parse&format=json&prop=text|sections|displaytitle&page=${pageName}&origin=*`;
     
         this.wikipediaPanel.innerHTML = 'Caricamento...';
     
@@ -294,8 +290,15 @@ export class UIManager {
                 if (data.parse && data.parse.text) {
                     const markup = data.parse.text['*'];
                     const displayTitle = data.parse.displaytitle;
-                    const content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor);
-                    this.wikipediaPanel.innerHTML = content;
+                    const sections = data.parse.sections;
+                    
+                    let content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections);
+                    
+                    if (content) {
+                        this.wikipediaPanel.innerHTML = content;
+                    } else {
+                        this.wikipediaPanel.innerHTML = '<p>Nessun contenuto trovato per questa sezione.</p>';
+                    }
                 } else {
                     this.wikipediaPanel.innerHTML = '<p>Errore nel caricamento del contenuto.</p>';
                 }
@@ -306,30 +309,49 @@ export class UIManager {
             });
     }
 
-    cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor) {
+    cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections) {
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = markup;
     
         // Remove unwanted elements
-        const elementsToRemove = tempDiv.querySelectorAll('.mw-empty-elt, .mw-editsection, .reference, .navbox, .toc, .mw-headline, .thumb, .mw-jump-link, .mw-redirectedfrom');
+        const elementsToRemove = tempDiv.querySelectorAll('.mw-empty-elt, .mw-editsection, .reference, .navbox, .toc, .thumb, .mw-jump-link, .mw-redirectedfrom');
         elementsToRemove.forEach(el => el.remove());
     
-        // Get the main content
-        const mainContent = tempDiv.querySelector('.mw-parser-output');
         let content = '';
     
-        if (mainContent) {
-            // Extract only paragraphs and lists
-            const contentElements = mainContent.querySelectorAll('p, ul, ol');
+        if (sectionAnchor) {
+            // Find the section
+            const sectionElement = tempDiv.querySelector(`#${sectionAnchor}`);
+            if (sectionElement) {
+                let currentElement = sectionElement.nextElementSibling;
+                while (currentElement && !currentElement.classList.contains('mw-headline')) {
+                    if (currentElement.tagName === 'P' || currentElement.tagName === 'UL' || currentElement.tagName === 'OL') {
+                        content += currentElement.outerHTML;
+                    }
+                    currentElement = currentElement.nextElementSibling;
+                }
+            }
+        } else {
+            // Get all content if no specific section
+            const contentElements = tempDiv.querySelectorAll('p, ul, ol');
             contentElements.forEach(el => {
                 content += el.outerHTML;
             });
         }
     
-        // Add a title if it's available
-        if (displayTitle) {
-            content = `<h1>${displayTitle}</h1>` + content;
+        if (!content) {
+            return null; // Return null if no content found
         }
+    
+        // Add a title
+        let title = displayTitle;
+        if (sectionAnchor) {
+            const section = sections.find(s => s.anchor === sectionAnchor);
+            if (section) {
+                title += ` - ${section.line}`;
+            }
+        }
+        content = `<h1>${title}</h1>` + content;
     
         // Modify remaining links
         const tempContent = document.createElement('div');
