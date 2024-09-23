@@ -360,13 +360,21 @@ export class UIManager {
         tempDiv.innerHTML = markup;
     
         // Remove unwanted elements
-        const elementsToRemove = tempDiv.querySelectorAll('.mw-empty-elt, .mw-editsection, .reference, .navbox, .toc, .thumb, .mw-jump-link, .mw-redirectedfrom');
+        const elementsToRemove = tempDiv.querySelectorAll('.mw-empty-elt, .mw-editsection, .reference, .navbox, .toc, .thumb, .mw-jump-link, .mw-redirectedfrom, .languagelinks, .mw-headline');
         elementsToRemove.forEach(el => el.remove());
+    
+        // Remove language links list
+        const languageLists = tempDiv.querySelectorAll('ul:not([class]):not([id])');
+        languageLists.forEach(ul => {
+            if (ul.textContent.includes('English') || ul.textContent.includes('italiano')) {
+                ul.remove();
+            }
+        });
     
         let content = '';
         let startExtraction = !sectionAnchor; // Start extraction immediately if no section anchor
     
-        const contentElements = tempDiv.querySelectorAll('p, ul, ol, h2, h3, h4, h5, h6');
+        const contentElements = tempDiv.querySelectorAll('p, ul, ol');
         for (let el of contentElements) {
             if (sectionAnchor && el.id === sectionAnchor) {
                 startExtraction = true;
@@ -374,10 +382,6 @@ export class UIManager {
             }
     
             if (startExtraction) {
-                if (el.tagName.toLowerCase().startsWith('h') && el.id && el.id !== sectionAnchor) {
-                    // Stop extraction when we reach the next section
-                    break;
-                }
                 // Only add paragraphs and lists to the content
                 if (el.tagName === 'P' || el.tagName === 'UL' || el.tagName === 'OL') {
                     content += el.outerHTML;
@@ -396,7 +400,7 @@ export class UIManager {
         links.forEach(link => {
             const href = link.getAttribute('href');
             if (href && href.startsWith('/wiki/')) {
-                link.setAttribute('href', `https://it.wikipedia.org${href}`);
+                link.setAttribute('href', `https://${this.currentLanguage}.wikipedia.org${href}`);
             }
         });
     
@@ -406,7 +410,7 @@ export class UIManager {
         const readMoreText = this.currentLanguage === 'it' ? 'Leggi di più su Wikipedia' : 'Read more on Wikipedia';
         const readMoreLink = `https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}${sectionAnchor ? '#' + sectionAnchor : ''}`;
         content += `<p><a href="${readMoreLink}" target="_blank">${readMoreText}</a></p>`;
-
+    
         return content;
     }
 
