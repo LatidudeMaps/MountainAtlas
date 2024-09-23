@@ -277,19 +277,28 @@ export class UIManager {
     }
 
     fetchWikipediaContent(wikiUrl) {
-        const pageName = wikiUrl.split('/wiki/').pop();
-        const apiUrl = `https://it.wikipedia.org/w/api.php?action=parse&format=json&prop=text|displaytitle&page=${pageName}&origin=*`;
-
+        const urlParts = wikiUrl.split('/wiki/');
+        const pageName = urlParts[1].split('#')[0]; // Remove the section anchor
+        const sectionAnchor = urlParts[1].split('#')[1] || ''; // Get the section anchor if it exists
+        const apiUrl = `https://it.wikipedia.org/w/api.php?action=parse&format=json&prop=text|displaytitle&page=${pageName}&section=0&origin=*`;
+    
         this.wikipediaPanel.innerHTML = 'Caricamento...';
-
+    
         fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
                 if (data.parse && data.parse.text) {
                     const markup = data.parse.text['*'];
                     const displayTitle = data.parse.displaytitle;
-                    const content = this.cleanWikipediaContent(markup, displayTitle, pageName);
+                    const content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor);
                     this.wikipediaPanel.innerHTML = content;
+                    
+                    if (sectionAnchor) {
+                        const sectionElement = this.wikipediaPanel.querySelector(`#${sectionAnchor}`);
+                        if (sectionElement) {
+                            sectionElement.scrollIntoView();
+                        }
+                    }
                 } else {
                     this.wikipediaPanel.innerHTML = '<p>Errore nel caricamento del contenuto.</p>';
                 }
@@ -300,14 +309,14 @@ export class UIManager {
             });
     }
 
-    cleanWikipediaContent(markup, displayTitle, pageName) {
+    cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor) {
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = markup;
-
+    
         // Remove unwanted elements
         const elementsToRemove = tempDiv.querySelectorAll('.mw-empty-elt, .mw-editsection, .reference, .navbox');
         elementsToRemove.forEach(el => el.remove());
-
+    
         // Modify links
         const links = tempDiv.querySelectorAll('a');
         links.forEach(link => {
@@ -316,23 +325,19 @@ export class UIManager {
                 link.setAttribute('href', href.replace('./', '/wiki/'));
             }
         });
-
-        // Get all paragraphs
-        const paragraphs = tempDiv.querySelectorAll('p');
-        let content = '';
-        for (let i = 0; i < paragraphs.length; i++) {
-            content += paragraphs[i].outerHTML;
-        }
-
+    
+        // Get all content
+        let content = tempDiv.innerHTML;
+    
         // Add a title if it's available
         if (displayTitle) {
             content = `<h1>${displayTitle}</h1>` + content;
         }
-
+    
         // Add a "Read more" link
-        const readMoreLink = `https://it.wikipedia.org/wiki/${encodeURIComponent(pageName)}`;
+        const readMoreLink = `https://it.wikipedia.org/wiki/${encodeURIComponent(pageName)}${sectionAnchor ? '#' + sectionAnchor : ''}`;
         content += `<p><a href="${readMoreLink}" target="_blank">Leggi di più su Wikipedia</a></p>`;
-
+    
         return content;
     }
 
