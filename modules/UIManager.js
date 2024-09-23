@@ -47,8 +47,8 @@ export class UIManager {
 
         // Add custom event listeners
         this.wikipediaPanel.addEventListener('mousedown', this.handleWikiPanelInteraction.bind(this));
-        this.wikipediaPanel.addEventListener('touchstart', this.handleWikiPanelInteraction.bind(this));
-        this.wikipediaPanel.addEventListener('wheel', this.handleWikiPanelInteraction.bind(this));
+        this.wikipediaPanel.addEventListener('touchstart', this.handleWikiPanelInteraction.bind(this), { passive: true });
+        this.wikipediaPanel.addEventListener('wheel', this.handleWikiPanelWheel.bind(this), { passive: false });
 
         // Prevent map drag when mouse leaves the panel while button is pressed
         document.addEventListener('mouseup', () => {
@@ -62,16 +62,24 @@ export class UIManager {
     }
 
     handleWikiPanelInteraction(e) {
-        e.stopPropagation();
-        if (!this.isDraggingWikiPanel) {
-            this.isDraggingWikiPanel = true;
-            if (this.mapManager && this.mapManager.map) {
-                this.mapManager.map.dragging.disable();
+        if (e.type === 'touchstart') {
+            // For touch events, we can't call preventDefault in a passive listener
+            // So we just set the flag and disable map dragging
+            if (!this.isDraggingWikiPanel) {
+                this.isDraggingWikiPanel = true;
+                if (this.mapManager && this.mapManager.map) {
+                    this.mapManager.map.dragging.disable();
+                }
             }
-        }
-        if (e.type === 'wheel') {
-            e.preventDefault();
-            this.wikipediaPanel.scrollTop += e.deltaY;
+        } else {
+            // For mouse events, we can still prevent propagation
+            e.stopPropagation();
+            if (!this.isDraggingWikiPanel) {
+                this.isDraggingWikiPanel = true;
+                if (this.mapManager && this.mapManager.map) {
+                    this.mapManager.map.dragging.disable();
+                }
+            }
         }
     }
 
@@ -234,6 +242,12 @@ export class UIManager {
         } else {
             this.wikipediaPanel.style.display = 'none';
         }
+    }
+
+    handleWikiPanelWheel(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.wikipediaPanel.scrollTop += e.deltaY;
     }
 
     fetchWikipediaContent(wikiUrl) {
