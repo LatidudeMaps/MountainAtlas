@@ -280,7 +280,11 @@ export class UIManager {
         const urlParts = wikiUrl.split('/wiki/');
         const pageName = urlParts[1].split('#')[0]; // Remove the section anchor
         const sectionAnchor = urlParts[1].split('#')[1] || ''; // Get the section anchor if it exists
-        const apiUrl = `https://it.wikipedia.org/w/api.php?action=parse&format=json&prop=text|displaytitle&page=${pageName}&section=0&origin=*`;
+        let apiUrl = `https://it.wikipedia.org/w/api.php?action=parse&format=json&prop=text|displaytitle&page=${pageName}&origin=*`;
+    
+        if (sectionAnchor) {
+            apiUrl += `&section=${sectionAnchor}`;
+        }
     
         this.wikipediaPanel.innerHTML = 'Caricamento...';
     
@@ -292,13 +296,6 @@ export class UIManager {
                     const displayTitle = data.parse.displaytitle;
                     const content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor);
                     this.wikipediaPanel.innerHTML = content;
-                    
-                    if (sectionAnchor) {
-                        const sectionElement = this.wikipediaPanel.querySelector(`#${sectionAnchor}`);
-                        if (sectionElement) {
-                            sectionElement.scrollIntoView();
-                        }
-                    }
                 } else {
                     this.wikipediaPanel.innerHTML = '<p>Errore nel caricamento del contenuto.</p>';
                 }
@@ -314,25 +311,38 @@ export class UIManager {
         tempDiv.innerHTML = markup;
     
         // Remove unwanted elements
-        const elementsToRemove = tempDiv.querySelectorAll('.mw-empty-elt, .mw-editsection, .reference, .navbox');
+        const elementsToRemove = tempDiv.querySelectorAll('.mw-empty-elt, .mw-editsection, .reference, .navbox, .toc, .mw-headline, .thumb, .mw-jump-link, .mw-redirectedfrom');
         elementsToRemove.forEach(el => el.remove());
     
-        // Modify links
-        const links = tempDiv.querySelectorAll('a');
-        links.forEach(link => {
-            const href = link.getAttribute('href');
-            if (href && href.startsWith('./')) {
-                link.setAttribute('href', href.replace('./', '/wiki/'));
-            }
-        });
+        // Get the main content
+        const mainContent = tempDiv.querySelector('.mw-parser-output');
+        let content = '';
     
-        // Get all content
-        let content = tempDiv.innerHTML;
+        if (mainContent) {
+            // Extract only paragraphs and lists
+            const contentElements = mainContent.querySelectorAll('p, ul, ol');
+            contentElements.forEach(el => {
+                content += el.outerHTML;
+            });
+        }
     
         // Add a title if it's available
         if (displayTitle) {
             content = `<h1>${displayTitle}</h1>` + content;
         }
+    
+        // Modify remaining links
+        const tempContent = document.createElement('div');
+        tempContent.innerHTML = content;
+        const links = tempContent.querySelectorAll('a');
+        links.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && href.startsWith('/wiki/')) {
+                link.setAttribute('href', `https://it.wikipedia.org${href}`);
+            }
+        });
+    
+        content = tempContent.innerHTML;
     
         // Add a "Read more" link
         const readMoreLink = `https://it.wikipedia.org/wiki/${encodeURIComponent(pageName)}${sectionAnchor ? '#' + sectionAnchor : ''}`;
