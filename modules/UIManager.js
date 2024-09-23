@@ -360,16 +360,15 @@ export class UIManager {
         tempDiv.innerHTML = markup;
     
         // Remove unwanted elements
-        const elementsToRemove = tempDiv.querySelectorAll('.mw-empty-elt, .mw-editsection, .reference, .navbox, .toc, .thumb, .mw-jump-link, .mw-redirectedfrom, .languagelinks, .mw-headline');
+        const elementsToRemove = tempDiv.querySelectorAll('.mw-empty-elt, .mw-editsection, .reference, .navbox, .toc, .thumb, .mw-jump-link, .mw-redirectedfrom, .languagelinks, .mw-headline, .infobox, .sidebar');
         elementsToRemove.forEach(el => el.remove());
     
-        // Remove language links list
-        const languageLists = tempDiv.querySelectorAll('ul:not([class]):not([id])');
-        languageLists.forEach(ul => {
-            if (ul.textContent.includes('English') || ul.textContent.includes('italiano')) {
-                ul.remove();
-            }
-        });
+        // Remove or clean infobox if it still exists
+        const infobox = tempDiv.querySelector('.infobox, .sidebar, table.vcard');
+        if (infobox) {
+            // Option 1: Remove the entire infobox
+            infobox.remove();
+        }
     
         let content = '';
         let startExtraction = !sectionAnchor; // Start extraction immediately if no section anchor
