@@ -1,7 +1,8 @@
 export class ControlManager {
-    constructor(mapManager, layerManager) {
+    constructor(mapManager, layerManager, uiManager) {
         this.mapManager = mapManager;
         this.layerManager = layerManager;
+        this.uiManager = uiManager;
         this.unifiedControl = null;
     }
 
@@ -9,6 +10,10 @@ export class ControlManager {
         console.log('Initializing controls');
         this.unifiedControl = this.addUnifiedControl();
         this.handleResponsiveControls();
+        
+        // Expose uiManager globally
+        window.uiManager = this.uiManager;
+        
         return this.unifiedControl;
     }
 

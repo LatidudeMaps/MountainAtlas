@@ -9,9 +9,9 @@ class App {
         console.log('App constructor called');
         this.mapManager = new MapManager('map');
         this.layerManager = new LayerManager(this.mapManager.map);
-        this.controlManager = new ControlManager(this.mapManager, this.layerManager);
         this.dataLoader = new DataLoader();
         this.uiManager = null;
+        this.controlManager = null;
     }
 
     async init() {
@@ -27,15 +27,17 @@ class App {
             
             console.log('Data set in LayerManager');
 
-            const unifiedControl = this.controlManager.initControls();
-            console.log('Controls initialized');
-
             this.uiManager = new UIManager(
                 this.handleSearch.bind(this),
                 this.handleFilterChange.bind(this),
                 this.layerManager,
                 this.mapManager
             );
+
+            this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
+            const unifiedControl = this.controlManager.initControls();
+            console.log('Controls initialized');
+
             this.uiManager.initializeElements(unifiedControl);
             this.setupUI();
             console.log('UI setup complete');

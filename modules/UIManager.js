@@ -13,6 +13,7 @@ export class UIManager {
         this.hierLvlValue = null;
         this.wikipediaPanel = null;
         this.isDraggingWikiPanel = false;
+        this.currentLanguage = 'it'; // Default to Italian
     }
 
     initializeElements(filterControl) {
@@ -247,6 +248,14 @@ export class UIManager {
         }
     }
 
+    toggleLanguage() {
+        this.currentLanguage = this.currentLanguage === 'it' ? 'en' : 'it';
+        const currentSearchValue = this.searchInput.value.trim();
+        if (currentSearchValue) {
+            this.updateWikipediaPanel(currentSearchValue);
+        }
+    }
+
     updateWikipediaPanel(name) {
         if (!name) {
             this.wikipediaPanel.style.display = 'none';
@@ -256,14 +265,17 @@ export class UIManager {
         const matchingLayers = this.layerManager.getMatchingLayers(name);
         if (matchingLayers.length > 0) {
             const properties = matchingLayers[0].properties;
-            const wikiUrl = properties.wiki_url_it;
+            const wikiUrl = this.currentLanguage === 'it' ? properties.wiki_url_it : properties.wiki_url_en;
             
             if (wikiUrl) {
                 this.wikipediaPanel.style.display = 'block';
                 this.fetchWikipediaContent(wikiUrl);
             } else {
                 this.wikipediaPanel.style.display = 'block';
-                this.wikipediaPanel.innerHTML = '<p>Info non disponibili</p>';
+                const message = this.currentLanguage === 'it' 
+                    ? '<p>Info non disponibili</p>'
+                    : '<p>Information not available in English</p>';
+                this.wikipediaPanel.innerHTML = message;
             }
         } else {
             this.wikipediaPanel.style.display = 'none';
@@ -280,9 +292,9 @@ export class UIManager {
         const urlParts = wikiUrl.split('/wiki/');
         const pageName = urlParts[1].split('#')[0]; // Remove the section anchor
         const sectionAnchor = urlParts[1].split('#')[1] || ''; // Get the section anchor if it exists
-        const apiUrl = `https://it.wikipedia.org/w/api.php?action=parse&format=json&prop=text|sections|displaytitle&page=${pageName}&origin=*`;
+        const apiUrl = `https://${this.currentLanguage}.wikipedia.org/w/api.php?action=parse&format=json&prop=text|sections|displaytitle&page=${pageName}&origin=*`;
     
-        this.wikipediaPanel.innerHTML = 'Caricamento...';
+        this.wikipediaPanel.innerHTML = this.currentLanguage === 'it' ? 'Caricamento...' : 'Loading...';
     
         fetch(apiUrl)
             .then(response => response.json())
@@ -295,23 +307,46 @@ export class UIManager {
                     let content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections);
                     
                     if (content) {
-                        this.wikipediaPanel.innerHTML = content;
+                        const languageToggle = this.createLanguageToggle();
+                        this.wikipediaPanel.innerHTML = languageToggle + content;
                     } else {
+                        const noContentMessage = this.currentLanguage === 'it'
+                            ? 'Nessun contenuto trovato per questa sezione.'
+                            : 'No content found for this section.';
+                        const viewFullPageMessage = this.currentLanguage === 'it'
+                            ? 'Puoi visualizzare l\'intera pagina qui:'
+                            : 'You can view the full page here:';
                         this.wikipediaPanel.innerHTML = `
-                            <p>Nessun contenuto trovato per questa sezione.</p>
-                            <p>Puoi visualizzare l'intera pagina qui: 
-                            <a href="https://it.wikipedia.org/wiki/${encodeURIComponent(pageName)}" target="_blank">
+                            ${this.createLanguageToggle()}
+                            <p>${noContentMessage}</p>
+                            <p>${viewFullPageMessage}
+                            <a href="https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}" target="_blank">
                                 ${displayTitle}
                             </a></p>`;
                     }
                 } else {
-                    this.wikipediaPanel.innerHTML = '<p>Errore nel caricamento del contenuto.</p>';
+                    const errorMessage = this.currentLanguage === 'it'
+                        ? 'Errore nel caricamento del contenuto.'
+                        : 'Error loading content.';
+                    this.wikipediaPanel.innerHTML = `${this.createLanguageToggle()}<p>${errorMessage}</p>`;
                 }
             })
             .catch(error => {
                 console.error('Error fetching Wikipedia content:', error);
-                this.wikipediaPanel.innerHTML = '<p>Errore nel caricamento del contenuto.</p>';
+                const errorMessage = this.currentLanguage === 'it'
+                    ? 'Errore nel caricamento del contenuto.'
+                    : 'Error loading content.';
+                this.wikipediaPanel.innerHTML = `${this.createLanguageToggle()}<p>${errorMessage}</p>`;
             });
+    }
+
+    createLanguageToggle() {
+        return `
+            <div class="language-toggle">
+                <button class="${this.currentLanguage === 'it' ? 'active' : ''}" onclick="uiManager.toggleLanguage()">IT</button>
+                <button class="${this.currentLanguage === 'en' ? 'active' : ''}" onclick="uiManager.toggleLanguage()">EN</button>
+            </div>
+        `;
     }
 
     cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections) {
@@ -361,10 +396,11 @@ export class UIManager {
     
         content = tempContent.innerHTML;
     
-        // Add a "Read more" link
-        const readMoreLink = `https://it.wikipedia.org/wiki/${encodeURIComponent(pageName)}${sectionAnchor ? '#' + sectionAnchor : ''}`;
-        content += `<p><a href="${readMoreLink}" target="_blank">Leggi di più su Wikipedia</a></p>`;
-    
+        // Modify the "Read more" link
+        const readMoreText = this.currentLanguage === 'it' ? 'Leggi di più su Wikipedia' : 'Read more on Wikipedia';
+        const readMoreLink = `https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}${sectionAnchor ? '#' + sectionAnchor : ''}`;
+        content += `<p><a href="${readMoreLink}" target="_blank">${readMoreText}</a></p>`;
+
         return content;
     }
 
