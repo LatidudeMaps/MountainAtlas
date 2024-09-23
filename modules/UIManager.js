@@ -168,6 +168,7 @@ export class UIManager {
             this.searchInput.value = '';
             this.hideSuggestions();
             this.searchHandler(null);
+            this.wikipediaPanel.style.display = 'none'; // Hide the Wikipedia panel
         }
     }
 
@@ -247,6 +248,11 @@ export class UIManager {
     }
 
     updateWikipediaPanel(name) {
+        if (!name) {
+            this.wikipediaPanel.style.display = 'none';
+            return;
+        }
+
         const matchingLayers = this.layerManager.getMatchingLayers(name);
         if (matchingLayers.length > 0) {
             const properties = matchingLayers[0].properties;

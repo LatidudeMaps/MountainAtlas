@@ -90,6 +90,11 @@ export class LayerManager {
     getMatchingLayers(searchValue) {
         console.log('Getting matching layers for:', searchValue);
         const matchingLayers = [];
+        
+        if (!searchValue) {
+            return matchingLayers; // Return empty array if searchValue is null or undefined
+        }
+
         this.mountainAreasLayer.eachLayer(layer => {
             if (layer.feature?.properties?.MapName.trim().toLowerCase().includes(searchValue.toLowerCase())) {
                 matchingLayers.push({
