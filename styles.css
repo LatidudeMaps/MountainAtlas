@@ -405,11 +405,6 @@ body, html {
     flex-direction: column;
 }
 
-#wikipedia-panel .content {
-    padding: 0 15px 15px;
-    overflow-y: auto;
-}
-
 .wiki-image {
     width: 100%;
     height: auto;
@@ -480,7 +475,7 @@ body, html {
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     display: flex;
     position: static; /* Change from absolute positioning */
-    align-self: center; /* Center the toggle */
+    margin: 10px 0;
 }
 
 .language-toggle button {
