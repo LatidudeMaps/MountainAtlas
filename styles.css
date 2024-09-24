@@ -390,18 +390,15 @@ body, html {
     border: 1px solid #ccc;
     border-radius: 5px;
     box-shadow: 0 1px 5px rgba(0,0,0,0.65);
-    box-sizing: border-box;
     font-family: 'Montserrat', Arial, sans-serif;
-    margin-top: 10px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 15px;
+    height: 70vh;
+    max-height: 600px;
     width: 300px;
-    height: 70vh; /* This sets the height to 70% of the viewport height */
-    max-height: 600px; /* This sets a maximum height, adjust as needed */
-    margin-right: 10px;
-    position: relative;
-    pointer-events: auto !important;
+    overflow-y: auto;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
     display: flex;
     flex-direction: column;
 }
@@ -424,15 +421,9 @@ body, html {
     padding: 15px;
     overflow-y: auto;
     flex-grow: 1;
-    border: 2px solid purple; /* Debugging border */
-    min-height: 50px; /* Ensure there's always some height */
 }
 
 #wikipedia-panel * {
-    pointer-events: auto !important;
-    max-width: 100%;
-    box-sizing: border-box;
-    display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
 }
@@ -509,18 +500,14 @@ body, html {
 
 /* Language toggle button */
 .language-toggle {
-    align-self: center;
-    margin: 10px 0;
-    width: 100%;
     display: flex;
     justify-content: center;
     padding: 10px;
     background-color: #f0f0f0;
-    box-sizing: border-box;
-    border: 2px solid green; /* Add a border for visibility during debugging */
+    border-bottom: 1px solid #ccc;
 }
 
-.lang-btn {
+.language-toggle button {
     padding: 5px 10px;
     margin: 0 5px;
     background-color: #ffffff;
@@ -528,20 +515,9 @@ body, html {
     cursor: pointer;
 }
 
-.lang-btn.active {
+.language-toggle button.active {
     background-color: #007bff;
     color: white;
-}
-
-.language-toggle button {
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    padding: 5px 10px;
-    cursor: pointer;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    transition: background-color 0.3s, color 0.3s;
 }
 
 .language-toggle button .fi {

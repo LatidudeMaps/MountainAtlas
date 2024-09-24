@@ -260,8 +260,8 @@ export class UIManager {
     }
 
     updateWikipediaPanel(name) {
-        this.wikipediaPanel.style.display = 'block'; // Always show the panel
-        this.wikipediaPanel.innerHTML = this.createLanguageToggle(); // Always add the language toggle
+        this.wikipediaPanel.style.display = 'block';
+        this.wikipediaPanel.innerHTML = this.createLanguageToggle();
 
         if (!name) {
             this.wikipediaPanel.innerHTML += '<p>No content selected</p>';
@@ -293,99 +293,50 @@ export class UIManager {
     }
 
     fetchWikipediaContent(wikiUrl) {
-        console.log('Fetching Wikipedia content for:', wikiUrl);
         const urlParts = wikiUrl.split('/wiki/');
         const pageName = urlParts[1].split('#')[0];
         const sectionAnchor = urlParts[1].split('#')[1] || '';
         const apiUrl = `https://${this.currentLanguage}.wikipedia.org/w/api.php?action=parse&format=json&prop=text|sections|displaytitle&page=${pageName}&origin=*`;
     
-        // Clear existing content
-        while (this.wikipediaPanel.firstChild) {
-            this.wikipediaPanel.removeChild(this.wikipediaPanel.firstChild);
-        }
-
-        const loadingMessage = document.createElement('p');
-        loadingMessage.textContent = this.currentLanguage === 'it' ? 'Caricamento...' : 'Loading...';
-        this.wikipediaPanel.appendChild(loadingMessage);
+        const loadingMessage = this.currentLanguage === 'it' ? 'Caricamento...' : 'Loading...';
+        this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `<p>${loadingMessage}</p>`;
     
         fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
-                console.log('Received data from Wikipedia API:', data);
                 if (data.parse && data.parse.text) {
                     const markup = data.parse.text['*'];
                     const displayTitle = data.parse.displaytitle;
                     const sections = data.parse.sections;
                     
-                    this.fetchPageImage(pageName, (imageUrl) => {
-                        console.log('Fetched page image:', imageUrl);
-                        let content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections);
-                        
-                        console.log('Cleaned content:', content);
-                        
-                        // Clear loading message
-                        while (this.wikipediaPanel.firstChild) {
-                            this.wikipediaPanel.removeChild(this.wikipediaPanel.firstChild);
-                        }
-
-                        // Add image if available
-                        if (imageUrl) {
-                            const imageContainer = document.createElement('div');
-                            imageContainer.className = 'wiki-image-container';
-                            const img = document.createElement('img');
-                            img.src = imageUrl;
-                            img.alt = displayTitle;
-                            img.className = 'wiki-image';
-                            imageContainer.appendChild(img);
-                            this.wikipediaPanel.appendChild(imageContainer);
-                        }
-
-                        // Add language toggle
-                        const languageToggleContainer = document.createElement('div');
-                        languageToggleContainer.innerHTML = this.createLanguageToggle();
-                        this.wikipediaPanel.appendChild(languageToggleContainer.firstChild);
-
-                        // Add content
-                        const contentDiv = document.createElement('div');
-                        contentDiv.className = 'content';
-                        if (content) {
-                            contentDiv.innerHTML = content;
-                        } else {
-                            const noContentMessage = this.currentLanguage === 'it'
-                                ? 'Nessun contenuto trovato per questa sezione.'
-                                : 'No content found for this section.';
-                            const viewFullPageMessage = this.currentLanguage === 'it'
-                                ? 'Puoi visualizzare l\'intera pagina qui:'
-                                : 'You can view the full page here:';
-                            contentDiv.innerHTML = `
+                    let content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections);
+                    
+                    if (content) {
+                        this.wikipediaPanel.innerHTML = 
+                            this.createLanguageToggle() + 
+                            `<div class="content">${content}</div>`;
+                    } else {
+                        const noContentMessage = this.currentLanguage === 'it'
+                            ? 'Nessun contenuto trovato per questa sezione.'
+                            : 'No content found for this section.';
+                        const viewFullPageMessage = this.currentLanguage === 'it'
+                            ? 'Puoi visualizzare l\'intera pagina qui:'
+                            : 'You can view the full page here:';
+                        this.wikipediaPanel.innerHTML = 
+                            this.createLanguageToggle() + 
+                            `<div class="content">
                                 <p>${noContentMessage}</p>
                                 <p>${viewFullPageMessage}
                                 <a href="https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}" target="_blank">
                                     ${displayTitle}
                                 </a></p>
-                            `;
-                        }
-                        this.wikipediaPanel.appendChild(contentDiv);
-
-                        console.log('Wikipedia panel children after insertion:', this.wikipediaPanel.children);
-                        
-                        // Verify that the content is visible
-                        setTimeout(() => {
-                            const contentElement = this.wikipediaPanel.querySelector('.content');
-                            if (contentElement) {
-                                console.log('Content element found. Computed style:', window.getComputedStyle(contentElement));
-                                console.log('Content element dimensions:', contentElement.getBoundingClientRect());
-                            } else {
-                                console.error('Content element not found in the DOM');
-                            }
-                        }, 0);
-                    });
+                            </div>`;
+                    }
                 } else {
-                    console.error('No parse data received from Wikipedia API');
                     const errorMessage = this.currentLanguage === 'it'
                         ? 'Errore nel caricamento del contenuto.'
                         : 'Error loading content.';
-                    this.wikipediaPanel.innerHTML = `<p>${errorMessage}</p>`;
+                    this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `<p>${errorMessage}</p>`;
                 }
             })
             .catch(error => {
@@ -393,35 +344,17 @@ export class UIManager {
                 const errorMessage = this.currentLanguage === 'it'
                     ? 'Errore nel caricamento del contenuto.'
                     : 'Error loading content.';
-                this.wikipediaPanel.innerHTML = `<p>${errorMessage}</p>`;
-            });
-    }
-
-    fetchPageImage(pageName, callback) {
-        const imageApiUrl = `https://${this.currentLanguage}.wikipedia.org/w/api.php?action=query&titles=${pageName}&prop=pageimages&format=json&pithumbsize=300&origin=*`;
-        
-        fetch(imageApiUrl)
-            .then(response => response.json())
-            .then(data => {
-                const pages = data.query.pages;
-                const pageId = Object.keys(pages)[0];
-                const imageUrl = pages[pageId].thumbnail ? pages[pageId].thumbnail.source : null;
-                callback(imageUrl);
-            })
-            .catch(error => {
-                console.error('Error fetching page image:', error);
-                callback(null);
+                this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `<p>${errorMessage}</p>`;
             });
     }
 
     createLanguageToggle() {
-        console.log('Creating language toggle');
         return `
             <div class="language-toggle">
-                <button class="lang-btn ${this.currentLanguage === 'it' ? 'active' : ''}" onclick="uiManager.toggleLanguage('it')">
+                <button class="${this.currentLanguage === 'it' ? 'active' : ''}" onclick="uiManager.toggleLanguage('it')">
                     <span class="fi fi-it"></span> IT
                 </button>
-                <button class="lang-btn ${this.currentLanguage === 'en' ? 'active' : ''}" onclick="uiManager.toggleLanguage('en')">
+                <button class="${this.currentLanguage === 'en' ? 'active' : ''}" onclick="uiManager.toggleLanguage('en')">
                     <span class="fi fi-gb"></span> EN
                 </button>
             </div>
