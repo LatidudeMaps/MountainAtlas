@@ -311,6 +311,8 @@ export class UIManager {
                     this.fetchPageImage(pageName, (imageUrl) => {
                         let content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections);
                         
+                        console.log('Cleaned content:', content); // Log cleaned content
+                        
                         let imageHtml = '';
                         if (imageUrl) {
                             imageHtml = `
@@ -343,11 +345,14 @@ export class UIManager {
                                 </div>`;
                         }
                         
-                        // Log for debugging
+                        // Check for unexpected text nodes
+                        Array.from(this.wikipediaPanel.childNodes).forEach((node, index) => {
+                            if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+                                console.warn(`Unexpected text node found at index ${index}:`, node.textContent);
+                            }
+                        });
+
                         console.log(`Loaded content for: ${pageName}`);
-                        if (this.wikipediaPanel.querySelector('.wiki-image-container + .language-toggle').nextSibling.nodeType === Node.TEXT_NODE) {
-                            console.warn(`Unexpected text node found for: ${pageName}`);
-                        }
                     });
                 } else {
                     const errorMessage = this.currentLanguage === 'it'
@@ -401,20 +406,13 @@ export class UIManager {
         tempDiv.innerHTML = markup;
     
         // Remove unwanted elements
-        const elementsToRemove = tempDiv.querySelectorAll('.mw-empty-elt, .mw-editsection, .reference, .navbox, .toc, .thumb, .mw-jump-link, .mw-redirectedfrom, .languagelinks, .mw-headline, .infobox, .sidebar');
+        const elementsToRemove = tempDiv.querySelectorAll('.mw-empty-elt, .mw-editsection, .reference, .navbox, .toc');
         elementsToRemove.forEach(el => el.remove());
-    
-        // Remove or clean infobox if it still exists
-        const infobox = tempDiv.querySelector('.infobox, .sidebar, table.vcard');
-        if (infobox) {
-            // Option 1: Remove the entire infobox
-            infobox.remove();
-        }
     
         let content = '';
         let startExtraction = !sectionAnchor; // Start extraction immediately if no section anchor
     
-        const contentElements = tempDiv.querySelectorAll('p, ul, ol');
+        const contentElements = tempDiv.querySelectorAll('p, ul, ol, h2, h3, h4, h5, h6');
         for (let el of contentElements) {
             if (sectionAnchor && el.id === sectionAnchor) {
                 startExtraction = true;
@@ -422,10 +420,7 @@ export class UIManager {
             }
     
             if (startExtraction) {
-                // Only add paragraphs and lists to the content
-                if (el.tagName === 'P' || el.tagName === 'UL' || el.tagName === 'OL') {
-                    content += el.outerHTML;
-                }
+                content += el.outerHTML;
             }
         }
     
@@ -446,7 +441,7 @@ export class UIManager {
     
         content = tempContent.innerHTML;
     
-        // Modify the "Read more" link
+        // Add "Read more" link
         const readMoreText = this.currentLanguage === 'it' ? 'Leggi di più su Wikipedia' : 'Read more on Wikipedia';
         const readMoreLink = `https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}${sectionAnchor ? '#' + sectionAnchor : ''}`;
         content += `<p><a href="${readMoreLink}" target="_blank">${readMoreText}</a></p>`;

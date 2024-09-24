@@ -402,13 +402,14 @@ body, html {
     margin-right: 10px;
     position: relative;
     pointer-events: auto !important;
+    display: flex;
+    flex-direction: column;
 }
 
 .wiki-image-container {
     width: 100%;
     max-height: 200px; /* Adjust as needed */
     overflow: hidden;
-    display: block; /* Ensure it's a block-level element */
 }
 
 .wiki-image {
@@ -421,8 +422,7 @@ body, html {
 #wikipedia-panel .content {
     padding: 0 15px 15px;
     overflow-y: auto;
-    width: 100%;
-    box-sizing: border-box;
+    flex-grow: 1;
 }
 
 #wikipedia-panel * {
@@ -449,6 +449,21 @@ body, html {
 
 #wikipedia-panel a:hover {
     text-decoration: underline;
+}
+
+#wikipedia-panel .content h2,
+#wikipedia-panel .content h3,
+#wikipedia-panel .content h4,
+#wikipedia-panel .content h5,
+#wikipedia-panel .content h6 {
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+
+#wikipedia-panel .content p,
+#wikipedia-panel .content ul,
+#wikipedia-panel .content ol {
+    margin-bottom: 1em;
 }
 
 /* Hide any unexpected text nodes */
@@ -488,7 +503,6 @@ body, html {
 
 /* Language toggle button */
 .language-toggle {
-    position: static;
     align-self: center;
     margin: 10px 0;
     width: 100%;
