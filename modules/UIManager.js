@@ -301,22 +301,22 @@ export class UIManager {
         this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `<p>${loadingMessage}</p>`;
     
         fetch(apiUrl)
-            .then(response => response.json())
-            .then(data => {
-                if (data.parse && data.parse.text) {
-                    const markup = data.parse.text['*'];
-                    const displayTitle = data.parse.displaytitle;
-                    const sections = data.parse.sections;
+        .then(response => response.json())
+        .then(data => {
+            if (data.parse && data.parse.text) {
+                const markup = data.parse.text['*'];
+                const displayTitle = data.parse.displaytitle;
+                const sections = data.parse.sections;
+                
+                this.fetchPageImage(pageName, (imageUrl) => {
+                    let content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections);
                     
-                    this.fetchPageImage(pageName, (imageUrl) => {
-                        let content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections);
-                        
-                        if (content) {
-                            this.wikipediaPanel.innerHTML = 
-                                (imageUrl ? `<img src="${imageUrl}" alt="${displayTitle}" class="wiki-image">` : '') +
-                                this.createLanguageToggle() + 
-                                `<div class="content">${content}</div>`;
-                        } else {
+                    if (content) {
+                        this.wikipediaPanel.innerHTML = 
+                            (imageUrl ? `<div class="wiki-image-container"><img src="${imageUrl}" alt="${displayTitle}" class="wiki-image"></div>` : '') +
+                            this.createLanguageToggle() + 
+                            `<div class="content">${content}</div>`;
+                    } else {
                             const noContentMessage = this.currentLanguage === 'it'
                                 ? 'Nessun contenuto trovato per questa sezione.'
                                 : 'No content found for this section.';
@@ -324,7 +324,7 @@ export class UIManager {
                                 ? 'Puoi visualizzare l\'intera pagina qui:'
                                 : 'You can view the full page here:';
                             this.wikipediaPanel.innerHTML = 
-                                (imageUrl ? `<img src="${imageUrl}" alt="${displayTitle}" class="wiki-image">` : '') +
+                                (imageUrl ? `<div class="wiki-image-container"><img src="${imageUrl}" alt="${displayTitle}" class="wiki-image"></div>` : '') +
                                 this.createLanguageToggle() + 
                                 `<div class="content">
                                     <p>${noContentMessage}</p>

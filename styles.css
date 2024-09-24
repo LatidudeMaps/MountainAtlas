@@ -394,6 +394,7 @@ body, html {
     font-family: 'Montserrat', Arial, sans-serif;
     margin-top: 10px;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 15px;
     width: 300px;
     height: 70vh; /* This sets the height to 70% of the viewport height */
@@ -403,16 +404,30 @@ body, html {
     pointer-events: auto !important;
 }
 
+.wiki-image-container {
+    width: 100%;
+    max-height: 200px; /* Adjust as needed */
+    overflow: hidden;
+}
+
 .wiki-image {
     width: 100%;
     height: auto;
     object-fit: cover;
-    max-height: 200px; /* Adjust as needed */
-    margin-bottom: 10px;
+    display: block; /* Remove any inline spacing */
+}
+
+#wikipedia-panel .content {
+    padding: 0 15px 15px;
+    overflow-y: auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 #wikipedia-panel * {
     pointer-events: auto !important;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 #wikipedia-panel h1, #wikipedia-panel h2, #wikipedia-panel h3 {
@@ -463,16 +478,14 @@ body, html {
 
 /* Language toggle button */
 .language-toggle {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1000;
-    background-color: white;
-    padding: 5px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: static;
+    align-self: center;
+    margin: 10px 0;
+    width: 100%;
     display: flex;
+    justify-content: center;
+    padding: 0 15px;
+    box-sizing: border-box;
 }
 
 .language-toggle button {
@@ -510,9 +523,4 @@ body, html {
 .language-toggle .flag {
     margin-right: 5px;
     font-size: 16px;
-}
-
-#wikipedia-panel {
-    position: relative;
-    padding-top: 50px;  /* Increased to accommodate larger toggle buttons */
 }
