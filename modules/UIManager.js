@@ -295,12 +295,18 @@ export class UIManager {
     fetchWikipediaContent(wikiUrl) {
         console.log('Fetching Wikipedia content for:', wikiUrl);
         const urlParts = wikiUrl.split('/wiki/');
-        const pageName = urlParts[1].split('#')[0]; // Remove the section anchor
-        const sectionAnchor = urlParts[1].split('#')[1] || ''; // Get the section anchor if it exists
+        const pageName = urlParts[1].split('#')[0];
+        const sectionAnchor = urlParts[1].split('#')[1] || '';
         const apiUrl = `https://${this.currentLanguage}.wikipedia.org/w/api.php?action=parse&format=json&prop=text|sections|displaytitle&page=${pageName}&origin=*`;
     
-        const loadingMessage = this.currentLanguage === 'it' ? 'Caricamento...' : 'Loading...';
-        this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `<p>${loadingMessage}</p>`;
+        // Clear existing content
+        while (this.wikipediaPanel.firstChild) {
+            this.wikipediaPanel.removeChild(this.wikipediaPanel.firstChild);
+        }
+
+        const loadingMessage = document.createElement('p');
+        loadingMessage.textContent = this.currentLanguage === 'it' ? 'Caricamento...' : 'Loading...';
+        this.wikipediaPanel.appendChild(loadingMessage);
     
         fetch(apiUrl)
             .then(response => response.json())
@@ -317,24 +323,33 @@ export class UIManager {
                         
                         console.log('Cleaned content:', content);
                         
-                        let imageHtml = '';
-                        if (imageUrl) {
-                            imageHtml = `
-                                <div class="wiki-image-container">
-                                    <img src="${imageUrl}" alt="${displayTitle}" class="wiki-image">
-                                </div>`;
+                        // Clear loading message
+                        while (this.wikipediaPanel.firstChild) {
+                            this.wikipediaPanel.removeChild(this.wikipediaPanel.firstChild);
                         }
-                        
-                        const languageToggle = this.createLanguageToggle();
-                        console.log('Language toggle HTML:', languageToggle);
-                        
+
+                        // Add image if available
+                        if (imageUrl) {
+                            const imageContainer = document.createElement('div');
+                            imageContainer.className = 'wiki-image-container';
+                            const img = document.createElement('img');
+                            img.src = imageUrl;
+                            img.alt = displayTitle;
+                            img.className = 'wiki-image';
+                            imageContainer.appendChild(img);
+                            this.wikipediaPanel.appendChild(imageContainer);
+                        }
+
+                        // Add language toggle
+                        const languageToggleContainer = document.createElement('div');
+                        languageToggleContainer.innerHTML = this.createLanguageToggle();
+                        this.wikipediaPanel.appendChild(languageToggleContainer.firstChild);
+
+                        // Add content
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'content';
                         if (content) {
-                            const newContent = `
-                                ${imageHtml}
-                                ${languageToggle}
-                                <div class="content">${content}</div>`;
-                            console.log('New content to be inserted:', newContent);
-                            this.wikipediaPanel.innerHTML = newContent;
+                            contentDiv.innerHTML = content;
                         } else {
                             const noContentMessage = this.currentLanguage === 'it'
                                 ? 'Nessun contenuto trovato per questa sezione.'
@@ -342,27 +357,24 @@ export class UIManager {
                             const viewFullPageMessage = this.currentLanguage === 'it'
                                 ? 'Puoi visualizzare l\'intera pagina qui:'
                                 : 'You can view the full page here:';
-                            const newContent = `
-                                ${imageHtml}
-                                ${languageToggle}
-                                <div class="content">
-                                    <p>${noContentMessage}</p>
-                                    <p>${viewFullPageMessage}
-                                    <a href="https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}" target="_blank">
-                                        ${displayTitle}
-                                    </a></p>
-                                </div>`;
-                            console.log('No content found. Inserting:', newContent);
-                            this.wikipediaPanel.innerHTML = newContent;
+                            contentDiv.innerHTML = `
+                                <p>${noContentMessage}</p>
+                                <p>${viewFullPageMessage}
+                                <a href="https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}" target="_blank">
+                                    ${displayTitle}
+                                </a></p>
+                            `;
                         }
-                        
-                        console.log('Wikipedia panel HTML after insertion:', this.wikipediaPanel.innerHTML);
+                        this.wikipediaPanel.appendChild(contentDiv);
+
+                        console.log('Wikipedia panel children after insertion:', this.wikipediaPanel.children);
                         
                         // Verify that the content is visible
                         setTimeout(() => {
                             const contentElement = this.wikipediaPanel.querySelector('.content');
                             if (contentElement) {
                                 console.log('Content element found. Computed style:', window.getComputedStyle(contentElement));
+                                console.log('Content element dimensions:', contentElement.getBoundingClientRect());
                             } else {
                                 console.error('Content element not found in the DOM');
                             }
@@ -373,7 +385,7 @@ export class UIManager {
                     const errorMessage = this.currentLanguage === 'it'
                         ? 'Errore nel caricamento del contenuto.'
                         : 'Error loading content.';
-                    this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `<p>${errorMessage}</p>`;
+                    this.wikipediaPanel.innerHTML = `<p>${errorMessage}</p>`;
                 }
             })
             .catch(error => {
@@ -381,10 +393,9 @@ export class UIManager {
                 const errorMessage = this.currentLanguage === 'it'
                     ? 'Errore nel caricamento del contenuto.'
                     : 'Error loading content.';
-                this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `<p>${errorMessage}</p>`;
+                this.wikipediaPanel.innerHTML = `<p>${errorMessage}</p>`;
             });
     }
-
 
     fetchPageImage(pageName, callback) {
         const imageApiUrl = `https://${this.currentLanguage}.wikipedia.org/w/api.php?action=query&titles=${pageName}&prop=pageimages&format=json&pithumbsize=300&origin=*`;
