@@ -249,6 +249,7 @@ export class UIManager {
     }
 
     toggleLanguage(lang) {
+        console.log('Toggling language to:', lang);
         if (lang === 'it' || lang === 'en') {
             this.currentLanguage = lang;
             const currentSearchValue = this.searchInput.value.trim();
@@ -403,12 +404,13 @@ export class UIManager {
     }
 
     createLanguageToggle() {
+        console.log('Creating language toggle');
         return `
             <div class="language-toggle">
-                <button class="${this.currentLanguage === 'it' ? 'active' : ''}" onclick="uiManager.toggleLanguage('it')">
+                <button class="lang-btn ${this.currentLanguage === 'it' ? 'active' : ''}" onclick="uiManager.toggleLanguage('it')">
                     <span class="fi fi-it"></span> IT
                 </button>
-                <button class="${this.currentLanguage === 'en' ? 'active' : ''}" onclick="uiManager.toggleLanguage('en')">
+                <button class="lang-btn ${this.currentLanguage === 'en' ? 'active' : ''}" onclick="uiManager.toggleLanguage('en')">
                     <span class="fi fi-gb"></span> EN
                 </button>
             </div>

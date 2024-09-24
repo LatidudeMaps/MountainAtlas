@@ -421,10 +421,10 @@ body, html {
 }
 
 #wikipedia-panel .content {
-    padding: 0 15px 15px;
+    padding: 15px;
     overflow-y: auto;
     flex-grow: 1;
-    border: 2px solid purple; /* Add a border for visibility during debugging */
+    border: 2px solid purple; /* Debugging border */
     min-height: 50px; /* Ensure there's always some height */
 }
 
@@ -514,9 +514,23 @@ body, html {
     width: 100%;
     display: flex;
     justify-content: center;
-    padding: 0 15px;
+    padding: 10px;
+    background-color: #f0f0f0;
     box-sizing: border-box;
     border: 2px solid green; /* Add a border for visibility during debugging */
+}
+
+.lang-btn {
+    padding: 5px 10px;
+    margin: 0 5px;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    cursor: pointer;
+}
+
+.lang-btn.active {
+    background-color: #007bff;
+    color: white;
 }
 
 .language-toggle button {
