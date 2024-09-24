@@ -408,13 +408,14 @@ body, html {
     width: 100%;
     max-height: 200px; /* Adjust as needed */
     overflow: hidden;
+    display: block; /* Ensure it's a block-level element */
 }
 
 .wiki-image {
     width: 100%;
     height: auto;
     object-fit: cover;
-    display: block; /* Remove any inline spacing */
+    display: block;
 }
 
 #wikipedia-panel .content {
@@ -448,6 +449,15 @@ body, html {
 
 #wikipedia-panel a:hover {
     text-decoration: underline;
+}
+
+/* Hide any unexpected text nodes */
+.wiki-image-container + .language-toggle,
+.language-toggle + .content {
+    font-size: 0; /* Hide any text between these elements */
+    line-height: 0;
+    height: 0;
+    overflow: hidden;
 }
 
 /* Responsive styles */

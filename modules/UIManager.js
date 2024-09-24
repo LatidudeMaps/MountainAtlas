@@ -301,32 +301,40 @@ export class UIManager {
         this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `<p>${loadingMessage}</p>`;
     
         fetch(apiUrl)
-        .then(response => response.json())
-        .then(data => {
-            if (data.parse && data.parse.text) {
-                const markup = data.parse.text['*'];
-                const displayTitle = data.parse.displaytitle;
-                const sections = data.parse.sections;
-                
-                this.fetchPageImage(pageName, (imageUrl) => {
-                    let content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections);
+            .then(response => response.json())
+            .then(data => {
+                if (data.parse && data.parse.text) {
+                    const markup = data.parse.text['*'];
+                    const displayTitle = data.parse.displaytitle;
+                    const sections = data.parse.sections;
                     
-                    if (content) {
-                        this.wikipediaPanel.innerHTML = 
-                            (imageUrl ? `<div class="wiki-image-container"><img src="${imageUrl}" alt="${displayTitle}" class="wiki-image"></div>` : '') +
-                            this.createLanguageToggle() + 
-                            `<div class="content">${content}</div>`;
-                    } else {
+                    this.fetchPageImage(pageName, (imageUrl) => {
+                        let content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections);
+                        
+                        let imageHtml = '';
+                        if (imageUrl) {
+                            imageHtml = `
+                                <div class="wiki-image-container">
+                                    <img src="${imageUrl}" alt="${displayTitle}" class="wiki-image">
+                                </div>`;
+                        }
+                        
+                        if (content) {
+                            this.wikipediaPanel.innerHTML = `
+                                ${imageHtml}
+                                ${this.createLanguageToggle()}
+                                <div class="content">${content}</div>`;
+                        } else {
                             const noContentMessage = this.currentLanguage === 'it'
                                 ? 'Nessun contenuto trovato per questa sezione.'
                                 : 'No content found for this section.';
                             const viewFullPageMessage = this.currentLanguage === 'it'
                                 ? 'Puoi visualizzare l\'intera pagina qui:'
                                 : 'You can view the full page here:';
-                            this.wikipediaPanel.innerHTML = 
-                                (imageUrl ? `<div class="wiki-image-container"><img src="${imageUrl}" alt="${displayTitle}" class="wiki-image"></div>` : '') +
-                                this.createLanguageToggle() + 
-                                `<div class="content">
+                            this.wikipediaPanel.innerHTML = `
+                                ${imageHtml}
+                                ${this.createLanguageToggle()}
+                                <div class="content">
                                     <p>${noContentMessage}</p>
                                     <p>${viewFullPageMessage}
                                     <a href="https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}" target="_blank">
@@ -334,12 +342,19 @@ export class UIManager {
                                     </a></p>
                                 </div>`;
                         }
+                        
+                        // Log for debugging
+                        console.log(`Loaded content for: ${pageName}`);
+                        if (this.wikipediaPanel.querySelector('.wiki-image-container + .language-toggle').nextSibling.nodeType === Node.TEXT_NODE) {
+                            console.warn(`Unexpected text node found for: ${pageName}`);
+                        }
                     });
                 } else {
                     const errorMessage = this.currentLanguage === 'it'
                         ? 'Errore nel caricamento del contenuto.'
                         : 'Error loading content.';
                     this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `<p>${errorMessage}</p>`;
+                    console.error(`Failed to load content for: ${pageName}`);
                 }
             })
             .catch(error => {
