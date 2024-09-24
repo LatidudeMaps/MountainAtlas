@@ -249,7 +249,6 @@ export class UIManager {
     }
 
     toggleLanguage(lang) {
-        console.log('Toggling language to:', lang);
         if (lang === 'it' || lang === 'en') {
             this.currentLanguage = lang;
             const currentSearchValue = this.searchInput.value.trim();
@@ -260,8 +259,8 @@ export class UIManager {
     }
 
     updateWikipediaPanel(name) {
-        this.wikipediaPanel.style.display = 'block';
-        this.wikipediaPanel.innerHTML = this.createLanguageToggle();
+        this.wikipediaPanel.style.display = 'block'; // Always show the panel
+        this.wikipediaPanel.innerHTML = this.createLanguageToggle(); // Always add the language toggle
 
         if (!name) {
             this.wikipediaPanel.innerHTML += '<p>No content selected</p>';
@@ -294,8 +293,8 @@ export class UIManager {
 
     fetchWikipediaContent(wikiUrl) {
         const urlParts = wikiUrl.split('/wiki/');
-        const pageName = urlParts[1].split('#')[0];
-        const sectionAnchor = urlParts[1].split('#')[1] || '';
+        const pageName = urlParts[1].split('#')[0]; // Remove the section anchor
+        const sectionAnchor = urlParts[1].split('#')[1] || ''; // Get the section anchor if it exists
         const apiUrl = `https://${this.currentLanguage}.wikipedia.org/w/api.php?action=parse&format=json&prop=text|sections|displaytitle&page=${pageName}&origin=*`;
     
         const loadingMessage = this.currentLanguage === 'it' ? 'Caricamento...' : 'Loading...';
@@ -312,9 +311,7 @@ export class UIManager {
                     let content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections);
                     
                     if (content) {
-                        this.wikipediaPanel.innerHTML = 
-                            this.createLanguageToggle() + 
-                            `<div class="content">${content}</div>`;
+                        this.wikipediaPanel.innerHTML = this.createLanguageToggle() + content;
                     } else {
                         const noContentMessage = this.currentLanguage === 'it'
                             ? 'Nessun contenuto trovato per questa sezione.'
@@ -322,15 +319,12 @@ export class UIManager {
                         const viewFullPageMessage = this.currentLanguage === 'it'
                             ? 'Puoi visualizzare l\'intera pagina qui:'
                             : 'You can view the full page here:';
-                        this.wikipediaPanel.innerHTML = 
-                            this.createLanguageToggle() + 
-                            `<div class="content">
-                                <p>${noContentMessage}</p>
-                                <p>${viewFullPageMessage}
-                                <a href="https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}" target="_blank">
-                                    ${displayTitle}
-                                </a></p>
-                            </div>`;
+                        this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `
+                            <p>${noContentMessage}</p>
+                            <p>${viewFullPageMessage}
+                            <a href="https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}" target="_blank">
+                                ${displayTitle}
+                            </a></p>`;
                     }
                 } else {
                     const errorMessage = this.currentLanguage === 'it'
@@ -366,13 +360,20 @@ export class UIManager {
         tempDiv.innerHTML = markup;
     
         // Remove unwanted elements
-        const elementsToRemove = tempDiv.querySelectorAll('.mw-empty-elt, .mw-editsection, .reference, .navbox, .toc');
+        const elementsToRemove = tempDiv.querySelectorAll('.mw-empty-elt, .mw-editsection, .reference, .navbox, .toc, .thumb, .mw-jump-link, .mw-redirectedfrom, .languagelinks, .mw-headline, .infobox, .sidebar');
         elementsToRemove.forEach(el => el.remove());
+    
+        // Remove or clean infobox if it still exists
+        const infobox = tempDiv.querySelector('.infobox, .sidebar, table.vcard');
+        if (infobox) {
+            // Option 1: Remove the entire infobox
+            infobox.remove();
+        }
     
         let content = '';
         let startExtraction = !sectionAnchor; // Start extraction immediately if no section anchor
     
-        const contentElements = tempDiv.querySelectorAll('p, ul, ol, h2, h3, h4, h5, h6');
+        const contentElements = tempDiv.querySelectorAll('p, ul, ol');
         for (let el of contentElements) {
             if (sectionAnchor && el.id === sectionAnchor) {
                 startExtraction = true;
@@ -380,7 +381,10 @@ export class UIManager {
             }
     
             if (startExtraction) {
-                content += el.outerHTML;
+                // Only add paragraphs and lists to the content
+                if (el.tagName === 'P' || el.tagName === 'UL' || el.tagName === 'OL') {
+                    content += el.outerHTML;
+                }
             }
         }
     
@@ -401,7 +405,7 @@ export class UIManager {
     
         content = tempContent.innerHTML;
     
-        // Add "Read more" link
+        // Modify the "Read more" link
         const readMoreText = this.currentLanguage === 'it' ? 'Leggi di più su Wikipedia' : 'Read more on Wikipedia';
         const readMoreLink = `https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}${sectionAnchor ? '#' + sectionAnchor : ''}`;
         content += `<p><a href="${readMoreLink}" target="_blank">${readMoreText}</a></p>`;

@@ -390,42 +390,21 @@ body, html {
     border: 1px solid #ccc;
     border-radius: 5px;
     box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+    box-sizing: border-box;
     font-family: 'Montserrat', Arial, sans-serif;
-    height: 70vh;
-    max-height: 600px;
-    width: 300px;
+    margin-top: 10px;
     overflow-y: auto;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-}
-
-.wiki-image-container {
-    width: 100%;
-    max-height: 200px; /* Adjust as needed */
-    overflow: hidden;
-    border: 2px solid blue; /* Add a border for visibility during debugging */
-}
-
-.wiki-image {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    display: block;
-}
-
-#wikipedia-panel .content {
     padding: 15px;
-    overflow-y: auto;
-    flex-grow: 1;
+    width: 300px;
+    height: 70vh; /* This sets the height to 70% of the viewport height */
+    max-height: 600px; /* This sets a maximum height, adjust as needed */
+    margin-right: 10px;
+    position: relative;
+    pointer-events: auto !important;
 }
 
 #wikipedia-panel * {
-    visibility: visible !important;
-    opacity: 1 !important;
+    pointer-events: auto !important;
 }
 
 #wikipedia-panel h1, #wikipedia-panel h2, #wikipedia-panel h3 {
@@ -446,30 +425,6 @@ body, html {
 
 #wikipedia-panel a:hover {
     text-decoration: underline;
-}
-
-#wikipedia-panel .content h2,
-#wikipedia-panel .content h3,
-#wikipedia-panel .content h4,
-#wikipedia-panel .content h5,
-#wikipedia-panel .content h6 {
-    margin-top: 1em;
-    margin-bottom: 0.5em;
-}
-
-#wikipedia-panel .content p,
-#wikipedia-panel .content ul,
-#wikipedia-panel .content ol {
-    margin-bottom: 1em;
-}
-
-/* Hide any unexpected text nodes */
-.wiki-image-container + .language-toggle,
-.language-toggle + .content {
-    font-size: 0; /* Hide any text between these elements */
-    line-height: 0;
-    height: 0;
-    overflow: hidden;
 }
 
 /* Responsive styles */
@@ -500,24 +455,27 @@ body, html {
 
 /* Language toggle button */
 .language-toggle {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    background-color: white;
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     display: flex;
-    justify-content: center;
-    padding: 10px;
-    background-color: #f0f0f0;
-    border-bottom: 1px solid #ccc;
 }
 
 .language-toggle button {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
     padding: 5px 10px;
-    margin: 0 5px;
-    background-color: #ffffff;
-    border: 1px solid #cccccc;
     cursor: pointer;
-}
-
-.language-toggle button.active {
-    background-color: #007bff;
-    color: white;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .language-toggle button .fi {
@@ -544,4 +502,9 @@ body, html {
 .language-toggle .flag {
     margin-right: 5px;
     font-size: 16px;
+}
+
+#wikipedia-panel {
+    position: relative;
+    padding-top: 50px;  /* Increased to accommodate larger toggle buttons */
 }
