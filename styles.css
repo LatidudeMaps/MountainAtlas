@@ -401,8 +401,6 @@ body, html {
     margin-right: 10px;
     position: relative;
     pointer-events: auto !important;
-    display: flex;
-    flex-direction: column;
 }
 
 .wiki-image {
@@ -465,6 +463,7 @@ body, html {
 
 /* Language toggle button */
 .language-toggle {
+    position: absolute;
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
@@ -474,8 +473,6 @@ body, html {
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     display: flex;
-    position: static; /* Change from absolute positioning */
-    margin: 10px 0;
 }
 
 .language-toggle button {
