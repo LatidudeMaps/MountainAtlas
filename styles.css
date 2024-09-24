@@ -401,6 +401,21 @@ body, html {
     margin-right: 10px;
     position: relative;
     pointer-events: auto !important;
+    display: flex;
+    flex-direction: column;
+}
+
+#wikipedia-panel .content {
+    padding: 0 15px 15px;
+    overflow-y: auto;
+}
+
+.wiki-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    max-height: 200px; /* Adjust as needed */
+    margin-bottom: 10px;
 }
 
 #wikipedia-panel * {
@@ -455,7 +470,6 @@ body, html {
 
 /* Language toggle button */
 .language-toggle {
-    position: absolute;
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
@@ -465,6 +479,8 @@ body, html {
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     display: flex;
+    position: static; /* Change from absolute positioning */
+    align-self: center; /* Center the toggle */
 }
 
 .language-toggle button {

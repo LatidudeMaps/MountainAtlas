@@ -308,24 +308,33 @@ export class UIManager {
                     const displayTitle = data.parse.displaytitle;
                     const sections = data.parse.sections;
                     
-                    let content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections);
-                    
-                    if (content) {
-                        this.wikipediaPanel.innerHTML = this.createLanguageToggle() + content;
-                    } else {
-                        const noContentMessage = this.currentLanguage === 'it'
-                            ? 'Nessun contenuto trovato per questa sezione.'
-                            : 'No content found for this section.';
-                        const viewFullPageMessage = this.currentLanguage === 'it'
-                            ? 'Puoi visualizzare l\'intera pagina qui:'
-                            : 'You can view the full page here:';
-                        this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `
-                            <p>${noContentMessage}</p>
-                            <p>${viewFullPageMessage}
-                            <a href="https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}" target="_blank">
-                                ${displayTitle}
-                            </a></p>`;
-                    }
+                    this.fetchPageImage(pageName, (imageUrl) => {
+                        let content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections);
+                        
+                        if (content) {
+                            this.wikipediaPanel.innerHTML = 
+                                (imageUrl ? `<img src="${imageUrl}" alt="${displayTitle}" class="wiki-image">` : '') +
+                                this.createLanguageToggle() + 
+                                `<div class="content">${content}</div>`;
+                        } else {
+                            const noContentMessage = this.currentLanguage === 'it'
+                                ? 'Nessun contenuto trovato per questa sezione.'
+                                : 'No content found for this section.';
+                            const viewFullPageMessage = this.currentLanguage === 'it'
+                                ? 'Puoi visualizzare l\'intera pagina qui:'
+                                : 'You can view the full page here:';
+                            this.wikipediaPanel.innerHTML = 
+                                (imageUrl ? `<img src="${imageUrl}" alt="${displayTitle}" class="wiki-image">` : '') +
+                                this.createLanguageToggle() + 
+                                `<div class="content">
+                                    <p>${noContentMessage}</p>
+                                    <p>${viewFullPageMessage}
+                                    <a href="https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}" target="_blank">
+                                        ${displayTitle}
+                                    </a></p>
+                                </div>`;
+                        }
+                    });
                 } else {
                     const errorMessage = this.currentLanguage === 'it'
                         ? 'Errore nel caricamento del contenuto.'
@@ -339,6 +348,23 @@ export class UIManager {
                     ? 'Errore nel caricamento del contenuto.'
                     : 'Error loading content.';
                 this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `<p>${errorMessage}</p>`;
+            });
+    }
+
+    fetchPageImage(pageName, callback) {
+        const imageApiUrl = `https://${this.currentLanguage}.wikipedia.org/w/api.php?action=query&titles=${pageName}&prop=pageimages&format=json&pithumbsize=300&origin=*`;
+        
+        fetch(imageApiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const pages = data.query.pages;
+                const pageId = Object.keys(pages)[0];
+                const imageUrl = pages[pageId].thumbnail ? pages[pageId].thumbnail.source : null;
+                callback(imageUrl);
+            })
+            .catch(error => {
+                console.error('Error fetching page image:', error);
+                callback(null);
             });
     }
 
