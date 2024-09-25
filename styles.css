@@ -473,6 +473,41 @@ body, html {
     background-color: #45a049;
 }
 
+/* Info button */
+#info-button {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background-color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+    cursor: pointer;
+    z-index: 1000;
+}
+
+#info-button:hover {
+    background-color: #f0f0f0;
+}
+
+#info-popup {
+    display: none;
+}
+
+#close-info-popup {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#close-info-popup:hover {
+    background-color: #45a049;
+}
+
 /* Responsive Styles */
 @media screen and (max-width: 768px) {
     .unified-control,

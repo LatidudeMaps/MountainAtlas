@@ -24,6 +24,7 @@ class App {
             this.initializeUI();
             this.applyInitialFilter();
             this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
+            this.setupInfoButton(); // Add this line
             console.log('App initialization complete');
             this.showDisclaimer();
         } catch (error) {
@@ -32,6 +33,26 @@ class App {
         } finally {
             this.hideLoading();
         }
+    }
+
+    setupInfoButton() {
+        const infoButton = document.getElementById('info-button');
+        const infoPopup = document.getElementById('info-popup');
+        const closeInfoPopup = document.getElementById('close-info-popup');
+
+        infoButton.addEventListener('click', () => {
+            infoPopup.style.display = 'block';
+        });
+
+        closeInfoPopup.addEventListener('click', () => {
+            infoPopup.style.display = 'none';
+        });
+
+        infoPopup.addEventListener('click', (event) => {
+            if (event.target === infoPopup) {
+                infoPopup.style.display = 'none';
+            }
+        });
     }
 
     showDisclaimer() {
