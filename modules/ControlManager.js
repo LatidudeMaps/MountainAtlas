@@ -20,6 +20,7 @@ export class ControlManager {
         
         unifiedControl.onAdd = () => {
             const container = this.createControlContainer();
+            this.addLanguageToggle(container);
             this.addLayerControl(container);
             this.addFilterControl(container);
             return container;
@@ -41,6 +42,28 @@ export class ControlManager {
         
         this.addBaseLayersToControl(layerList);
         this.addOverlayLayersToControl(layerList);
+    }
+
+    addLanguageToggle(container) {
+        const languageToggle = L.DomUtil.create('div', 'language-toggle', container);
+        languageToggle.innerHTML = `
+            <button class="active" data-lang="it">
+                <span class="fi fi-it"></span> IT
+            </button>
+            <button data-lang="en">
+                <span class="fi fi-gb"></span> EN
+            </button>
+        `;
+
+        languageToggle.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                const lang = e.target.getAttribute('data-lang');
+                this.uiManager.toggleLanguage(lang);
+                languageToggle.querySelectorAll('button').forEach(btn => {
+                    btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+                });
+            }
+        });
     }
 
     addBaseLayersToControl(layerList) {

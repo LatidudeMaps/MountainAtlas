@@ -196,7 +196,7 @@ export class UIManager {
             return;
         }
 
-        const currentLevelNames = this.layerManager.getCurrentHierLevelMountainAreaNames();
+        const currentLevelNames = this.layerManager.getCurrentHierLevelMountainAreaNames(this.currentLanguage);
         const matchingNames = this.getMatchingNames(searchValue, currentLevelNames);
 
         if (matchingNames.length > 0) {
@@ -248,7 +248,7 @@ export class UIManager {
         if (this.searchInput) {
             this.searchInput.value = name;
             this.hideSuggestions();
-            this.searchHandler(name);
+            this.searchHandler(name, this.currentLanguage);
             this.updateWikipediaPanel(name);
         }
     }
@@ -256,6 +256,8 @@ export class UIManager {
     toggleLanguage(lang) {
         if (lang === 'it' || lang === 'en') {
             this.currentLanguage = lang;
+            this.updateSearchPlaceholder();
+            this.updateSearchSuggestions();
             const currentSearchValue = this.searchInput.value.trim();
             if (currentSearchValue) {
                 this.updateWikipediaPanel(currentSearchValue);
@@ -263,16 +265,21 @@ export class UIManager {
         }
     }
 
+    updateSearchPlaceholder() {
+        const placeholder = this.currentLanguage === 'it' ? 'Cerca per nome italiano...' : 'Search by English name...';
+        this.searchInput.placeholder = placeholder;
+    }
+
     updateWikipediaPanel(name) {
         this.wikipediaPanel.style.display = 'block';
-        this.wikipediaPanel.innerHTML = this.createLanguageToggle();
+        this.wikipediaPanel.innerHTML = '<p>Loading...</p>';
 
         if (!name) {
-            this.wikipediaPanel.innerHTML += '<p>No content selected</p>';
+            this.wikipediaPanel.innerHTML = '<p>No content selected</p>';
             return;
         }
 
-        const matchingLayers = this.layerManager.getMatchingLayers(name);
+        const matchingLayers = this.layerManager.getMatchingLayers(name, this.currentLanguage);
         if (matchingLayers.length > 0) {
             const properties = matchingLayers[0].properties;
             const wikiUrl = this.currentLanguage === 'it' ? properties.wiki_url_it : properties.wiki_url_en;
@@ -283,10 +290,10 @@ export class UIManager {
                 const message = this.currentLanguage === 'it' 
                     ? '<p>Info non disponibili</p>'
                     : '<p>Information not available in English</p>';
-                this.wikipediaPanel.innerHTML += message;
+                this.wikipediaPanel.innerHTML = message;
             }
         } else {
-            this.wikipediaPanel.innerHTML += '<p>No matching content found</p>';
+            this.wikipediaPanel.innerHTML = '<p>No matching content found</p>';
         }
     }
 
