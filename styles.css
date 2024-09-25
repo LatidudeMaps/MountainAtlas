@@ -465,7 +465,7 @@ body, html {
     border-radius: 4px;
     cursor: pointer;
     width: auto;
-    font-size: 16px;
+    font-size: 12px;
     transition: background-color 0.3s;
 }
 
