@@ -476,7 +476,7 @@ body, html {
 /* Info button */
 #info-button {
     position: fixed;
-    bottom: 10px;
+    bottom: 20px;
     right: 10px;
     background-color: white;
     padding: 5px 10px;
