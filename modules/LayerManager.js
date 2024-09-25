@@ -173,7 +173,7 @@ export class LayerManager {
         const marker = L.marker(latlng);
         const name = feature.properties.name || "Unnamed Peak";
         const elevation = feature.properties.elevation || "Unknown";
-        const popupContent = `<b>Name:</b> ${name}<br><b>Elevation:</b> ${elevation} m<br><b>Belongs to:</b> ${feature.properties.MapName_it}`;
+        const popupContent = `<b>Name:</b> ${name}<br><b>Elevation:</b> ${elevation} m<br><b>Belongs to:</b> ${feature.properties.MapName}`;
 
         marker.bindPopup(popupContent)
             .bindTooltip(name, {
