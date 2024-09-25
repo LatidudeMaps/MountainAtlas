@@ -32,7 +32,7 @@ export class LayerManager {
 
     onEachMountainArea(feature, layer) {
         const popupContent = `
-            <b>${feature.properties.MapName}</b><br>
+            <b>${feature.properties.MapName_it}</b><br>
             <a href="${feature.properties.wiki_url_it}" target="_blank">Wikipedia (IT)</a><br>
             <a href="${feature.properties.wiki_url_en}" target="_blank">Wikipedia (EN)</a>
         `;
@@ -57,7 +57,7 @@ export class LayerManager {
             console.warn('No mountain areas data available');
             return [];
         }
-        const names = this.allMountainAreas.features.map(feature => feature.properties.MapName);
+        const names = this.allMountainAreas.features.map(feature => feature.properties.MapName_it);
         console.log('Number of mountain area names:', names.length);
         return names;
     }
@@ -75,7 +75,7 @@ export class LayerManager {
     highlightSearchedAreas(searchValue) {
         console.log('Highlighting searched areas:', searchValue);
         this.mountainAreasLayer.eachLayer(layer => {
-            const isMatch = layer.feature?.properties?.MapName.trim().toLowerCase().includes(searchValue.toLowerCase());
+            const isMatch = layer.feature?.properties?.MapName_it.trim().toLowerCase().includes(searchValue.toLowerCase());
             layer.setStyle(isMatch ? this.highlightStyle() : this.defaultPolygonStyle());
         });
     }
@@ -96,7 +96,7 @@ export class LayerManager {
         const matchingLayers = [];
 
         this.mountainAreasLayer.eachLayer(layer => {
-            if (layer.feature?.properties?.MapName.trim().toLowerCase().includes(searchValue.toLowerCase())) {
+            if (layer.feature?.properties?.MapName_it.trim().toLowerCase().includes(searchValue.toLowerCase())) {
                 matchingLayers.push({
                     layer: layer,
                     properties: layer.feature.properties
@@ -121,7 +121,7 @@ export class LayerManager {
     }
 
     getCurrentHierLevelMountainAreaNames() {
-        return this.filteredMountainAreas.map(feature => feature.properties.MapName);
+        return this.filteredMountainAreas.map(feature => feature.properties.MapName_it);
     }
 
     filterAndDisplayPeaks(hierLvl, mapName = null) {
@@ -134,7 +134,7 @@ export class LayerManager {
     filterPeaks(hierLvl, mapName) {
         if (mapName) {
             return this.allOsmPeaks.filter(feature => 
-                feature.properties.MapName.trim().toLowerCase() === mapName.toLowerCase()
+                feature.properties.MapName_it.trim().toLowerCase() === mapName.toLowerCase()
             );
         } else {
             return hierLvl === "all" 
