@@ -322,6 +322,7 @@ body, html {
     pointer-events: auto;
     padding-top: 50px;
     align-self: flex-end; /* Ensures alignment with the unified control */
+    margin-right: 10px;
 }
 
 #wikipedia-panel * {
