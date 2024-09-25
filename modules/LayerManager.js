@@ -139,11 +139,9 @@ export class LayerManager {
     }
 
     filterPeaks(hierLvl, mapName) {
-        console.log('Filtering peaks with:', { hierLvl, mapName });
         if (mapName) {
             return this.allOsmPeaks.filter(feature => {
                 const featureMapName = feature.properties.MapName_it || feature.properties.MapName;
-                console.log('Feature MapName:', featureMapName);
                 return featureMapName && featureMapName.trim().toLowerCase() === mapName.toLowerCase();
             });
         } else {
@@ -175,23 +173,8 @@ export class LayerManager {
         const marker = L.marker(latlng);
         const name = feature.properties.name || "Unnamed Peak";
         const elevation = feature.properties.elevation || "Unknown";
-        
-        // Debug: Log the feature properties
-        console.log('Feature properties:', feature.properties);
-        
-        // Try to get MapName_it, if not available, use MapName, then fallback to "Unknown Area"
         const mapName = feature.properties.MapName_it || feature.properties.MapName || "Unknown Area";
-        
-        // Debug: Log the selected mapName
-        console.log('Selected mapName:', mapName);
-
-        const popupContent = `
-            <b>Name:</b> ${name}<br>
-            <b>Elevation:</b> ${elevation} m<br>
-            <b>MapName:</b> ${mapName}<br>
-            <b>MapName_it:</b> ${feature.properties.MapName_it || 'Not available'}<br>
-            <b>MapName:</b> ${feature.properties.MapName || 'Not available'}
-        `;
+        const popupContent = `<b>Name:</b> ${name}<br><b>Elevation:</b> ${elevation} m<br><b>Belongs to:</b> ${mapName}`;
 
         marker.bindPopup(popupContent)
             .bindTooltip(name, {

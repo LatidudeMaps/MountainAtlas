@@ -26,10 +26,6 @@ export class DataLoader {
         try {
             const response = await this.fetchData("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/OSM_peaks_GMBA.geojson");
             const osmPeaksData = await response.json();
-            
-            // Debug: Log a sample of the loaded data
-            console.log('Sample OSM peak data:', osmPeaksData.features[0]);
-            
             this.allOsmPeaks = osmPeaksData.features;
             this.osmPeaksLoaded = true;
             console.log('OSM peaks loaded successfully');
