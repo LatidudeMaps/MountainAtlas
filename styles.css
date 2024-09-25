@@ -69,10 +69,6 @@ body, html {
     overflow: visible;
 }
 
-.controls-container {
-    margin-top: 10px;
-}
-
 .control-section {
     margin-bottom: 15px;
 }
@@ -367,8 +363,6 @@ body, html {
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     display: flex;
-    justify-content: center;
-    margin-bottom: 10px;
 }
 
 .language-toggle button {

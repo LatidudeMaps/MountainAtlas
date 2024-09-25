@@ -102,16 +102,16 @@ class App {
         this.handleFilterChange(initialHierLevel);
     }
 
-    handleSearch(searchValue, language) {
-        console.log('Search initiated with value:', searchValue, 'and language:', language);
+    handleSearch(searchValue) {
+        console.log('Search initiated with value:', searchValue);
         
         if (searchValue === null) {
             this.resetSearch();
             return;
         }
 
-        this.layerManager.highlightSearchedAreas(searchValue, language);
-        const matchingLayers = this.layerManager.getMatchingLayers(searchValue, language);
+        this.layerManager.highlightSearchedAreas(searchValue);
+        const matchingLayers = this.layerManager.getMatchingLayers(searchValue);
 
         if (matchingLayers.length > 0) {
             this.handleMatchingLayers(matchingLayers, searchValue);

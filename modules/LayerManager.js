@@ -33,16 +33,10 @@ export class LayerManager {
     onEachMountainArea(feature, layer) {
         const popupContent = `
             <b>${feature.properties.MapName}</b><br>
-            <b>${feature.properties.MapName_it}</b><br>
             <a href="${feature.properties.wiki_url_it}" target="_blank">Wikipedia (IT)</a><br>
             <a href="${feature.properties.wiki_url_en}" target="_blank">Wikipedia (EN)</a>
         `;
         layer.bindPopup(popupContent);
-    }
-
-    getCurrentHierLevelMountainAreaNames(language) {
-        const field = language === 'it' ? 'MapName_it' : 'MapName';
-        return this.filteredMountainAreas.map(feature => feature.properties[field]);
     }
 
     setMountainAreasData(data) {
@@ -78,11 +72,10 @@ export class LayerManager {
         };
     }
 
-    highlightSearchedAreas(searchValue, language) {
-        console.log('Highlighting searched areas:', searchValue, 'in language:', language);
-        const field = language === 'it' ? 'MapName_it' : 'MapName';
+    highlightSearchedAreas(searchValue) {
+        console.log('Highlighting searched areas:', searchValue);
         this.mountainAreasLayer.eachLayer(layer => {
-            const isMatch = layer.feature?.properties[field].trim().toLowerCase().includes(searchValue.toLowerCase());
+            const isMatch = layer.feature?.properties?.MapName.trim().toLowerCase().includes(searchValue.toLowerCase());
             layer.setStyle(isMatch ? this.highlightStyle() : this.defaultPolygonStyle());
         });
     }
@@ -96,15 +89,14 @@ export class LayerManager {
         };
     }
 
-    getMatchingLayers(searchValue, language) {
+    getMatchingLayers(searchValue) {
         if (!searchValue) return [];
 
-        console.log('Getting matching layers for:', searchValue, 'in language:', language);
+        console.log('Getting matching layers for:', searchValue);
         const matchingLayers = [];
-        const field = language === 'it' ? 'MapName_it' : 'MapName';
 
         this.mountainAreasLayer.eachLayer(layer => {
-            if (layer.feature?.properties[field].trim().toLowerCase().includes(searchValue.toLowerCase())) {
+            if (layer.feature?.properties?.MapName.trim().toLowerCase().includes(searchValue.toLowerCase())) {
                 matchingLayers.push({
                     layer: layer,
                     properties: layer.feature.properties

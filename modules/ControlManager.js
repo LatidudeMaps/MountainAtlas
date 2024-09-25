@@ -20,12 +20,8 @@ export class ControlManager {
         
         unifiedControl.onAdd = () => {
             const container = this.createControlContainer();
-            const languageToggle = this.addLanguageToggle();
-            container.appendChild(languageToggle);
-            
-            const controlsContainer = L.DomUtil.create('div', 'controls-container', container);
-            this.addLayerControl(controlsContainer);
-            this.addFilterControl(controlsContainer);
+            this.addLayerControl(container);
+            this.addFilterControl(container);
             return container;
         };
         
@@ -37,30 +33,6 @@ export class ControlManager {
         L.DomEvent.disableClickPropagation(container);
         L.DomEvent.disableScrollPropagation(container);
         return container;
-    }
-
-    addLanguageToggle() {
-        const languageToggle = L.DomUtil.create('div', 'language-toggle');
-        languageToggle.innerHTML = `
-            <button class="active" data-lang="it">
-                <span class="fi fi-it"></span> IT
-            </button>
-            <button data-lang="en">
-                <span class="fi fi-gb"></span> EN
-            </button>
-        `;
-
-        languageToggle.addEventListener('click', (e) => {
-            if (e.target.tagName === 'BUTTON') {
-                const lang = e.target.getAttribute('data-lang');
-                this.uiManager.toggleLanguage(lang);
-                languageToggle.querySelectorAll('button').forEach(btn => {
-                    btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
-                });
-            }
-        });
-
-        return languageToggle;
     }
 
     addLayerControl(container) {
