@@ -486,6 +486,11 @@ body, html {
     z-index: 1000;
 }
 
+#info-popup li {
+    font-size: 12px; /* Same as base font size, but explicitly set for paragraphs */
+    line-height: 1; /* Improve readability with increased line height */
+}
+
 #info-button:hover {
     background-color: #f0f0f0;
 }
