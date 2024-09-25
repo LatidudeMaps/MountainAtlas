@@ -20,9 +20,12 @@ export class ControlManager {
         
         unifiedControl.onAdd = () => {
             const container = this.createControlContainer();
-            this.addLanguageToggle(container);
-            this.addLayerControl(container);
-            this.addFilterControl(container);
+            const languageToggle = this.addLanguageToggle();
+            container.appendChild(languageToggle);
+            
+            const controlsContainer = L.DomUtil.create('div', 'controls-container', container);
+            this.addLayerControl(controlsContainer);
+            this.addFilterControl(controlsContainer);
             return container;
         };
         
@@ -36,16 +39,8 @@ export class ControlManager {
         return container;
     }
 
-    addLayerControl(container) {
-        const layerSection = L.DomUtil.create('div', 'control-section layer-control-section', container);
-        const layerList = L.DomUtil.create('ul', 'layer-list', layerSection);
-        
-        this.addBaseLayersToControl(layerList);
-        this.addOverlayLayersToControl(layerList);
-    }
-
-    addLanguageToggle(container) {
-        const languageToggle = L.DomUtil.create('div', 'language-toggle', container);
+    addLanguageToggle() {
+        const languageToggle = L.DomUtil.create('div', 'language-toggle');
         languageToggle.innerHTML = `
             <button class="active" data-lang="it">
                 <span class="fi fi-it"></span> IT
@@ -64,6 +59,16 @@ export class ControlManager {
                 });
             }
         });
+
+        return languageToggle;
+    }
+
+    addLayerControl(container) {
+        const layerSection = L.DomUtil.create('div', 'control-section layer-control-section', container);
+        const layerList = L.DomUtil.create('ul', 'layer-list', layerSection);
+        
+        this.addBaseLayersToControl(layerList);
+        this.addOverlayLayersToControl(layerList);
     }
 
     addBaseLayersToControl(layerList) {

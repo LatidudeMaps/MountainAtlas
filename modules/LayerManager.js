@@ -79,7 +79,7 @@ export class LayerManager {
     }
 
     highlightSearchedAreas(searchValue, language) {
-        console.log('Highlighting searched areas:', searchValue);
+        console.log('Highlighting searched areas:', searchValue, 'in language:', language);
         const field = language === 'it' ? 'MapName_it' : 'MapName';
         this.mountainAreasLayer.eachLayer(layer => {
             const isMatch = layer.feature?.properties[field].trim().toLowerCase().includes(searchValue.toLowerCase());
@@ -99,7 +99,7 @@ export class LayerManager {
     getMatchingLayers(searchValue, language) {
         if (!searchValue) return [];
 
-        console.log('Getting matching layers for:', searchValue);
+        console.log('Getting matching layers for:', searchValue, 'in language:', language);
         const matchingLayers = [];
         const field = language === 'it' ? 'MapName_it' : 'MapName';
 

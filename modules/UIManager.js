@@ -260,6 +260,7 @@ export class UIManager {
             this.updateSearchSuggestions();
             const currentSearchValue = this.searchInput.value.trim();
             if (currentSearchValue) {
+                this.searchHandler(currentSearchValue, this.currentLanguage);
                 this.updateWikipediaPanel(currentSearchValue);
             }
         }
@@ -452,7 +453,7 @@ export class UIManager {
             const searchValue = this.searchInput.value.trim();
             if (searchValue) {
                 this.hideSuggestions();
-                this.searchHandler(searchValue);
+                this.searchHandler(searchValue, this.currentLanguage);
             }
         } else if (e.key === 'ArrowDown' && this.searchSuggestions.style.display !== 'none') {
             e.preventDefault();
