@@ -12,11 +12,10 @@ export class MapManager {
         const map = L.map(mapId, {
             zoomAnimation: true,
             preferCanvas: true,
-            zoomControl: true // Re-enable default zoom control
+            zoomControl: true
         });
 
         this.addResetViewControl(map);
-
         console.log('Map initialized');
         return map;
     }
@@ -24,38 +23,32 @@ export class MapManager {
     initBaseMaps() {
         console.log('Initializing base maps');
         const baseMaps = {
-            "Dark Positron": L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            "Dark Positron": this.createTileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
                 subdomains: 'abcd',
-                detectRetina: true,
-                tileSize: 512,
-                zoomOffset: -1, // THIS PARAMETER SETS THE BASEMAP LABELS SIZE IN CONJUNCTION WITH THE TILESIZE PARAMETER
-                updateWhenZooming: false,
-                keepBuffer: 4,
             }),
-            "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            "OpenStreetMap": this.createTileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                detectRetina: true,
-                tileSize: 512,
-                zoomOffset: -1,
-                updateWhenZooming: false,
-                keepBuffer: 4,
             }),
-            "Esri World Imagery": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            "Esri World Imagery": this.createTileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-                detectRetina: true,
-                tileSize: 512,
-                zoomOffset: -1,
-                updateWhenZooming: false,
-                keepBuffer: 4,
             })
         };
 
-        // Add the default base map
         baseMaps["Dark Positron"].addTo(this.map);
-
         console.log('Base maps initialized');
         return baseMaps;
+    }
+
+    createTileLayer(url, options) {
+        return L.tileLayer(url, {
+            detectRetina: true,
+            tileSize: 512,
+            zoomOffset: -1,
+            updateWhenZooming: false,
+            keepBuffer: 4,
+            ...options
+        });
     }
 
     setInitialExtent(mountainAreasLayer) {
@@ -71,13 +64,9 @@ export class MapManager {
         }
         const center = bounds.getCenter();
         
-        // Set the initial view based on the mountain areas layer
         this.map.setView(center, 6);
-        
-        // Set the initial bounds
         this.initialBounds = this.map.getBounds();
         
-        // Set max bounds (with some padding)
         const maxBounds = this.initialBounds.pad(0.1);
         this.map.setMaxBounds(maxBounds);
         
@@ -98,9 +87,7 @@ export class MapManager {
                 
                 L.DomEvent.on(button, 'click', (e) => {
                     L.DomEvent.preventDefault(e);
-                    if (this.initialBounds) {
-                        map.fitBounds(this.initialBounds);
-                    }
+                    this.resetView();
                 });
 
                 return container;
@@ -110,17 +97,20 @@ export class MapManager {
         map.addControl(new ResetViewControl());
     }
 
+    resetView() {
+        if (this.initialBounds) {
+            this.map.fitBounds(this.initialBounds);
+        } else {
+            console.warn('Unable to reset view: initialBounds is not set');
+        }
+    }
+
     fitMapToBounds(mountainAreasLayer, markers) {
         console.log('Fitting map to bounds...');
         if (!this.initialBounds) {
             this.setInitialExtent(mountainAreasLayer);
         }
-        if (this.initialBounds) {
-            this.map.fitBounds(this.initialBounds);
-            console.log('Map fitted to bounds');
-        } else {
-            console.error('Unable to fit map to bounds: initialBounds is null');
-        }
+        this.resetView();
     }
 
     flyTo(center, zoom) {
@@ -135,20 +125,38 @@ export class MapManager {
         }
     }
 
-    addResponsiveZoomControl(map) {
+    addResponsiveZoomControl() {
         const zoomControl = L.control.zoom({ position: 'topright' });
-        zoomControl.addTo(map);
+        zoomControl.addTo(this.map);
 
         const handleResize = () => {
             const isMobile = window.innerWidth <= 768;
-            if (isMobile) {
-                zoomControl.setPosition('bottomright');
-            } else {
-                zoomControl.setPosition('topright');
-            }
+            zoomControl.setPosition(isMobile ? 'bottomright' : 'topright');
         };
 
         window.addEventListener('resize', handleResize);
         handleResize(); // Call once to set initial state
+    }
+
+    changeBaseMap(newBaseMapName) {
+        if (this.baseMaps[newBaseMapName]) {
+            this.map.removeLayer(this.baseMaps[this.activeBaseMap]);
+            this.map.addLayer(this.baseMaps[newBaseMapName]);
+            this.activeBaseMap = newBaseMapName;
+        } else {
+            console.warn(`Base map "${newBaseMapName}" not found`);
+        }
+    }
+
+    getCenter() {
+        return this.map.getCenter();
+    }
+
+    getZoom() {
+        return this.map.getZoom();
+    }
+
+    getBounds() {
+        return this.map.getBounds();
     }
 }

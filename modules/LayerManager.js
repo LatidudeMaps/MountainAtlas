@@ -13,14 +13,7 @@ export class LayerManager {
         console.log('Initializing mountain areas layer');
         return L.geoJSON(null, {
             style: this.defaultPolygonStyle,
-            onEachFeature: (feature, layer) => {
-                const popupContent = `
-                    <b>${feature.properties.MapName}</b><br>
-                    <a href="${feature.properties.wiki_url_it}" target="_blank">Wikipedia (IT)</a><br>
-                    <a href="${feature.properties.wiki_url_en}" target="_blank">Wikipedia (EN)</a>
-                `;
-                layer.bindPopup(popupContent);
-            }
+            onEachFeature: this.onEachMountainArea.bind(this)
         }).addTo(this.map);
     }
 
@@ -37,6 +30,15 @@ export class LayerManager {
         }).addTo(this.map);
     }
 
+    onEachMountainArea(feature, layer) {
+        const popupContent = `
+            <b>${feature.properties.MapName}</b><br>
+            <a href="${feature.properties.wiki_url_it}" target="_blank">Wikipedia (IT)</a><br>
+            <a href="${feature.properties.wiki_url_en}" target="_blank">Wikipedia (EN)</a>
+        `;
+        layer.bindPopup(popupContent);
+    }
+
     setMountainAreasData(data) {
         console.log('Setting mountain areas data');
         this.allMountainAreas = data;
@@ -45,8 +47,12 @@ export class LayerManager {
         console.log('Mountain areas data added to layer');
     }
 
+    setOsmPeaksData(data) {
+        console.log('Setting OSM peaks data');
+        this.allOsmPeaks = data;
+    }
+
     getAllMountainAreaNames() {
-        console.log('Getting all mountain area names');
         if (!this.allMountainAreas) {
             console.warn('No mountain areas data available');
             return [];
@@ -54,11 +60,6 @@ export class LayerManager {
         const names = this.allMountainAreas.features.map(feature => feature.properties.MapName);
         console.log('Number of mountain area names:', names.length);
         return names;
-    }
-
-    setOsmPeaksData(data) {
-        console.log('Setting OSM peaks data');
-        this.allOsmPeaks = data;
     }
 
     defaultPolygonStyle() {
@@ -74,26 +75,25 @@ export class LayerManager {
     highlightSearchedAreas(searchValue) {
         console.log('Highlighting searched areas:', searchValue);
         this.mountainAreasLayer.eachLayer(layer => {
-            if (layer.feature?.properties?.MapName.trim().toLowerCase().includes(searchValue.toLowerCase())) {
-                layer.setStyle({
-                    color: 'yellow',
-                    weight: 4,
-                    opacity: 1,
-                    fillOpacity: 0.65
-                });
-            } else {
-                layer.setStyle(this.defaultPolygonStyle());
-            }
+            const isMatch = layer.feature?.properties?.MapName.trim().toLowerCase().includes(searchValue.toLowerCase());
+            layer.setStyle(isMatch ? this.highlightStyle() : this.defaultPolygonStyle());
         });
     }
 
+    highlightStyle() {
+        return {
+            color: 'yellow',
+            weight: 4,
+            opacity: 1,
+            fillOpacity: 0.65
+        };
+    }
+
     getMatchingLayers(searchValue) {
+        if (!searchValue) return [];
+
         console.log('Getting matching layers for:', searchValue);
         const matchingLayers = [];
-        
-        if (!searchValue) {
-            return matchingLayers; // Return empty array if searchValue is null or undefined
-        }
 
         this.mountainAreasLayer.eachLayer(layer => {
             if (layer.feature?.properties?.MapName.trim().toLowerCase().includes(searchValue.toLowerCase())) {
@@ -127,18 +127,23 @@ export class LayerManager {
     filterAndDisplayPeaks(hierLvl, mapName = null) {
         console.log('Filtering and displaying peaks:', hierLvl, mapName);
         this.markers.clearLayers();
-        let filteredPeaks;
+        let filteredPeaks = this.filterPeaks(hierLvl, mapName);
+        this.addPeaksToMarkers(filteredPeaks);
+    }
 
+    filterPeaks(hierLvl, mapName) {
         if (mapName) {
-            filteredPeaks = this.allOsmPeaks.filter(feature => 
+            return this.allOsmPeaks.filter(feature => 
                 feature.properties.MapName.trim().toLowerCase() === mapName.toLowerCase()
             );
         } else {
-            filteredPeaks = hierLvl === "all" 
+            return hierLvl === "all" 
                 ? this.allOsmPeaks.filter(feature => feature.properties.Hier_lvl === "4")
                 : this.allOsmPeaks.filter(feature => String(feature.properties.Hier_lvl).trim() === hierLvl);
         }
+    }
 
+    addPeaksToMarkers(filteredPeaks) {
         L.geoJSON(filteredPeaks, {
             pointToLayer: this.createMarker.bind(this)
         }).addTo(this.markers);
@@ -147,8 +152,9 @@ export class LayerManager {
 
     getVisibleMountainAreaNames() {
         const visibleNames = [];
+        const mapBounds = this.map.getBounds();
         this.mountainAreasLayer.eachLayer(layer => {
-            if (this.map.getBounds().intersects(layer.getBounds())) {
+            if (mapBounds.intersects(layer.getBounds())) {
                 visibleNames.push(layer.feature.properties.MapName);
             }
         });

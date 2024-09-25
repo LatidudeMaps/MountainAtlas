@@ -16,9 +16,9 @@ class App {
     }
 
     async init() {
-        this.showLoading();
-        console.log('App init started');
         try {
+            console.log('App initialization started');
+            this.showLoading();
             await this.loadData();
             this.initializeUI();
             this.applyInitialFilter();
@@ -26,6 +26,7 @@ class App {
             console.log('App initialization complete');
         } catch (error) {
             console.error('Error initializing app:', error);
+            this.handleInitializationError(error);
         } finally {
             this.hideLoading();
         }
@@ -34,6 +35,8 @@ class App {
     showLoading() {
         if (this.loadingIndicator) {
             this.loadingIndicator.style.display = 'block';
+        } else {
+            console.warn('Loading indicator element not found');
         }
     }
 
@@ -44,18 +47,25 @@ class App {
     }
 
     async loadData() {
-        const [mountainAreasData, osmPeaksData] = await Promise.all([
-            this.dataLoader.loadMountainAreas(),
-            this.dataLoader.loadOsmPeaks()
-        ]);
-        
-        this.layerManager.setMountainAreasData(mountainAreasData);
-        this.layerManager.setOsmPeaksData(osmPeaksData);
-        
-        console.log('Data loaded and set in LayerManager');
+        console.log('Loading data...');
+        try {
+            const [mountainAreasData, osmPeaksData] = await Promise.all([
+                this.dataLoader.loadMountainAreas(),
+                this.dataLoader.loadOsmPeaks()
+            ]);
+            
+            this.layerManager.setMountainAreasData(mountainAreasData);
+            this.layerManager.setOsmPeaksData(osmPeaksData);
+            
+            console.log('Data loaded and set in LayerManager');
+        } catch (error) {
+            console.error('Error loading data:', error);
+            throw new Error('Failed to load necessary data');
+        }
     }
 
     initializeUI() {
+        console.log('Initializing UI...');
         this.uiManager = new UIManager(
             this.handleSearch.bind(this),
             this.handleFilterChange.bind(this),
@@ -74,13 +84,16 @@ class App {
     setupUI() {
         const uniqueHierLevels = this.dataLoader.getUniqueHierLevels();
         console.log('Unique hierarchy levels:', uniqueHierLevels);
-        this.uiManager.updateHierLevelSlider(
-            Math.min(...uniqueHierLevels),
-            Math.max(...uniqueHierLevels),
-            4  // Default value
-        );
-        this.uiManager.setupSearchListeners();
-        // Remove the call to setupFilterListeners as it no longer exists
+        
+        if (uniqueHierLevels.length > 0) {
+            this.uiManager.updateHierLevelSlider(
+                Math.min(...uniqueHierLevels),
+                Math.max(...uniqueHierLevels),
+                4  // Default value
+            );
+        } else {
+            console.warn('No hierarchy levels found');
+        }
     }
 
     applyInitialFilter() {
@@ -92,11 +105,8 @@ class App {
     handleSearch(searchValue) {
         console.log('Search initiated with value:', searchValue);
         
-        // If searchValue is null, it means the clear button was pressed
         if (searchValue === null) {
-            // Reset the search without changing the map view
-            this.layerManager.resetHighlight();
-            this.uiManager.updateWikipediaPanel(null);
+            this.resetSearch();
             return;
         }
 
@@ -104,37 +114,58 @@ class App {
         const matchingLayers = this.layerManager.getMatchingLayers(searchValue);
 
         if (matchingLayers.length > 0) {
-            const bounds = matchingLayers[0].layer.getBounds();
-            const center = bounds.getCenter();
-            const zoom = this.mapManager.map.getBoundsZoom(bounds);
-            this.mapManager.flyTo(center, zoom);
-
-            const matchingMapName = matchingLayers[0].properties.MapName;
-            this.layerManager.filterAndDisplayPeaks(null, matchingMapName);
-            this.uiManager.updateWikipediaPanel(searchValue);
+            this.handleMatchingLayers(matchingLayers, searchValue);
         } else {
-            console.log('No matching polygons found');
-            alert('No matching polygons found.');
-            this.uiManager.updateWikipediaPanel(null);
+            this.handleNoMatchingLayers(searchValue);
         }
+    }
+
+    resetSearch() {
+        this.layerManager.resetHighlight();
+        this.uiManager.updateWikipediaPanel(null);
+    }
+
+    handleMatchingLayers(matchingLayers, searchValue) {
+        const bounds = matchingLayers[0].layer.getBounds();
+        const center = bounds.getCenter();
+        const zoom = this.mapManager.map.getBoundsZoom(bounds);
+        this.mapManager.flyTo(center, zoom);
+
+        const matchingMapName = matchingLayers[0].properties.MapName;
+        this.layerManager.filterAndDisplayPeaks(null, matchingMapName);
+        this.uiManager.updateWikipediaPanel(searchValue);
+    }
+
+    handleNoMatchingLayers(searchValue) {
+        console.log('No matching polygons found for:', searchValue);
+        alert('No matching polygons found.');
+        this.uiManager.updateWikipediaPanel(null);
     }
 
     handleFilterChange(selectedValue) {
         console.log('Filter change initiated with value:', selectedValue);
-        if (!this.dataLoader.mountainAreasLoaded || !this.dataLoader.osmPeaksLoaded) {
+        if (!this.dataLoader.isDataLoaded()) {
             console.log('Data not fully loaded, skipping filter change');
             return;
         }
 
         this.layerManager.filterMountainAreas(selectedValue);
         this.layerManager.filterAndDisplayPeaks(selectedValue);
-        // Update search suggestions after filter change
         this.uiManager.updateSearchSuggestions();
+    }
+
+    handleInitializationError(error) {
+        console.error('Failed to initialize the application:', error);
+        alert('An error occurred while initializing the application. Please try refreshing the page.');
+        // Here you could also add code to display a user-friendly error message on the page
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM content loaded');
     const app = new App();
-    app.init();
+    app.init().catch(error => {
+        console.error('Unhandled error during app initialization:', error);
+        alert('An unexpected error occurred. Please try refreshing the page.');
+    });
 });

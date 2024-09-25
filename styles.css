@@ -9,25 +9,26 @@ body, html {
     padding: 0;
 }
 
+/* Map Styles */
 #map {
     height: 100%;
     width: 100%;
 }
 
-/* Leaflet Controls - excluding attribution */
+/* Leaflet Control Styles */
 .leaflet-control:not(.leaflet-control-attribution) {
     font-family: 'Montserrat', Arial, sans-serif;
 }
 
 /* Tooltip Styles */
 .leaflet-tooltip {
-    background: none !important;
-    border: none !important;
-    box-shadow: none !important;
+    background: none;
+    border: none;
+    box-shadow: none;
     font-family: 'Montserrat', Arial, sans-serif;
     font-size: 12px;
     font-weight: bold;
-    padding: 0 !important;
+    padding: 0;
     pointer-events: none;
 }
 
@@ -45,7 +46,46 @@ body, html {
 .leaflet-tooltip-bottom:before, 
 .leaflet-tooltip-left:before, 
 .leaflet-tooltip-right:before {
-    display: none !important;
+    display: none;
+}
+
+/* Unified Control Styles */
+.unified-control {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+    font-family: 'Montserrat', Arial, sans-serif;
+    padding: 10px;
+    width: 300px;
+    box-sizing: border-box;
+    margin-right: 10px;
+    overflow: visible;
+}
+
+.control-section {
+    margin-bottom: 15px;
+}
+
+.control-section h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+/* Layer List Styles */
+.layer-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.layer-list li {
+    margin-bottom: 5px;
+}
+
+.layer-list input[type="radio"],
+.layer-list input[type="checkbox"] {
+    margin-right: 5px;
 }
 
 /* Filter Control Styles */
@@ -78,8 +118,7 @@ body, html {
     background: #d3d3d3;
     outline: none;
     opacity: 0.7;
-    -webkit-transition: .2s;
-    transition: opacity .2s;
+    transition: opacity 0.2s;
     margin-top: 5px;
 }
 
@@ -105,6 +144,7 @@ body, html {
     cursor: pointer;
 }
 
+/* Input and Button Styles */
 .input-button-group {
     display: flex;
     align-items: stretch;
@@ -141,7 +181,7 @@ body, html {
     background-color: #e8e8e8;
 }
 
-/* Search Suggestions */
+/* Search Styles */
 .custom-search {
     position: relative;
     flex-grow: 1;
@@ -149,14 +189,14 @@ body, html {
 
 .custom-search .custom-select {
     width: 100%;
-    padding-right: 30px; /* Make room for the clear button and arrow */
+    padding-right: 30px;
     text-overflow: ellipsis;
     cursor: text;
 }
 
 .clear-search-button {
     position: absolute;
-    right: 25px; /* Position to the left of the select arrow */
+    right: 25px;
     top: 50%;
     transform: translateY(-50%);
     background: none;
@@ -187,17 +227,17 @@ body, html {
     right: 0;
     top: 0;
     bottom: 0;
-    width: 30px; /* Increase clickable area */
+    width: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer; /* Change cursor to pointer */
-    background-color: transparent; /* Add a subtle background on hover */
+    cursor: pointer;
+    background-color: transparent;
     transition: background-color 0.2s;
 }
 
 .select-arrow-container:hover {
-    background-color: rgba(0, 0, 0, 0.05); /* Slight background on hover for visual feedback */
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
 .select-arrow {
@@ -208,6 +248,7 @@ body, html {
     border-top: 5px solid #333;
 }
 
+/* Search Suggestions Styles */
 .search-suggestions {
     position: absolute;
     width: 100%;
@@ -238,7 +279,7 @@ body, html {
     outline: none;
 }
 
-/* Opacity slider container */
+/* Opacity Slider Styles */
 .opacity-slider-container {
     display: flex;
     align-items: center;
@@ -246,142 +287,15 @@ body, html {
     margin-left: 20px;
 }
 
-/* Opacity slider */
 .opacity-slider {
     width: 100px;
     margin-right: 5px;
 }
 
-/* Opacity value display */
 .opacity-value {
     font-size: 0.8em;
     color: #777;
     min-width: 30px;
-}
-
-.layer-list li {
-    margin-bottom: 10px;
-}
-
-/* Opacity value display */
-.opacity-value {
-    font-size: 0.8em;
-    color: #777;
-}
-
-/* Unified Control Styles */
-.unified-control {
-    background-color: white;
-    border-radius: 5px;
-    box-shadow: 0 1px 5px rgba(0,0,0,0.65);
-    font-family: 'Montserrat', Arial, sans-serif;
-    padding: 10px;
-    width: 300px; /* Fixed width */
-    box-sizing: border-box;
-    margin-right: 10px;
-    overflow: visible; /* Allow content to overflow for dropdown */
-}
-
-.control-section {
-    margin-bottom: 15px;
-}
-
-.control-section h3 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 16px;
-}
-
-.layer-list {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-.layer-list li {
-    margin-bottom: 5px;
-}
-
-.layer-list input[type="radio"],
-.layer-list input[type="checkbox"] {
-    margin-right: 5px;
-}
-
-/* Responsive styles */
-@media screen and (max-width: 768px) {
-    .filter-control {
-        max-width: none;
-        width: calc(100% - 20px);
-        margin: 10px;
-        position: relative;
-        top: auto;
-        right: auto;
-    }
-
-    .leaflet-control-layers {
-        max-width: none;
-        width: calc(100% - 20px);
-        margin: 10px;
-    }
-
-    .input-button-group {
-        flex-direction: column;
-    }
-
-    .custom-button {
-        margin-left: 0;
-        margin-top: 5px;
-    }
-
-    .opacity-slider-container {
-        padding-left: 0;
-        margin-left: 0;
-    }
-}
-
-@media screen and (max-width: 768px) {
-    .unified-control {
-        max-width: none;
-        width: calc(100% - 20px);
-        margin: 10px;
-        position: relative;
-        top: auto;
-        left: auto;
-    }
-
-    .control-section {
-        margin-bottom: 10px;
-    }
-
-    .input-button-group {
-        flex-direction: column;
-    }
-
-    .custom-button {
-        margin-left: 0;
-        margin-top: 5px;
-    }
-
-    .opacity-slider-container {
-        padding-left: 0;
-    }
-}
-
-@media (max-width: 768px) {
-    .custom-slider::-webkit-slider-thumb {
-        width: 28px;
-        height: 28px;
-    }
-    
-    .custom-slider::-moz-range-thumb {
-        width: 28px;
-        height: 28px;
-    }
-}
-
-/* Adjust the layer control width if needed */
-.leaflet-control-layers {
-    min-width: 200px;
 }
 
 /* Wikipedia Panel Styles */
@@ -396,18 +310,21 @@ body, html {
     overflow-y: auto;
     padding: 15px;
     width: 300px;
-    height: 70vh; /* This sets the height to 70% of the viewport height */
-    max-height: 600px; /* This sets a maximum height, adjust as needed */
+    height: 70vh;
+    max-height: 600px;
     margin-right: 10px;
     position: relative;
-    pointer-events: auto !important;
+    pointer-events: auto;
+    padding-top: 50px;
 }
 
 #wikipedia-panel * {
-    pointer-events: auto !important;
+    pointer-events: auto;
 }
 
-#wikipedia-panel h1, #wikipedia-panel h2, #wikipedia-panel h3 {
+#wikipedia-panel h1, 
+#wikipedia-panel h2, 
+#wikipedia-panel h3 {
     font-family: 'Montserrat', Arial, sans-serif;
     margin-top: 0;
 }
@@ -427,33 +344,7 @@ body, html {
     text-decoration: underline;
 }
 
-/* Responsive styles */
-@media screen and (max-width: 768px) {
-    .unified-control,
-    #wikipedia-panel {
-        max-width: none;
-        width: calc(100% - 20px);
-        margin-left: 10px;
-        margin-right: 10px;
-    }
-
-    #wikipedia-panel {
-        height: 300px; /* Adjust height for mobile devices */
-    }
-}
-
-/* Ensure proper alignment and responsiveness */
-.leaflet-right .leaflet-control {
-    margin-right: 10px;
-}
-
-.leaflet-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-/* Language toggle button */
+/* Language Toggle Styles */
 .language-toggle {
     position: absolute;
     top: 10px;
@@ -480,7 +371,7 @@ body, html {
 
 .language-toggle button .fi {
     margin-right: 5px;
-    font-size: 1.2em; /* Adjust size as needed */
+    font-size: 1.2em;
 }
 
 .language-toggle button:first-child {
@@ -499,12 +390,74 @@ body, html {
     border-color: #007bff;
 }
 
-.language-toggle .flag {
-    margin-right: 5px;
-    font-size: 16px;
+/* Loading Indicator Styles */
+.loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 9999;
 }
 
-#wikipedia-panel {
-    position: relative;
-    padding-top: 50px;  /* Increased to accommodate larger toggle buttons */
+.loading-spinner {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+    .unified-control,
+    #wikipedia-panel,
+    .filter-control {
+        max-width: none;
+        width: calc(100% - 20px);
+        margin: 10px;
+    }
+
+    #wikipedia-panel {
+        height: 300px;
+    }
+
+    .input-button-group {
+        flex-direction: column;
+    }
+
+    .custom-button {
+        margin-left: 0;
+        margin-top: 5px;
+    }
+
+    .opacity-slider-container {
+        padding-left: 0;
+        margin-left: 0;
+    }
+
+    .custom-slider::-webkit-slider-thumb {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .custom-slider::-moz-range-thumb {
+        width: 28px;
+        height: 28px;
+    }
+
+    .leaflet-control-layers {
+        min-width: 200px;
+    }
 }

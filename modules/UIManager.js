@@ -13,25 +13,37 @@ export class UIManager {
         this.hierLvlValue = null;
         this.wikipediaPanel = null;
         this.isDraggingWikiPanel = false;
-        this.currentLanguage = 'it'; // Default to Italian
+        this.currentLanguage = 'it';
     }
 
     initializeElements(filterControl) {
         console.log('Initializing UI elements');
         this.filterControl = filterControl;
-        this.searchInput = this.filterControl.getContainer().querySelector('#search-input');
-        this.searchSuggestions = this.filterControl.getContainer().querySelector('#search-suggestions');
-        this.hierLvlSlider = this.filterControl.getContainer().querySelector('#hier-lvl-slider');
-        this.hierLvlValue = this.filterControl.getContainer().querySelector('#hier-lvl-value');
+        this.initializeUIComponents();
+        this.setupEventListeners();
+        this.setupWikipediaPanel();
+    }
 
+    initializeUIComponents() {
+        const container = this.filterControl.getContainer();
+        this.searchInput = container.querySelector('#search-input');
+        this.searchSuggestions = container.querySelector('#search-suggestions');
+        this.hierLvlSlider = container.querySelector('#hier-lvl-slider');
+        this.hierLvlValue = container.querySelector('#hier-lvl-value');
+
+        this.logComponentInitialization();
+    }
+
+    logComponentInitialization() {
         console.log('Search input found:', !!this.searchInput);
         console.log('Search suggestions found:', !!this.searchSuggestions);
         console.log('Hierarchy level slider found:', !!this.hierLvlSlider);
         console.log('Hierarchy level value found:', !!this.hierLvlValue);
+    }
 
+    setupEventListeners() {
         this.setupSearchListeners();
         this.setupFilterListeners();
-        this.setupWikipediaPanel();
     }
 
     setupWikipediaPanel() {
@@ -42,47 +54,41 @@ export class UIManager {
         const controlContainer = this.filterControl.getContainer();
         controlContainer.parentNode.insertBefore(this.wikipediaPanel, controlContainer.nextSibling);
 
-        // Prevent click propagation
+        this.setupWikiPanelEventListeners();
+    }
+
+    setupWikiPanelEventListeners() {
         L.DomEvent.disableClickPropagation(this.wikipediaPanel);
         L.DomEvent.disableScrollPropagation(this.wikipediaPanel);
 
-        // Add custom event listeners
         this.wikipediaPanel.addEventListener('mousedown', this.handleWikiPanelInteraction.bind(this));
         this.wikipediaPanel.addEventListener('touchstart', this.handleWikiPanelInteraction.bind(this), { passive: true });
         this.wikipediaPanel.addEventListener('wheel', this.handleWikiPanelWheel.bind(this), { passive: false });
-
-        // Prevent map drag when mouse leaves the panel while button is pressed
-        document.addEventListener('mouseup', () => {
-            if (this.isDraggingWikiPanel) {
-                this.isDraggingWikiPanel = false;
-                if (this.mapManager && this.mapManager.map) {
-                    this.mapManager.map.dragging.enable();
-                }
-            }
-        });
-
-        // Add event listener for link clicks
         this.wikipediaPanel.addEventListener('click', this.handleWikiPanelLinkClick.bind(this));
+
+        document.addEventListener('mouseup', this.handleDocumentMouseUp.bind(this));
     }
 
     handleWikiPanelInteraction(e) {
-        if (e.type === 'touchstart') {
-            // For touch events, we can't call preventDefault in a passive listener
-            // So we just set the flag and disable map dragging
+        if (e.type === 'touchstart' || e.type === 'mousedown') {
             if (!this.isDraggingWikiPanel) {
                 this.isDraggingWikiPanel = true;
                 if (this.mapManager && this.mapManager.map) {
                     this.mapManager.map.dragging.disable();
                 }
             }
-        } else {
-            // For mouse events, we can still prevent propagation
+        }
+
+        if (e.type === 'mousedown') {
             e.stopPropagation();
-            if (!this.isDraggingWikiPanel) {
-                this.isDraggingWikiPanel = true;
-                if (this.mapManager && this.mapManager.map) {
-                    this.mapManager.map.dragging.disable();
-                }
+        }
+    }
+
+    handleDocumentMouseUp() {
+        if (this.isDraggingWikiPanel) {
+            this.isDraggingWikiPanel = false;
+            if (this.mapManager && this.mapManager.map) {
+                this.mapManager.map.dragging.enable();
             }
         }
     }
@@ -91,15 +97,15 @@ export class UIManager {
         if (e.target.tagName === 'A') {
             e.preventDefault();
             const href = e.target.getAttribute('href');
-            if (href && href.startsWith('/wiki/')) {
-                const pageName = href.split('/wiki/')[1];
-                this.fetchWikipediaContent(`https://it.wikipedia.org/wiki/${pageName}`);
-            } else if (href && !href.startsWith('http')) {
-                // For other internal links, prepend the Wikipedia base URL
-                this.fetchWikipediaContent(`https://it.wikipedia.org${href}`);
-            } else if (href) {
-                // For external links, open in a new tab
-                window.open(href, '_blank');
+            if (href) {
+                if (href.startsWith('/wiki/')) {
+                    const pageName = href.split('/wiki/')[1];
+                    this.fetchWikipediaContent(`https://it.wikipedia.org/wiki/${pageName}`);
+                } else if (!href.startsWith('http')) {
+                    this.fetchWikipediaContent(`https://it.wikipedia.org${href}`);
+                } else {
+                    window.open(href, '_blank');
+                }
             }
         }
     }
@@ -113,7 +119,6 @@ export class UIManager {
         this.searchInput.addEventListener('focus', () => this.showSuggestions());
         this.searchInput.addEventListener('input', debounce(() => this.updateSearchSuggestions(), 300));
         this.searchInput.addEventListener('keydown', (e) => this.handleSearchKeydown(e));
-        
         this.searchInput.addEventListener('showAllSuggestions', () => this.updateSearchSuggestions(true));
 
         const searchContainer = this.filterControl.getContainer().querySelector('.custom-search');
@@ -137,7 +142,7 @@ export class UIManager {
     }
 
     handleSliderTouch(e) {
-        e.preventDefault(); // Prevent scrolling
+        e.preventDefault();
         const touch = e.touches[0];
         const sliderRect = this.hierLvlSlider.getBoundingClientRect();
         const pos = (touch.clientX - sliderRect.left) / sliderRect.width;
@@ -159,17 +164,12 @@ export class UIManager {
         this.hierLvlValue.textContent = value;
     }
 
-    enableMapDragging = () => {
-        document.removeEventListener('mouseup', this.enableMapDragging);
-        document.removeEventListener('mouseleave', this.enableMapDragging);
-    }
-
     clearSearch() {
         if (this.searchInput) {
             this.searchInput.value = '';
             this.hideSuggestions();
             this.searchHandler(null);
-            this.wikipediaPanel.style.display = 'none'; // Hide the Wikipedia panel
+            this.wikipediaPanel.style.display = 'none';
         }
     }
 
@@ -197,37 +197,10 @@ export class UIManager {
         }
 
         const currentLevelNames = this.layerManager.getCurrentHierLevelMountainAreaNames();
-        // Use getMatchingNames even when showing all names to ensure sorting
         const matchingNames = this.getMatchingNames(searchValue, currentLevelNames);
 
         if (matchingNames.length > 0) {
-            const ul = document.createElement('ul');
-            ul.className = 'suggestions-list';
-            
-            matchingNames.forEach((name, index) => {
-                const li = document.createElement('li');
-                li.textContent = name;
-                li.setAttribute('tabindex', '0');
-                li.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    this.selectSuggestion(name);
-                });
-                li.addEventListener('keydown', (e) => this.handleSuggestionKeydown(e, index, ul));
-                ul.appendChild(li);
-            });
-
-            this.searchSuggestions.appendChild(ul);
-            this.showSuggestions();
-
-            this.searchSuggestions.addEventListener('wheel', (e) => {
-                const isAtTop = this.searchSuggestions.scrollTop === 0;
-                const isAtBottom = this.searchSuggestions.scrollHeight - this.searchSuggestions.scrollTop === this.searchSuggestions.clientHeight;
-
-                if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
-                    e.preventDefault();
-                }
-                e.stopPropagation();
-            }, { passive: false });
+            this.populateSuggestionsList(matchingNames);
         } else {
             this.hideSuggestions();
         }
@@ -237,6 +210,38 @@ export class UIManager {
         return names
             .filter(name => searchValue === '' || name.toLowerCase().includes(searchValue.toLowerCase()))
             .sort((a, b) => a.localeCompare(b));
+    }
+
+    populateSuggestionsList(matchingNames) {
+        const ul = document.createElement('ul');
+        ul.className = 'suggestions-list';
+        
+        matchingNames.forEach((name, index) => {
+            const li = document.createElement('li');
+            li.textContent = name;
+            li.setAttribute('tabindex', '0');
+            li.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.selectSuggestion(name);
+            });
+            li.addEventListener('keydown', (e) => this.handleSuggestionKeydown(e, index, ul));
+            ul.appendChild(li);
+        });
+
+        this.searchSuggestions.appendChild(ul);
+        this.showSuggestions();
+
+        this.searchSuggestions.addEventListener('wheel', this.handleSuggestionsWheel.bind(this), { passive: false });
+    }
+
+    handleSuggestionsWheel(e) {
+        const isAtTop = this.searchSuggestions.scrollTop === 0;
+        const isAtBottom = this.searchSuggestions.scrollHeight - this.searchSuggestions.scrollTop === this.searchSuggestions.clientHeight;
+
+        if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
+            e.preventDefault();
+        }
+        e.stopPropagation();
     }
 
     selectSuggestion(name) {
@@ -259,8 +264,8 @@ export class UIManager {
     }
 
     updateWikipediaPanel(name) {
-        this.wikipediaPanel.style.display = 'block'; // Always show the panel
-        this.wikipediaPanel.innerHTML = this.createLanguageToggle(); // Always add the language toggle
+        this.wikipediaPanel.style.display = 'block';
+        this.wikipediaPanel.innerHTML = this.createLanguageToggle();
 
         if (!name) {
             this.wikipediaPanel.innerHTML += '<p>No content selected</p>';
@@ -293,8 +298,8 @@ export class UIManager {
 
     fetchWikipediaContent(wikiUrl) {
         const urlParts = wikiUrl.split('/wiki/');
-        const pageName = urlParts[1].split('#')[0]; // Remove the section anchor
-        const sectionAnchor = urlParts[1].split('#')[1] || ''; // Get the section anchor if it exists
+        const pageName = urlParts[1].split('#')[0];
+        const sectionAnchor = urlParts[1].split('#')[1] || '';
         const apiUrl = `https://${this.currentLanguage}.wikipedia.org/w/api.php?action=parse&format=json&prop=text|sections|displaytitle&page=${pageName}&origin=*`;
     
         const loadingMessage = this.currentLanguage === 'it' ? 'Caricamento...' : 'Loading...';
@@ -302,44 +307,53 @@ export class UIManager {
     
         fetch(apiUrl)
             .then(response => response.json())
-            .then(data => {
-                if (data.parse && data.parse.text) {
-                    const markup = data.parse.text['*'];
-                    const displayTitle = data.parse.displaytitle;
-                    const sections = data.parse.sections;
-                    
-                    let content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections);
-                    
-                    if (content) {
-                        this.wikipediaPanel.innerHTML = this.createLanguageToggle() + content;
-                    } else {
-                        const noContentMessage = this.currentLanguage === 'it'
-                            ? 'Nessun contenuto trovato per questa sezione.'
-                            : 'No content found for this section.';
-                        const viewFullPageMessage = this.currentLanguage === 'it'
-                            ? 'Puoi visualizzare l\'intera pagina qui:'
-                            : 'You can view the full page here:';
-                        this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `
-                            <p>${noContentMessage}</p>
-                            <p>${viewFullPageMessage}
-                            <a href="https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}" target="_blank">
-                                ${displayTitle}
-                            </a></p>`;
-                    }
-                } else {
-                    const errorMessage = this.currentLanguage === 'it'
-                        ? 'Errore nel caricamento del contenuto.'
-                        : 'Error loading content.';
-                    this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `<p>${errorMessage}</p>`;
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching Wikipedia content:', error);
-                const errorMessage = this.currentLanguage === 'it'
-                    ? 'Errore nel caricamento del contenuto.'
-                    : 'Error loading content.';
-                this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `<p>${errorMessage}</p>`;
-            });
+            .then(data => this.handleWikipediaResponse(data, pageName, sectionAnchor))
+            .catch(this.handleWikipediaError.bind(this));
+    }
+
+    handleWikipediaResponse(data, pageName, sectionAnchor) {
+        if (data.parse && data.parse.text) {
+            const markup = data.parse.text['*'];
+            const displayTitle = data.parse.displaytitle;
+            const sections = data.parse.sections;
+            
+            let content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections);
+            
+            if (content) {
+                this.wikipediaPanel.innerHTML = this.createLanguageToggle() + content;
+            } else {
+                this.displayNoContentMessage(pageName, displayTitle);
+            }
+        } else {
+            this.displayErrorMessage();
+        }
+    }
+
+    handleWikipediaError(error) {
+        console.error('Error fetching Wikipedia content:', error);
+        this.displayErrorMessage();
+    }
+
+    displayNoContentMessage(pageName, displayTitle) {
+        const noContentMessage = this.currentLanguage === 'it'
+            ? 'Nessun contenuto trovato per questa sezione.'
+            : 'No content found for this section.';
+        const viewFullPageMessage = this.currentLanguage === 'it'
+            ? 'Puoi visualizzare l\'intera pagina qui:'
+            : 'You can view the full page here:';
+        this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `
+            <p>${noContentMessage}</p>
+            <p>${viewFullPageMessage}
+            <a href="https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}" target="_blank">
+                ${displayTitle}
+            </a></p>`;
+    }
+
+    displayErrorMessage() {
+        const errorMessage = this.currentLanguage === 'it'
+            ? 'Errore nel caricamento del contenuto.'
+            : 'Error loading content.';
+        this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `<p>${errorMessage}</p>`;
     }
 
     createLanguageToggle() {
@@ -359,19 +373,36 @@ export class UIManager {
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = markup;
     
-        // Remove unwanted elements
-        const elementsToRemove = tempDiv.querySelectorAll('.mw-empty-elt, .mw-editsection, .reference, .navbox, .toc, .thumb, .mw-jump-link, .mw-redirectedfrom, .languagelinks, .mw-headline, .infobox, .sidebar');
-        elementsToRemove.forEach(el => el.remove());
+        this.removeUnwantedElements(tempDiv);
+        this.cleanOrRemoveInfobox(tempDiv);
     
-        // Remove or clean infobox if it still exists
-        const infobox = tempDiv.querySelector('.infobox, .sidebar, table.vcard');
-        if (infobox) {
-            // Option 1: Remove the entire infobox
-            infobox.remove();
+        let content = this.extractRelevantContent(tempDiv, sectionAnchor);
+    
+        if (!content) {
+            return null;
         }
     
+        content = this.modifyRemainingLinks(content);
+        content += this.createReadMoreLink(pageName, sectionAnchor);
+    
+        return content;
+    }
+
+    removeUnwantedElements(tempDiv) {
+        const elementsToRemove = tempDiv.querySelectorAll('.mw-empty-elt, .mw-editsection, .reference, .navbox, .toc, .thumb, .mw-jump-link, .mw-redirectedfrom, .languagelinks, .mw-headline, .infobox, .sidebar');
+        elementsToRemove.forEach(el => el.remove());
+    }
+
+    cleanOrRemoveInfobox(tempDiv) {
+        const infobox = tempDiv.querySelector('.infobox, .sidebar, table.vcard');
+        if (infobox) {
+            infobox.remove();
+        }
+    }
+
+    extractRelevantContent(tempDiv, sectionAnchor) {
         let content = '';
-        let startExtraction = !sectionAnchor; // Start extraction immediately if no section anchor
+        let startExtraction = !sectionAnchor;
     
         const contentElements = tempDiv.querySelectorAll('p, ul, ol');
         for (let el of contentElements) {
@@ -380,19 +411,15 @@ export class UIManager {
                 continue;
             }
     
-            if (startExtraction) {
-                // Only add paragraphs and lists to the content
-                if (el.tagName === 'P' || el.tagName === 'UL' || el.tagName === 'OL') {
-                    content += el.outerHTML;
-                }
+            if (startExtraction && (el.tagName === 'P' || el.tagName === 'UL' || el.tagName === 'OL')) {
+                content += el.outerHTML;
             }
         }
     
-        if (!content) {
-            return null; // Return null if no content found
-        }
-    
-        // Modify remaining links
+        return content;
+    }
+
+    modifyRemainingLinks(content) {
         const tempContent = document.createElement('div');
         tempContent.innerHTML = content;
         const links = tempContent.querySelectorAll('a');
@@ -403,14 +430,13 @@ export class UIManager {
             }
         });
     
-        content = tempContent.innerHTML;
-    
-        // Modify the "Read more" link
+        return tempContent.innerHTML;
+    }
+
+    createReadMoreLink(pageName, sectionAnchor) {
         const readMoreText = this.currentLanguage === 'it' ? 'Leggi di più su Wikipedia' : 'Read more on Wikipedia';
         const readMoreLink = `https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}${sectionAnchor ? '#' + sectionAnchor : ''}`;
-        content += `<p><a href="${readMoreLink}" target="_blank">${readMoreText}</a></p>`;
-    
-        return content;
+        return `<p><a href="${readMoreLink}" target="_blank">${readMoreText}</a></p>`;
     }
 
     handleSearchKeydown(e) {
@@ -465,7 +491,10 @@ export class UIManager {
             this.filterHandler(this.hierLvlSlider.value);
         });
 
-        // Touch event handling for mobile devices
+        this.setupTouchEvents();
+    }
+
+    setupTouchEvents() {
         let isDragging = false;
 
         this.hierLvlSlider.addEventListener('touchstart', (e) => {
