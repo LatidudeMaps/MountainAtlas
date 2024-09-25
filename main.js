@@ -13,6 +13,7 @@ class App {
         this.uiManager = null;
         this.controlManager = null;
         this.loadingIndicator = document.getElementById('loading-indicator');
+        this.disclaimerModal = document.getElementById('disclaimer-modal');
     }
 
     async init() {
@@ -24,11 +25,26 @@ class App {
             this.applyInitialFilter();
             this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
             console.log('App initialization complete');
+            this.showDisclaimer();
         } catch (error) {
             console.error('Error initializing app:', error);
             this.handleInitializationError(error);
         } finally {
             this.hideLoading();
+        }
+    }
+
+    showDisclaimer() {
+        if (this.disclaimerModal) {
+            this.disclaimerModal.style.display = 'block';
+            const acceptButton = document.getElementById('accept-disclaimer');
+            if (acceptButton) {
+                acceptButton.addEventListener('click', () => {
+                    this.disclaimerModal.style.display = 'none';
+                });
+            }
+        } else {
+            console.warn('Disclaimer modal element not found');
         }
     }
 
