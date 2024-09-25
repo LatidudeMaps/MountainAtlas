@@ -13,7 +13,7 @@ class App {
         this.uiManager = null;
         this.controlManager = null;
         this.loadingIndicator = document.getElementById('loading-indicator');
-        this.disclaimerModal = document.getElementById('disclaimer-modal');
+        this.disclaimerPopup = document.getElementById('disclaimer-popup');
     }
 
     async init() {
@@ -35,16 +35,22 @@ class App {
     }
 
     showDisclaimer() {
-        if (this.disclaimerModal) {
-            this.disclaimerModal.style.display = 'block';
+        if (this.disclaimerPopup) {
+            this.disclaimerPopup.style.display = 'block';
             const acceptButton = document.getElementById('accept-disclaimer');
             if (acceptButton) {
                 acceptButton.addEventListener('click', () => {
-                    this.disclaimerModal.style.display = 'none';
+                    this.hideDisclaimer();
                 });
             }
         } else {
-            console.warn('Disclaimer modal element not found');
+            console.warn('Disclaimer popup element not found');
+        }
+    }
+
+    hideDisclaimer() {
+        if (this.disclaimerPopup) {
+            this.disclaimerPopup.style.display = 'none';
         }
     }
 

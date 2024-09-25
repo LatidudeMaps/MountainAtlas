@@ -426,8 +426,8 @@ body, html {
     100% { transform: rotate(360deg); }
 }
 
-/* Disclaimer Modal Styles */
-.modal {
+/* Disclaimer Popup Styles */
+.popup {
     display: none;
     position: fixed;
     z-index: 10000;
@@ -439,7 +439,7 @@ body, html {
     background-color: rgba(0,0,0,0.4);
 }
 
-.modal-content {
+.popup-content {
     background-color: #fefefe;
     margin: 15% auto;
     padding: 20px;
@@ -447,26 +447,30 @@ body, html {
     width: 80%;
     max-width: 600px;
     border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     font-family: 'Montserrat', Arial, sans-serif;
 }
 
-.modal-content h2 {
+.popup-content h2 {
     margin-top: 0;
+    color: #333;
 }
 
 #accept-disclaimer {
     background-color: #4CAF50;
     color: white;
-    padding: 14px 20px;
+    padding: 10px 20px;
     margin: 8px 0;
     border: none;
+    border-radius: 4px;
     cursor: pointer;
-    width: 100%;
-    opacity: 0.9;
+    width: auto;
+    font-size: 16px;
+    transition: background-color 0.3s;
 }
 
 #accept-disclaimer:hover {
-    opacity: 1;
+    background-color: #45a049;
 }
 
 /* Responsive Styles */
@@ -516,7 +520,7 @@ body, html {
         width: 100%;
     }
 
-    .modal-content {
+    .popup-content {
         width: 95%;
         margin: 10% auto;
     }
