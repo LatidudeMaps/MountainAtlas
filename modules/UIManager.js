@@ -74,16 +74,18 @@ export class UIManager {
                 content.innerHTML = '<p>No peaks in current view</p>';
             } else {
                 let html = '<table id="highest-peaks-table">';
-                html += '<thead><tr><th>Name</th><th>Elevation (m)</th></tr></thead><tbody>';
                 
-                highestPeaks.forEach(peak => {
-                    html += `<tr>
-                        <td>${peak.properties.name || 'Unnamed Peak'}</td>
-                        <td>${peak.properties.elevation}</td>
+                highestPeaks.forEach((peak, index) => {
+                    const isHighest = index === 0;
+                    const highlightClass = isHighest ? 'class="highest-peak"' : '';
+                    const starIcon = isHighest ? '&#9733; ' : '';
+                    html += `<tr ${highlightClass}>
+                        <td>${starIcon}${peak.properties.name || 'Unnamed Peak'}</td>
+                        <td>${peak.properties.elevation} m</td>
                     </tr>`;
                 });
                 
-                html += '</tbody></table>';
+                html += '</table>';
                 content.innerHTML = html;
             }
         }
