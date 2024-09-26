@@ -75,11 +75,13 @@ export class LayerManager {
         };
     }
 
-    highlightSearchedAreas(searchValue) {
-        console.log('Highlighting searched areas:', searchValue);
+    highlightSearchedAreas(searchValue, hierLevel = null) {
+        console.log('Highlighting searched areas:', searchValue, 'Hier Level:', hierLevel);
         this.mountainAreasLayer.eachLayer(layer => {
             const mapName = layer.feature?.properties?.MapName_it || layer.feature?.properties?.MapName;
-            const isMatch = mapName && mapName.trim().toLowerCase().includes(searchValue.toLowerCase());
+            const layerHierLevel = layer.feature?.properties?.Hier_lvl;
+            const isMatch = mapName && mapName.trim().toLowerCase().includes(searchValue.toLowerCase()) &&
+                            (hierLevel === null || String(layerHierLevel) === String(hierLevel));
             layer.setStyle(isMatch ? this.highlightStyle() : this.defaultPolygonStyle());
         });
     }
@@ -111,7 +113,7 @@ export class LayerManager {
                 }
             }
         });
-        console.log('Matching layers found:', matchingLayers.length);
+        console.log('Matching layers found:', matchingLayers.length, matchingLayers);
         return matchingLayers;
     }
 

@@ -200,6 +200,7 @@ export class UIManager {
         }
 
         const currentLevelNames = this.layerManager.getCurrentHierLevelMountainAreaNames();
+        console.log('Current level names:', currentLevelNames);
         const matchingNames = this.getMatchingNames(searchValue, currentLevelNames);
 
         if (matchingNames.length > 0) {

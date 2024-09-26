@@ -120,9 +120,13 @@ class App {
             return;
         }
 
-        this.layerManager.highlightSearchedAreas(searchValue);
         const currentHierLevel = this.layerManager.currentHierLevel;
+        console.log('Current Hierarchy Level:', currentHierLevel);
+
+        this.layerManager.highlightSearchedAreas(searchValue, currentHierLevel);
         const matchingLayers = this.layerManager.getMatchingLayers(searchValue, currentHierLevel);
+
+        console.log('Matching Layers:', matchingLayers);
 
         if (matchingLayers.length > 0) {
             this.handleMatchingLayers(matchingLayers, searchValue);
@@ -132,9 +136,11 @@ class App {
     }
 
     handleMatchingLayers(matchingLayers, searchValue) {
+        console.log('Handling matching layers:', matchingLayers);
         const bounds = matchingLayers[0].layer.getBounds();
         const center = bounds.getCenter();
         const zoom = this.mapManager.map.getBoundsZoom(bounds);
+        console.log('Flying to:', center, 'with zoom:', zoom);
         this.mapManager.flyTo(center, zoom);
 
         this.layerManager.filterAndDisplayPeaks(null, matchingLayers[0].properties.MapName);
