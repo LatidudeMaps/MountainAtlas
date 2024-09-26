@@ -538,18 +538,22 @@ export class UIManager {
         const content = document.getElementById('highest-peaks-content');
         
         if (content) {
-            let html = '<table id="highest-peaks-table">';
-            html += '<thead><tr><th>Name</th><th>Elevation (m)</th></tr></thead><tbody>';
-            
-            highestPeaks.forEach(peak => {
-                html += `<tr>
-                    <td>${peak.properties.name || 'Unnamed Peak'}</td>
-                    <td>${peak.properties.elevation}</td>
-                </tr>`;
-            });
-            
-            html += '</tbody></table>';
-            content.innerHTML = html;
+            if (highestPeaks.length === 0) {
+                content.innerHTML = '<p>No peaks in current view</p>';
+            } else {
+                let html = '<table id="highest-peaks-table">';
+                html += '<thead><tr><th>Name</th><th>Elevation (m)</th></tr></thead><tbody>';
+                
+                highestPeaks.forEach(peak => {
+                    html += `<tr>
+                        <td>${peak.properties.name || 'Unnamed Peak'}</td>
+                        <td>${peak.properties.elevation}</td>
+                    </tr>`;
+                });
+                
+                html += '</tbody></table>';
+                content.innerHTML = html;
+            }
         }
     }
 }

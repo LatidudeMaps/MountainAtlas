@@ -113,6 +113,7 @@ export class LayerManager {
     }
 
     filterMountainAreas(selectedValue) {
+        console.log('Filtering mountain areas with value:', selectedValue);
         this.currentHierLevel = selectedValue;
         this.mountainAreasLayer.clearLayers();
         this.filteredMountainAreas = this.allMountainAreas.features.filter(feature => 
@@ -123,6 +124,7 @@ export class LayerManager {
             type: "FeatureCollection",
             features: this.filteredMountainAreas
         });
+        console.log('Filtered mountain areas:', this.filteredMountainAreas.length);
     }
 
     getCurrentHierLevelMountainAreaNames() {

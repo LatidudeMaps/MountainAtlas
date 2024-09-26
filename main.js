@@ -23,10 +23,11 @@ class App {
             this.showLoading();
             await this.loadData();
             this.initializeUI();
-            await this.initializeMap();  // New method
+            await this.initializeMap();
             this.applyInitialFilter();
             this.setupMapEventListeners();
-            this.hideLoading();
+            this.uiManager.updateHighestPeaksPanel(); // Add this line
+            this.hideLoading(); // Move this here
             console.log('App initialization complete');
             this.showDisclaimer();
         } catch (error) {
@@ -42,7 +43,20 @@ class App {
                 this.mapInitialized = true;
                 resolve();
             });
+            // Add a timeout in case the 'load' event doesn't fire
+            setTimeout(resolve, 2000);
         });
+    }
+
+    applyInitialFilter() {
+        console.log('Applying initial filter');
+        const initialHierLevel = "4";
+        this.handleFilterChange(initialHierLevel);
+        this.uiManager.updateHierLevelSlider(
+            Math.min(...this.dataLoader.getUniqueHierLevels()),
+            Math.max(...this.dataLoader.getUniqueHierLevels()),
+            parseInt(initialHierLevel)
+        );
     }
 
     setupMapEventListeners() {
@@ -155,12 +169,6 @@ class App {
         } else {
             console.warn('No hierarchy levels found');
         }
-    }
-
-    applyInitialFilter() {
-        console.log('Applying initial filter');
-        const initialHierLevel = "4";
-        this.handleFilterChange(initialHierLevel);
     }
 
     handleSearch(searchValue) {
