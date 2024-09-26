@@ -211,4 +211,24 @@ export class LayerManager {
         });
         this.filterAndDisplayPeaks(this.currentHierLevel);
     }
+    
+    getVisiblePeaks() {
+        const visiblePeaks = [];
+        const mapBounds = this.map.getBounds();
+        
+        this.markers.eachLayer(marker => {
+            if (mapBounds.contains(marker.getLatLng())) {
+                visiblePeaks.push(marker.feature);
+            }
+        });
+        
+        return visiblePeaks;
+    }
+
+    getHighestVisiblePeaks(limit = 5) {
+        const visiblePeaks = this.getVisiblePeaks();
+        return visiblePeaks
+            .sort((a, b) => b.properties.elevation - a.properties.elevation)
+            .slice(0, limit);
+    }
 }

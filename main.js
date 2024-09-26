@@ -18,13 +18,14 @@ class App {
 
     async init() {
         try {
-            console.log('App initialization started');
+            cconsole.log('App initialization started');
             this.showLoading();
             await this.loadData();
             this.initializeUI();
             this.applyInitialFilter();
             this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
-            this.setupInfoButton(); // Add this line
+            this.setupInfoButton();
+            this.setupHighestPeaksUpdates(); // Add this line
             console.log('App initialization complete');
             this.showDisclaimer();
         } catch (error) {
@@ -33,6 +34,14 @@ class App {
         } finally {
             this.hideLoading();
         }
+    }
+
+    setupHighestPeaksUpdates() {
+        this.mapManager.map.on('moveend', () => this.uiManager.updateHighestPeaksPanel());
+        this.mapManager.map.on('zoomend', () => this.uiManager.updateHighestPeaksPanel());
+        this.layerManager.mountainAreasLayer.on('add remove', () => this.uiManager.updateHighestPeaksPanel());
+        this.layerManager.markers.on('add remove', () => this.uiManager.updateHighestPeaksPanel());
+        this.uiManager.updateHighestPeaksPanel(); // Initial update
     }
 
     setupInfoButton() {
@@ -161,6 +170,8 @@ class App {
         } else {
             this.handleNoMatchingLayers(searchValue);
         }
+
+        this.uiManager.updateHighestPeaksPanel(); // Add this line
     }
 
     resetSearch() {
@@ -195,6 +206,7 @@ class App {
         this.layerManager.filterMountainAreas(selectedValue);
         this.layerManager.filterAndDisplayPeaks(selectedValue);
         this.uiManager.updateSearchSuggestions();
+        this.uiManager.updateHighestPeaksPanel(); // Add this line
     }
 
     handleInitializationError(error) {

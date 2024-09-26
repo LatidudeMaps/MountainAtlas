@@ -513,4 +513,47 @@ export class UIManager {
             this.filterHandler(this.hierLvlSlider.value);
         });
     }
+
+    setupHighestPeaksPanel() {
+        this.highestPeaksPanel = document.createElement('div');
+        this.highestPeaksPanel.id = 'highest-peaks-panel';
+        this.highestPeaksPanel.innerHTML = `
+            <h3>Highest Visible Peaks</h3>
+            <table id="highest-peaks-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Elevation (m)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- This will be populated dynamically -->
+                </tbody>
+            </table>
+        `;
+
+        const controlContainer = this.filterControl.getContainer();
+        controlContainer.parentNode.insertBefore(this.highestPeaksPanel, this.wikipediaPanel.nextSibling);
+
+        this.setupHighestPeaksPanelEventListeners();
+    }
+
+    setupHighestPeaksPanelEventListeners() {
+        L.DomEvent.disableClickPropagation(this.highestPeaksPanel);
+        L.DomEvent.disableScrollPropagation(this.highestPeaksPanel);
+    }
+
+    updateHighestPeaksPanel() {
+        if (!this.highestPeaksPanel) return;
+
+        const highestPeaks = this.layerManager.getHighestVisiblePeaks();
+        const tableBody = this.highestPeaksPanel.querySelector('tbody');
+        tableBody.innerHTML = '';
+
+        highestPeaks.forEach(peak => {
+            const row = tableBody.insertRow();
+            row.insertCell(0).textContent = peak.properties.name || 'Unnamed Peak';
+            row.insertCell(1).textContent = peak.properties.elevation;
+        });
+    }
 }
