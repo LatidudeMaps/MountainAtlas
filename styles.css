@@ -410,6 +410,7 @@ body, html {
     margin-top: 10px;
     pointer-events: auto;
     width: 300px;
+    max-height: 200px;
 }
 
 .highest-peaks-panel:hover {
