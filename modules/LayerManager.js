@@ -217,21 +217,24 @@ export class LayerManager {
     }
 
     getVisiblePeaks() {
-        if (!this.map.getBounds().isValid()) {
-            console.log('Map bounds not yet valid, returning empty array');
+        if (!this.markers || !this.map.getBounds().isValid()) {
+            console.log('Markers not initialized or map bounds not valid, returning empty array');
             return [];
         }
-        const visibleBounds = this.map.getBounds();
-        return this.allOsmPeaks.filter(peak => {
-            const latlng = L.latLng(peak.geometry.coordinates[1], peak.geometry.coordinates[0]);
-            return visibleBounds.contains(latlng);
+
+        const visibleMarkers = [];
+        this.markers.eachLayer((layer) => {
+            if (this.map.getBounds().contains(layer.getLatLng()) && this.map.getZoom() >= this.markers.options.disableClusteringAtZoom) {
+                visibleMarkers.push(layer);
+            }
         });
+
+        return visibleMarkers.map(marker => marker.feature).filter(feature => feature && feature.properties && feature.properties.elevation);
     }
 
     getHighestPeaks(n = 5) {
         const visiblePeaks = this.getVisiblePeaks();
-        const uniquePeaks = this.removeDuplicatePeaks(visiblePeaks);
-        return uniquePeaks
+        return visiblePeaks
             .sort((a, b) => b.properties.elevation - a.properties.elevation)
             .slice(0, n);
     }
