@@ -52,6 +52,12 @@ export class UIManager {
     setupHighestPeaksPanel() {
         this.highestPeaksPanel = L.control({ position: 'bottomright' });
         
+        this.highestPeaksPanel.onAdd = () => {
+            const container = L.DomUtil.create('div', 'highest-peaks-panel');
+            container.innerHTML = '<h3>Top 5 peaks</h3><div id="highest-peaks-content"></div>';
+            return container;
+        };
+        
         this.highestPeaksPanel.addTo(this.mapManager.map);
     }
 
