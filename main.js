@@ -113,7 +113,7 @@ class App {
     }
 
     handleSearch(searchValue) {
-        console.log('Search initiated with value:', searchValue);
+        console.log(`Search initiated with value: "${searchValue}"`);
         
         if (searchValue === null) {
             this.resetSearch();
@@ -121,12 +121,12 @@ class App {
         }
 
         const currentHierLevel = this.layerManager.currentHierLevel;
-        console.log('Current Hierarchy Level:', currentHierLevel);
+        console.log(`Current Hierarchy Level: ${currentHierLevel}`);
 
         this.layerManager.highlightSearchedAreas(searchValue, currentHierLevel);
         const matchingLayers = this.layerManager.getMatchingLayers(searchValue, currentHierLevel);
 
-        console.log('Matching Layers:', matchingLayers);
+        console.log(`Matching Layers: ${JSON.stringify(matchingLayers.map(l => l.properties.MapName))}`);
 
         if (matchingLayers.length > 0) {
             this.handleMatchingLayers(matchingLayers, searchValue);
@@ -136,14 +136,17 @@ class App {
     }
 
     handleMatchingLayers(matchingLayers, searchValue) {
-        console.log('Handling matching layers:', matchingLayers);
-        const bounds = matchingLayers[0].layer.getBounds();
+        console.log(`Handling matching layers: ${matchingLayers.length}`);
+        const layer = matchingLayers[0].layer;
+        const bounds = layer.getBounds();
         const center = bounds.getCenter();
         const zoom = this.mapManager.map.getBoundsZoom(bounds);
-        console.log('Flying to:', center, 'with zoom:', zoom);
+        console.log(`Flying to: ${JSON.stringify(center)}, with zoom: ${zoom}`);
         this.mapManager.flyTo(center, zoom);
 
-        this.layerManager.filterAndDisplayPeaks(null, matchingLayers[0].properties.MapName);
+        const mapName = matchingLayers[0].properties.MapName_it || matchingLayers[0].properties.MapName;
+        console.log(`Filtering and displaying peaks for: ${mapName}`);
+        this.layerManager.filterAndDisplayPeaks(null, mapName);
         this.uiManager.updateHighestPeaksPanel();
         this.uiManager.updateWikipediaPanel(searchValue);
     }
