@@ -13,12 +13,44 @@ export class MapManager {
         this.map = L.map(this.mapId, {
             zoomAnimation: true,
             preferCanvas: true,
-            zoomControl: true
+            zoomControl: false  // We'll add zoom control manually
         });
 
-        this.addResetViewControl(map);
+        // Set an initial view to avoid the "Set map center and zoom first" error
+        this.map.setView([0, 0], 2);
+
+        // Add zoom control
+        L.control.zoom({ position: 'topright' }).addTo(this.map);
+
+        // Add reset view control
+        this.addResetViewControl();
+
+        this.baseMaps = this.initBaseMaps();
         console.log('Map initialized');
-        return map;
+    }
+
+    addResetViewControl() {
+        const ResetViewControl = L.Control.extend({
+            options: { position: 'topleft' },
+            onAdd: (map) => {
+                const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+                const button = L.DomUtil.create('a', '', container);
+                button.innerHTML = '&#8634;';
+                button.href = '#';
+                button.title = 'Reset View';
+                button.style.fontSize = '22px';
+                button.style.lineHeight = '30px';
+                
+                L.DomEvent.on(button, 'click', (e) => {
+                    L.DomEvent.preventDefault(e);
+                    this.resetView();
+                });
+
+                return container;
+            }
+        });
+
+        new ResetViewControl().addTo(this.map);
     }
 
     isMapReady() {
@@ -78,30 +110,6 @@ export class MapManager {
         console.log('Initial extent set');
     }
 
-    addResetViewControl(map) {
-        const ResetViewControl = L.Control.extend({
-            options: { position: 'topleft' },
-            onAdd: (map) => {
-                const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-                const button = L.DomUtil.create('a', '', container);
-                button.innerHTML = '&#8634;';
-                button.href = '#';
-                button.title = 'Reset View';
-                button.style.fontSize = '22px';
-                button.style.lineHeight = '30px';
-                
-                L.DomEvent.on(button, 'click', (e) => {
-                    L.DomEvent.preventDefault(e);
-                    this.resetView();
-                });
-
-                return container;
-            }
-        });
-
-        map.addControl(new ResetViewControl());
-    }
-
     resetView() {
         if (this.initialBounds) {
             this.map.fitBounds(this.initialBounds);
@@ -128,19 +136,6 @@ export class MapManager {
             console.warn('Map not ready, setting view instead of flying');
             this.map.setView(center, zoom);
         }
-    }
-
-    addResponsiveZoomControl() {
-        const zoomControl = L.control.zoom({ position: 'topright' });
-        zoomControl.addTo(this.map);
-
-        const handleResize = () => {
-            const isMobile = window.innerWidth <= 768;
-            zoomControl.setPosition(isMobile ? 'bottomright' : 'topright');
-        };
-
-        window.addEventListener('resize', handleResize);
-        handleResize(); // Call once to set initial state
     }
 
     changeBaseMap(newBaseMapName) {

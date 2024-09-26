@@ -20,7 +20,7 @@ class App {
         try {
             console.log('App initialization started');
             this.showLoading();
-            this.mapManager.initMap();
+            this.mapManager.initMap();  // This line should be here
             await this.loadData();
             this.initializeLayers();
             this.initializeUI();
