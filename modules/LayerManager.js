@@ -82,6 +82,8 @@ export class LayerManager {
             const isMatch = mapName && mapName.trim().toLowerCase().includes(searchValue.toLowerCase());
             layer.setStyle(isMatch ? this.highlightStyle() : this.defaultPolygonStyle());
         });
+        // Add this line to update peaks after highlighting
+        this.filterAndDisplayPeaks(null, searchValue);
     }
 
     highlightStyle() {
@@ -139,10 +141,16 @@ export class LayerManager {
     }
 
     filterPeaks(hierLvl, mapName) {
+        console.log('Filtering peaks with:', { hierLvl, mapName });
         if (mapName) {
             return this.allOsmPeaks.filter(feature => {
-                const featureMapName = feature.properties.MapName_it || feature.properties.MapName;
-                return featureMapName && featureMapName.trim().toLowerCase() === mapName.toLowerCase();
+                const featureMapName = feature.properties.MapName;
+                const featureMapNameIt = this.mountainAreaNameMap.get(featureMapName.toLowerCase()) || featureMapName;
+                console.log('Comparing:', { featureMapName, featureMapNameIt, mapName });
+                return featureMapName && (
+                    featureMapName.trim().toLowerCase() === mapName.toLowerCase() ||
+                    featureMapNameIt.trim().toLowerCase() === mapName.toLowerCase()
+                );
             });
         } else {
             return hierLvl === "all" 
@@ -152,10 +160,10 @@ export class LayerManager {
     }
 
     addPeaksToMarkers(filteredPeaks) {
+        console.log('Adding filtered peaks to markers:', filteredPeaks.length);
         L.geoJSON(filteredPeaks, {
             pointToLayer: this.createMarker.bind(this)
         }).addTo(this.markers);
-        console.log('Filtered peaks added to markers');
     }
 
     getVisibleMountainAreaNames() {

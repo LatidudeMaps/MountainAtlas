@@ -165,6 +165,7 @@ class App {
 
     resetSearch() {
         this.layerManager.resetHighlight();
+        this.layerManager.filterAndDisplayPeaks(this.layerManager.currentHierLevel);
         this.uiManager.updateWikipediaPanel(null);
     }
 
@@ -174,7 +175,7 @@ class App {
         const zoom = this.mapManager.map.getBoundsZoom(bounds);
         this.mapManager.flyTo(center, zoom);
 
-        const matchingMapName = matchingLayers[0].properties.MapName;
+        const matchingMapName = matchingLayers[0].properties.MapName_it || matchingLayers[0].properties.MapName;
         this.layerManager.filterAndDisplayPeaks(null, matchingMapName);
         this.uiManager.updateWikipediaPanel(searchValue);
     }
