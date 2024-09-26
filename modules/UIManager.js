@@ -517,6 +517,7 @@ export class UIManager {
     setupHighestPeaksPanel() {
         this.highestPeaksPanel = document.createElement('div');
         this.highestPeaksPanel.id = 'highest-peaks-panel';
+        this.highestPeaksPanel.style.display = 'block'; // Ensure the panel is visible
         this.highestPeaksPanel.innerHTML = `
             <h3>Highest Visible Peaks</h3>
             <table id="highest-peaks-table">
@@ -536,6 +537,9 @@ export class UIManager {
         controlContainer.parentNode.insertBefore(this.highestPeaksPanel, this.wikipediaPanel.nextSibling);
 
         this.setupHighestPeaksPanelEventListeners();
+        
+        // Log to confirm panel creation
+        console.log('Highest peaks panel created:', this.highestPeaksPanel);
     }
 
     setupHighestPeaksPanelEventListeners() {
@@ -544,10 +548,19 @@ export class UIManager {
     }
 
     updateHighestPeaksPanel() {
-        if (!this.highestPeaksPanel) return;
+        if (!this.highestPeaksPanel) {
+            console.error('Highest peaks panel not found');
+            return;
+        }
 
         const highestPeaks = this.layerManager.getHighestVisiblePeaks();
         const tableBody = this.highestPeaksPanel.querySelector('tbody');
+        
+        if (!tableBody) {
+            console.error('Table body not found in highest peaks panel');
+            return;
+        }
+
         tableBody.innerHTML = '';
 
         highestPeaks.forEach(peak => {
@@ -555,5 +568,8 @@ export class UIManager {
             row.insertCell(0).textContent = peak.properties.name || 'Unnamed Peak';
             row.insertCell(1).textContent = peak.properties.elevation;
         });
+
+        // Log to confirm panel update
+        console.log('Highest peaks panel updated with', highestPeaks.length, 'peaks');
     }
 }
