@@ -54,7 +54,7 @@ export class UIManager {
         
         this.highestPeaksPanel.onAdd = () => {
             const container = L.DomUtil.create('div', 'highest-peaks-panel');
-            container.innerHTML = '<h3>Top 5 peaks</h3><div id="highest-peaks-content"></div>';
+            container.innerHTML = '<h3>Top 5 peaks in map view</h3><div id="highest-peaks-content"></div>';
             return container;
         };
         

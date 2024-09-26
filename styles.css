@@ -323,7 +323,6 @@ body, html {
     padding-top: 50px;
     align-self: flex-end; /* Ensures alignment with the unified control */
     margin-right: 10px;
-    margin-bottom: 10px;
 }
 
 #wikipedia-panel * {
@@ -405,13 +404,12 @@ body, html {
     border-radius: 5px;
     box-shadow: 0 1px 5px rgba(0,0,0,0.65);
     font-family: 'Montserrat', Arial, sans-serif;
-    padding: 15px;
+    padding: 5px;
     box-sizing: border-box;
     pointer-events: auto;
     width: 300px;
     max-height: 250px;
     overflow-y: auto;
-    position: relative;
 }
 
 .highest-peaks-panel:hover {
