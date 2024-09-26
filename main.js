@@ -20,14 +20,14 @@ class App {
         try {
             console.log('App initialization started');
             this.showLoading();
-            this.mapManager.initMap();  // This line should be here
+            this.mapManager.initMap();
             await this.loadData();
             this.initializeLayers();
             this.initializeUI();
-            this.applyInitialFilter();
             this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
             this.setupInfoButton();
             this.setupHighestPeaksUpdates();
+            this.applyInitialFilter(); // Move this here, after all initializations
             console.log('App initialization complete');
             this.showDisclaimer();
         } catch (error) {
@@ -39,25 +39,23 @@ class App {
     }
 
     initializeLayers() {
+        console.log('Initializing layers');
         if (!this.mapManager.isMapReady()) {
             throw new Error('Map is not ready');
         }
         this.layerManager = new LayerManager(this.mapManager.map);
+        this.layerManager.setMountainAreasData(this.dataLoader.mountainAreasData);
+        this.layerManager.setOsmPeaksData(this.dataLoader.allOsmPeaks);
     }
 
     async loadData() {
         console.log('Loading data...');
         try {
-            const [mountainAreasData, osmPeaksData] = await Promise.all([
+            await Promise.all([
                 this.dataLoader.loadMountainAreas(),
                 this.dataLoader.loadOsmPeaks()
             ]);
-            
-            this.initializeLayers(); // Move this here to ensure LayerManager is created before setting data
-            this.layerManager.setMountainAreasData(mountainAreasData);
-            this.layerManager.setOsmPeaksData(osmPeaksData);
-            
-            console.log('Data loaded and set in LayerManager');
+            console.log('Data loaded successfully');
         } catch (error) {
             console.error('Error loading data:', error);
             throw new Error('Failed to load necessary data');

@@ -1,15 +1,12 @@
 export class LayerManager {
     constructor(map) {
         this.map = map;
-        this.mountainAreasLayer = null;
-        this.markers = null;
+        this.mountainAreasLayer = this.initMountainAreasLayer();
+        this.markers = this.initMarkers();
         this.allMountainAreas = null;
         this.allOsmPeaks = null;
         this.filteredMountainAreas = [];
         this.currentHierLevel = null;
-        
-        this.initMountainAreasLayer();
-        this.initMarkers();
     }
 
     initMountainAreasLayer() {
@@ -45,14 +42,14 @@ export class LayerManager {
 
     setMountainAreasData(data) {
         console.log('Setting mountain areas data');
-        if (!this.mountainAreasLayer) {
-            console.error('Mountain areas layer not initialized');
-            return;
-        }
         this.allMountainAreas = data;
-        this.mountainAreasLayer.clearLayers();
-        this.mountainAreasLayer.addData(data);
-        console.log('Mountain areas data added to layer');
+        if (this.mountainAreasLayer) {
+            this.mountainAreasLayer.clearLayers();
+            this.mountainAreasLayer.addData(data);
+            console.log('Mountain areas data added to layer');
+        } else {
+            console.error('Mountain areas layer not initialized');
+        }
     }
 
     setOsmPeaksData(data) {
@@ -122,6 +119,10 @@ export class LayerManager {
     filterMountainAreas(selectedValue) {
         this.currentHierLevel = selectedValue;
         this.mountainAreasLayer.clearLayers();
+        if (!this.allMountainAreas || !this.allMountainAreas.features) {
+            console.error('Mountain areas data is not loaded');
+            return;
+        }
         this.filteredMountainAreas = this.allMountainAreas.features.filter(feature => 
             String(feature.properties.Hier_lvl).trim() === selectedValue
         );
