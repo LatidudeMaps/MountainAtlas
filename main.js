@@ -45,6 +45,25 @@ class App {
         this.layerManager = new LayerManager(this.mapManager.map);
     }
 
+    async loadData() {
+        console.log('Loading data...');
+        try {
+            const [mountainAreasData, osmPeaksData] = await Promise.all([
+                this.dataLoader.loadMountainAreas(),
+                this.dataLoader.loadOsmPeaks()
+            ]);
+            
+            this.initializeLayers(); // Move this here to ensure LayerManager is created before setting data
+            this.layerManager.setMountainAreasData(mountainAreasData);
+            this.layerManager.setOsmPeaksData(osmPeaksData);
+            
+            console.log('Data loaded and set in LayerManager');
+        } catch (error) {
+            console.error('Error loading data:', error);
+            throw new Error('Failed to load necessary data');
+        }
+    }
+
     initializeUI() {
         console.log('Initializing UI');
         this.uiManager = new UIManager(
@@ -142,24 +161,6 @@ class App {
     hideLoading() {
         if (this.loadingIndicator) {
             this.loadingIndicator.style.display = 'none';
-        }
-    }
-
-    async loadData() {
-        console.log('Loading data...');
-        try {
-            const [mountainAreasData, osmPeaksData] = await Promise.all([
-                this.dataLoader.loadMountainAreas(),
-                this.dataLoader.loadOsmPeaks()
-            ]);
-            
-            this.layerManager.setMountainAreasData(mountainAreasData);
-            this.layerManager.setOsmPeaksData(osmPeaksData);
-            
-            console.log('Data loaded and set in LayerManager');
-        } catch (error) {
-            console.error('Error loading data:', error);
-            throw new Error('Failed to load necessary data');
         }
     }
 

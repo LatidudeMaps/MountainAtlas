@@ -1,17 +1,20 @@
 export class LayerManager {
     constructor(map) {
         this.map = map;
-        this.mountainAreasLayer = this.initMountainAreasLayer();
-        this.markers = this.initMarkers();
+        this.mountainAreasLayer = null;
+        this.markers = null;
         this.allMountainAreas = null;
         this.allOsmPeaks = null;
         this.filteredMountainAreas = [];
         this.currentHierLevel = null;
+        
+        this.initMountainAreasLayer();
+        this.initMarkers();
     }
 
     initMountainAreasLayer() {
         console.log('Initializing mountain areas layer');
-        return L.geoJSON(null, {
+        this.mountainAreasLayer = L.geoJSON(null, {
             style: this.defaultPolygonStyle,
             onEachFeature: this.onEachMountainArea.bind(this)
         }).addTo(this.map);
@@ -19,7 +22,7 @@ export class LayerManager {
 
     initMarkers() {
         console.log('Initializing markers');
-        return L.markerClusterGroup({
+        this.markers = L.markerClusterGroup({
             spiderfyOnMaxZoom: false,
             disableClusteringAtZoom: 18,
             zoomToBoundsOnClick: true,
@@ -42,6 +45,10 @@ export class LayerManager {
 
     setMountainAreasData(data) {
         console.log('Setting mountain areas data');
+        if (!this.mountainAreasLayer) {
+            console.error('Mountain areas layer not initialized');
+            return;
+        }
         this.allMountainAreas = data;
         this.mountainAreasLayer.clearLayers();
         this.mountainAreasLayer.addData(data);
