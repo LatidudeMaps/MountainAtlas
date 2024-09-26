@@ -138,11 +138,21 @@ export class LayerManager {
         this.addPeaksToMarkers(filteredPeaks);
     }
 
+    filterAndDisplayPeaks(hierLvl, mapName = null) {
+        console.log('Filtering and displaying peaks:', hierLvl, mapName);
+        this.markers.clearLayers();
+        let filteredPeaks = this.filterPeaks(hierLvl, mapName);
+        this.addPeaksToMarkers(filteredPeaks);
+    }
+
     filterPeaks(hierLvl, mapName) {
         if (mapName) {
             return this.allOsmPeaks.filter(feature => {
                 const featureMapName = feature.properties.MapName_it || feature.properties.MapName;
-                return featureMapName && featureMapName.trim().toLowerCase() === mapName.toLowerCase();
+                return featureMapName && (
+                    featureMapName.trim().toLowerCase() === mapName.toLowerCase() ||
+                    (feature.properties.MapName && feature.properties.MapName.trim().toLowerCase() === mapName.toLowerCase())
+                );
             });
         } else {
             return hierLvl === "all" 
