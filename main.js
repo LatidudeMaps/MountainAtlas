@@ -14,6 +14,7 @@ class App {
         this.controlManager = null;
         this.loadingIndicator = document.getElementById('loading-indicator');
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
+        this.setupMapMoveHandler();
     }
 
     async init() {
@@ -172,6 +173,12 @@ class App {
         this.layerManager.resetHighlight();
         this.layerManager.filterAndDisplayPeaks(this.layerManager.currentHierLevel);
         this.uiManager.updateWikipediaPanel(null);
+    }
+
+    setupMapMoveHandler() {
+        this.mapManager.map.on('moveend', () => {
+            this.layerManager.updateVisibleMarkers();
+        });
     }
 
     handleMatchingLayers(matchingLayers, searchValue) {
