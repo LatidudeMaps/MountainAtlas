@@ -116,12 +116,13 @@ class App {
             this.mapManager
         );
 
+        this.mapManager.uiManager = this.uiManager; // Add this line
+
         this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
         const unifiedControl = this.controlManager.initControls();
         
         this.uiManager.initializeElements(unifiedControl);
         this.setupUI();
-        this.mapManager.uiManager = this.uiManager;
         console.log('UI setup complete');
     }
 
