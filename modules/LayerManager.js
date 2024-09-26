@@ -222,10 +222,31 @@ export class LayerManager {
             return [];
         }
         const visibleBounds = this.map.getBounds();
+        const currentZoom = this.map.getZoom();
+        const maxZoom = this.map.getMaxZoom();
+
         return this.allOsmPeaks.filter(peak => {
             const latlng = L.latLng(peak.geometry.coordinates[1], peak.geometry.coordinates[0]);
-            return visibleBounds.contains(latlng);
+            
+            // Check if the peak is within the visible bounds
+            if (!visibleBounds.contains(latlng)) {
+                return false;
+            }
+
+            // Implement a zoom-based visibility check
+            const peakElevation = peak.properties.elevation;
+            const zoomThreshold = this.getZoomThresholdForElevation(peakElevation);
+
+            return currentZoom >= zoomThreshold;
         });
+    }
+    
+    getZoomThresholdForElevation(elevation) {
+        // Implement a simple elevation-based visibility rule
+        if (elevation > 4000) return 6;
+        if (elevation > 3000) return 8;
+        if (elevation > 2000) return 10;
+        return 12; // Default zoom level for smaller peaks
     }
 
     getHighestPeaks(n = 5) {
