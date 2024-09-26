@@ -213,6 +213,10 @@ export class LayerManager {
     }
 
     getVisiblePeaks() {
+        if (!this.map.getBounds().isValid()) {
+            console.log('Map bounds not yet valid, returning empty array');
+            return [];
+        }
         const visibleBounds = this.map.getBounds();
         return this.allOsmPeaks.filter(peak => {
             const latlng = L.latLng(peak.geometry.coordinates[1], peak.geometry.coordinates[0]);

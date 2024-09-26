@@ -526,10 +526,14 @@ export class UIManager {
         };
         
         this.highestPeaksPanel.addTo(this.mapManager.map);
-        this.updateHighestPeaksPanel();
+        // Remove the immediate call to updateHighestPeaksPanel here
     }
 
     updateHighestPeaksPanel() {
+        if (!this.mapManager.map.getBounds().isValid()) {
+            console.log('Map bounds not yet valid, skipping update');
+            return;
+        }
         const highestPeaks = this.layerManager.getHighestPeaks(5);
         const content = document.getElementById('highest-peaks-content');
         

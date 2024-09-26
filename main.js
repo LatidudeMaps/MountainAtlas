@@ -14,6 +14,7 @@ class App {
         this.controlManager = null;
         this.loadingIndicator = document.getElementById('loading-indicator');
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
+        this.mapInitialized = false;
     }
 
     async init() {
@@ -22,23 +23,33 @@ class App {
             this.showLoading();
             await this.loadData();
             this.initializeUI();
-            this.setupMapEventListeners();  // Add this line
+            await this.initializeMap();  // New method
             this.applyInitialFilter();
-            this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
-            this.setupInfoButton(); // Add this line
+            this.setupMapEventListeners();
+            this.hideLoading();
             console.log('App initialization complete');
             this.showDisclaimer();
         } catch (error) {
             console.error('Error initializing app:', error);
             this.handleInitializationError(error);
-        } finally {
-            this.hideLoading();
         }
+    }
+
+    async initializeMap() {
+        return new Promise((resolve) => {
+            this.mapManager.setInitialExtent(this.layerManager.mountainAreasLayer);
+            this.mapManager.map.on('load', () => {
+                this.mapInitialized = true;
+                resolve();
+            });
+        });
     }
 
     setupMapEventListeners() {
         this.mapManager.map.on('moveend', () => {
-            this.uiManager.updateHighestPeaksPanel();
+            if (this.mapInitialized) {
+                this.uiManager.updateHighestPeaksPanel();
+            }
         });
     }
 
