@@ -7,6 +7,7 @@ export class LayerManager {
         this.allOsmPeaks = null;
         this.filteredMountainAreas = [];
         this.currentHierLevel = null;
+        this.mountainAreaNameMap = new Map();
     }
 
     initMountainAreasLayer() {
@@ -45,6 +46,18 @@ export class LayerManager {
         this.allMountainAreas = data;
         this.mountainAreasLayer.clearLayers();
         this.mountainAreasLayer.addData(data);
+        
+        // Create a map of MapName to MapName_it
+        this.mountainAreaNameMap.clear();
+        data.features.forEach(feature => {
+            const mapName = feature.properties?.MapName;
+            const mapNameIt = feature.properties?.MapName_it;
+            if (mapName && mapNameIt) {
+                this.mountainAreaNameMap.set(mapName.toLowerCase(), mapNameIt);
+            }
+        });
+        console.log('Mountain area name map created, size:', this.mountainAreaNameMap.size);
+        
         console.log('Mountain areas data added to layer');
     }
 
@@ -82,8 +95,10 @@ export class LayerManager {
             const isMatch = mapName && mapName.trim().toLowerCase().includes(searchValue.toLowerCase());
             layer.setStyle(isMatch ? this.highlightStyle() : this.defaultPolygonStyle());
         });
-        // Add this line to update peaks after highlighting
-        this.filterAndDisplayPeaks(null, searchValue);
+        // Only call filterAndDisplayPeaks if searchValue is provided
+        if (searchValue) {
+            this.filterAndDisplayPeaks(null, searchValue);
+        }
     }
 
     highlightStyle() {
@@ -144,18 +159,20 @@ export class LayerManager {
         console.log('Filtering peaks with:', { hierLvl, mapName });
         if (mapName) {
             return this.allOsmPeaks.filter(feature => {
-                const featureMapName = feature.properties.MapName;
+                const featureMapName = feature.properties?.MapName;
+                if (!featureMapName) {
+                    console.warn('Peak feature missing MapName:', feature);
+                    return false;
+                }
                 const featureMapNameIt = this.mountainAreaNameMap.get(featureMapName.toLowerCase()) || featureMapName;
                 console.log('Comparing:', { featureMapName, featureMapNameIt, mapName });
-                return featureMapName && (
-                    featureMapName.trim().toLowerCase() === mapName.toLowerCase() ||
-                    featureMapNameIt.trim().toLowerCase() === mapName.toLowerCase()
-                );
+                return featureMapName.trim().toLowerCase() === mapName.toLowerCase() ||
+                       featureMapNameIt.trim().toLowerCase() === mapName.toLowerCase();
             });
         } else {
             return hierLvl === "all" 
-                ? this.allOsmPeaks.filter(feature => feature.properties.Hier_lvl === "4")
-                : this.allOsmPeaks.filter(feature => String(feature.properties.Hier_lvl).trim() === hierLvl);
+                ? this.allOsmPeaks.filter(feature => feature.properties?.Hier_lvl === "4")
+                : this.allOsmPeaks.filter(feature => String(feature.properties?.Hier_lvl || "").trim() === hierLvl);
         }
     }
 
@@ -179,10 +196,20 @@ export class LayerManager {
 
     createMarker(feature, latlng) {
         const marker = L.marker(latlng);
-        const name = feature.properties.name || "Unnamed Peak";
-        const elevation = feature.properties.elevation || "Unknown";
-        const mapName = feature.properties.MapName_it || feature.properties.MapName || "Unknown Area";
-        const popupContent = `<b>Name:</b> ${name}<br><b>Elevation:</b> ${elevation} m<br><b>Belongs to:</b> ${mapName}`;
+        const name = feature.properties?.name || "Unnamed Peak";
+        const elevation = feature.properties?.elevation || "Unknown";
+        
+        // Try to get MapName_it from the mountainAreaNameMap, fallback to MapName
+        const mapName = feature.properties?.MapName || "Unknown Area";
+        const mapNameIt = this.mountainAreaNameMap.get(mapName.toLowerCase()) || mapName;
+        
+        console.log('Creating marker for:', { name, mapName, mapNameIt });
+
+        const popupContent = `
+            <b>Name:</b> ${name}<br>
+            <b>Elevation:</b> ${elevation} m<br>
+            <b>Belongs to:</b> ${mapNameIt}
+        `;
 
         marker.bindPopup(popupContent)
             .bindTooltip(name, {

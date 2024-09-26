@@ -153,13 +153,18 @@ class App {
             return;
         }
 
-        this.layerManager.highlightSearchedAreas(searchValue);
-        const matchingLayers = this.layerManager.getMatchingLayers(searchValue);
+        try {
+            this.layerManager.highlightSearchedAreas(searchValue);
+            const matchingLayers = this.layerManager.getMatchingLayers(searchValue);
 
-        if (matchingLayers.length > 0) {
-            this.handleMatchingLayers(matchingLayers, searchValue);
-        } else {
-            this.handleNoMatchingLayers(searchValue);
+            if (matchingLayers.length > 0) {
+                this.handleMatchingLayers(matchingLayers, searchValue);
+            } else {
+                this.handleNoMatchingLayers(searchValue);
+            }
+        } catch (error) {
+            console.error('Error during search:', error);
+            alert('An error occurred while searching. Please try again.');
         }
     }
 
@@ -170,14 +175,19 @@ class App {
     }
 
     handleMatchingLayers(matchingLayers, searchValue) {
-        const bounds = matchingLayers[0].layer.getBounds();
-        const center = bounds.getCenter();
-        const zoom = this.mapManager.map.getBoundsZoom(bounds);
-        this.mapManager.flyTo(center, zoom);
+        try {
+            const bounds = matchingLayers[0].layer.getBounds();
+            const center = bounds.getCenter();
+            const zoom = this.mapManager.map.getBoundsZoom(bounds);
+            this.mapManager.flyTo(center, zoom);
 
-        const matchingMapName = matchingLayers[0].properties.MapName_it || matchingLayers[0].properties.MapName;
-        this.layerManager.filterAndDisplayPeaks(null, matchingMapName);
-        this.uiManager.updateWikipediaPanel(searchValue);
+            const matchingMapName = matchingLayers[0].properties.MapName_it || matchingLayers[0].properties.MapName;
+            this.layerManager.filterAndDisplayPeaks(null, matchingMapName);
+            this.uiManager.updateWikipediaPanel(searchValue);
+        } catch (error) {
+            console.error('Error handling matching layers:', error);
+            alert('An error occurred while processing the search results. Please try again.');
+        }
     }
 
     handleNoMatchingLayers(searchValue) {
