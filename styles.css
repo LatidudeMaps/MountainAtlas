@@ -421,7 +421,7 @@ body, html {
 
 #highest-peaks-table td {
     padding: 5px;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 #highest-peaks-table .highest-peak {
@@ -430,7 +430,7 @@ body, html {
 }
 
 #highest-peaks-table .highest-peak td:first-child {
-    color: #FFD700; /* Gold color for the star */
+    color: #ffa600; /* Gold color for the star */
 }
 
 /* Loading Indicator Styles */
