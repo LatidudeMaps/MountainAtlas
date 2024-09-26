@@ -142,7 +142,10 @@ export class LayerManager {
         if (mapName) {
             return this.allOsmPeaks.filter(feature => {
                 const featureMapName = feature.properties.MapName_it || feature.properties.MapName;
-                return featureMapName && featureMapName.trim().toLowerCase() === mapName.toLowerCase();
+                return featureMapName && (
+                    featureMapName.trim().toLowerCase() === mapName.toLowerCase() ||
+                    (feature.properties.MapName && feature.properties.MapName.trim().toLowerCase() === mapName.toLowerCase())
+                );
             });
         } else {
             return hierLvl === "all" 
@@ -200,5 +203,24 @@ export class LayerManager {
             layer.setStyle(this.defaultPolygonStyle());
         });
         this.filterAndDisplayPeaks(this.currentHierLevel);
+    }
+
+    getHighestVisiblePeaks(limit = 5) {
+        const visiblePeaks = [];
+        const mapBounds = this.map.getBounds();
+
+        this.markers.eachLayer(marker => {
+            if (mapBounds.contains(marker.getLatLng())) {
+                visiblePeaks.push({
+                    name: marker.feature.properties.name,
+                    elevation: marker.feature.properties.elevation,
+                    latlng: marker.getLatLng()
+                });
+            }
+        });
+
+        return visiblePeaks
+            .sort((a, b) => b.elevation - a.elevation)
+            .slice(0, limit);
     }
 }
