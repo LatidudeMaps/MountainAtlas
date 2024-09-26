@@ -1,14 +1,8 @@
-import { MapManager } from './modules/MapManager.js';
-import { LayerManager } from './modules/LayerManager.js';
-import { ControlManager } from './modules/ControlManager.js';
-import { DataLoader } from './modules/DataLoader.js';
-import { UIManager } from './modules/UIManager.js';
-
 class App {
     constructor() {
         console.log('App constructor called');
         this.mapManager = new MapManager('map');
-        this.layerManager = new LayerManager(this.mapManager.map);
+        this.layerManager = null;
         this.dataLoader = new DataLoader();
         this.uiManager = null;
         this.controlManager = null;
@@ -20,6 +14,12 @@ class App {
         try {
             console.log('App initialization started');
             this.showLoading();
+            
+            console.log('Waiting for map to initialize...');
+            await this.mapManager.waitForMap();
+            
+            console.log('Initializing LayerManager...');
+            this.layerManager = new LayerManager(this.mapManager.map);
             
             console.log('Loading data...');
             await this.loadData();
@@ -162,7 +162,21 @@ class App {
     applyInitialFilter() {
         console.log('Applying initial filter');
         const initialHierLevel = "4";
-        this.handleFilterChange(initialHierLevel);
+        if (this.mapManager.isMapReady()) {
+            this.handleFilterChange(initialHierLevel);
+        } else {
+            console.warn('Map not ready, skipping initial filter application');
+        }
+    }
+
+    setupMapMoveHandler() {
+        if (this.mapManager.isMapReady()) {
+            this.mapManager.map.on('moveend', () => {
+                this.layerManager.updateVisibleMarkers();
+            });
+        } else {
+            console.warn('Map not ready, skipping map move handler setup');
+        }
     }
 
     handleSearch(searchValue) {
