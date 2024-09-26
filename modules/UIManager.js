@@ -14,6 +14,7 @@ export class UIManager {
         this.wikipediaPanel = null;
         this.isDraggingWikiPanel = false;
         this.currentLanguage = 'it';
+        this.highestPeaksPanel = null;
     }
 
     initializeElements(filterControl) {
@@ -22,6 +23,7 @@ export class UIManager {
         this.initializeUIComponents();
         this.setupEventListeners();
         this.setupWikipediaPanel();
+        this.setupHighestPeaksPanel();
     }
 
     initializeUIComponents() {
@@ -512,5 +514,45 @@ export class UIManager {
             isDragging = false;
             this.filterHandler(this.hierLvlSlider.value);
         });
+    }
+
+    setupHighestPeaksPanel() {
+        this.highestPeaksPanel = document.createElement('div');
+        this.highestPeaksPanel.id = 'highest-peaks-panel';
+        this.highestPeaksPanel.style.display = 'none';
+
+        const controlContainer = this.filterControl.getContainer();
+        controlContainer.parentNode.insertBefore(this.highestPeaksPanel, this.wikipediaPanel.nextSibling);
+
+        this.setupHighestPeaksPanelEventListeners();
+    }
+
+    setupHighestPeaksPanelEventListeners() {
+        L.DomEvent.disableClickPropagation(this.highestPeaksPanel);
+        L.DomEvent.disableScrollPropagation(this.highestPeaksPanel);
+    }
+
+    updateHighestPeaksPanel(peaks) {
+        if (!peaks || peaks.length === 0) {
+            this.highestPeaksPanel.style.display = 'none';
+            return;
+        }
+
+        this.highestPeaksPanel.style.display = 'block';
+        this.highestPeaksPanel.innerHTML = `
+            <h3>Highest Peaks</h3>
+            <table id="highest-peaks-table">
+                <tr>
+                    <th>Name</th>
+                    <th>Elevation (m)</th>
+                </tr>
+                ${peaks.map(peak => `
+                    <tr>
+                        <td>${peak.properties.name || 'Unnamed'}</td>
+                        <td>${peak.properties.elevation}</td>
+                    </tr>
+                `).join('')}
+            </table>
+        `;
     }
 }
