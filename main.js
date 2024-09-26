@@ -144,9 +144,12 @@ class App {
     }
 
     handleMatchingLayers(matchingLayers, searchValue) {
-        const bounds = matchingLayers[0].layer.getBounds();
+        console.log('Handling matching layers:', matchingLayers.map(l => l.properties.MapName));
+        const layer = matchingLayers[0].layer;
+        const bounds = layer.getBounds();
         const center = bounds.getCenter();
         const zoom = this.mapManager.map.getBoundsZoom(bounds);
+        console.log('Flying to:', center, 'with zoom:', zoom);
         this.mapManager.flyTo(center, zoom);
 
         this.layerManager.filterAndDisplayPeaks(null, matchingLayers[0].properties.MapName);

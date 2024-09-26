@@ -102,27 +102,36 @@ export class LayerManager {
     getMatchingLayers(searchValue) {
         if (!searchValue) return [];
 
-        console.log('Getting matching layers for:', searchValue);
+        console.log('Getting matching layers for:', searchValue, 'Current Hier Level:', this.currentHierLevel);
         const matchingLayers = [];
+        const exactMatches = [];
 
         this.mountainAreasLayer.eachLayer(layer => {
             const mapName = layer.feature?.properties?.MapName_it || layer.feature?.properties?.MapName;
-            if (mapName && mapName.trim().toLowerCase().includes(searchValue.toLowerCase())) {
-                matchingLayers.push({
-                    layer: layer,
-                    properties: layer.feature.properties
-                });
+            const layerHierLevel = String(layer.feature?.properties?.Hier_lvl).trim();
+            
+            if (mapName && layerHierLevel === this.currentHierLevel) {
+                if (mapName.trim().toLowerCase() === searchValue.toLowerCase()) {
+                    exactMatches.push({ layer, properties: layer.feature.properties });
+                } else if (mapName.trim().toLowerCase().includes(searchValue.toLowerCase())) {
+                    matchingLayers.push({ layer, properties: layer.feature.properties });
+                }
             }
         });
-        console.log('Matching layers found:', matchingLayers.length);
-        return matchingLayers;
+
+        const results = exactMatches.length > 0 ? exactMatches : matchingLayers;
+        console.log('Matching layers found:', results.length, 'Exact matches:', exactMatches.length);
+        return results;
     }
 
     highlightSearchedAreas(searchValue) {
         console.log('Highlighting searched areas:', searchValue);
         this.mountainAreasLayer.eachLayer(layer => {
             const mapName = layer.feature?.properties?.MapName_it || layer.feature?.properties?.MapName;
-            const isMatch = mapName && mapName.trim().toLowerCase().includes(searchValue.toLowerCase());
+            const layerHierLevel = String(layer.feature?.properties?.Hier_lvl).trim();
+            const isMatch = mapName && 
+                            layerHierLevel === this.currentHierLevel &&
+                            mapName.trim().toLowerCase().includes(searchValue.toLowerCase());
             layer.setStyle(isMatch ? this.highlightStyle() : this.defaultPolygonStyle());
         });
     }

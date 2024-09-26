@@ -200,6 +200,7 @@ export class UIManager {
         }
 
         const currentLevelNames = this.layerManager.getCurrentHierLevelMountainAreaNames();
+        console.log('Current level names:', currentLevelNames);
         const matchingNames = this.getMatchingNames(searchValue, currentLevelNames);
 
         if (matchingNames.length > 0) {
@@ -210,12 +211,9 @@ export class UIManager {
     }
 
     getMatchingNames(searchValue, names) {
-        console.log(`Getting matching names for: "${searchValue}"`);
-        const matches = names
-            .filter(name => searchValue === '' || name.toLowerCase().includes(searchValue.toLowerCase()))
+        return names
+            .filter(name => name.toLowerCase().includes(searchValue.toLowerCase()))
             .sort((a, b) => a.localeCompare(b));
-        console.log(`Found ${matches.length} matches`);
-        return matches;
     }
 
     populateSuggestionsList(matchingNames) {
