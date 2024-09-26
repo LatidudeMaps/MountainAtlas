@@ -14,18 +14,28 @@ class App {
         this.controlManager = null;
         this.loadingIndicator = document.getElementById('loading-indicator');
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
-        this.setupMapMoveHandler();
     }
 
     async init() {
         try {
             console.log('App initialization started');
             this.showLoading();
+            
+            console.log('Loading data...');
             await this.loadData();
-            this.initializeUI();
+            
+            console.log('Initializing UI...');
+            await this.initializeUI();
+            
+            console.log('Applying initial filter...');
             this.applyInitialFilter();
+            
+            console.log('Fitting map to bounds...');
             this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
-            this.setupInfoButton(); // Add this line
+            
+            console.log('Setting up map move handler...');
+            this.setupMapMoveHandler();
+            
             console.log('App initialization complete');
             this.showDisclaimer();
         } catch (error) {
@@ -91,7 +101,6 @@ class App {
     }
 
     async loadData() {
-        console.log('Loading data...');
         try {
             const [mountainAreasData, osmPeaksData] = await Promise.all([
                 this.dataLoader.loadMountainAreas(),
@@ -104,39 +113,49 @@ class App {
             console.log('Data loaded and set in LayerManager');
         } catch (error) {
             console.error('Error loading data:', error);
-            throw new Error('Failed to load necessary data');
+            throw new Error('Failed to load necessary data: ' + error.message);
         }
     }
 
-    initializeUI() {
-        console.log('Initializing UI...');
-        this.uiManager = new UIManager(
-            this.handleSearch.bind(this),
-            this.handleFilterChange.bind(this),
-            this.layerManager,
-            this.mapManager
-        );
+    async initializeUI() {
+        try {
+            console.log('Initializing UI components...');
+            this.uiManager = new UIManager(
+                this.handleSearch.bind(this),
+                this.handleFilterChange.bind(this),
+                this.layerManager,
+                this.mapManager
+            );
 
-        this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
-        const unifiedControl = this.controlManager.initControls();
-        
-        this.uiManager.initializeElements(unifiedControl);
-        this.setupUI();
-        console.log('UI setup complete');
+            this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
+            const unifiedControl = this.controlManager.initControls();
+            
+            this.uiManager.initializeElements(unifiedControl);
+            await this.setupUI();
+            console.log('UI setup complete');
+        } catch (error) {
+            console.error('Error initializing UI:', error);
+            throw new Error('Failed to initialize UI: ' + error.message);
+        }
     }
 
-    setupUI() {
-        const uniqueHierLevels = this.dataLoader.getUniqueHierLevels();
-        console.log('Unique hierarchy levels:', uniqueHierLevels);
-        
-        if (uniqueHierLevels.length > 0) {
-            this.uiManager.updateHierLevelSlider(
-                Math.min(...uniqueHierLevels),
-                Math.max(...uniqueHierLevels),
-                4  // Default value
-            );
-        } else {
-            console.warn('No hierarchy levels found');
+    async setupUI() {
+        try {
+            const uniqueHierLevels = this.dataLoader.getUniqueHierLevels();
+            console.log('Unique hierarchy levels:', uniqueHierLevels);
+            
+            if (uniqueHierLevels.length > 0) {
+                this.uiManager.updateHierLevelSlider(
+                    Math.min(...uniqueHierLevels),
+                    Math.max(...uniqueHierLevels),
+                    4  // Default value
+                );
+            } else {
+                console.warn('No hierarchy levels found');
+            }
+        } catch (error) {
+            console.error('Error setting up UI:', error);
+            throw new Error('Failed to set up UI: ' + error.message);
         }
     }
 
@@ -217,8 +236,7 @@ class App {
 
     handleInitializationError(error) {
         console.error('Failed to initialize the application:', error);
-        alert('An error occurred while initializing the application. Please try refreshing the page.');
-        // Here you could also add code to display a user-friendly error message on the page
+        alert(`An error occurred while initializing the application: ${error.message}\nPlease check the console for more details and try refreshing the page.`);
     }
 }
 
@@ -227,6 +245,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const app = new App();
     app.init().catch(error => {
         console.error('Unhandled error during app initialization:', error);
-        alert('An unexpected error occurred. Please try refreshing the page.');
+        alert('An unexpected error occurred. Please check the console for more details and try refreshing the page.');
     });
 });
