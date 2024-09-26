@@ -74,7 +74,7 @@ export class UIManager {
                 content.innerHTML = '<p>No peaks in current view</p>';
             } else {
                 let html = '<table id="highest-peaks-table">';
-                html += '<thead><tr><th>Name</th><th>Elevation (m)</th></tr></thead><tbody>';
+                html += '<thead><tr></tr></thead><tbody>';
                 
                 highestPeaks.forEach(peak => {
                     html += `<tr>
