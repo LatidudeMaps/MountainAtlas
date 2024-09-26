@@ -323,7 +323,7 @@ body, html {
     padding-top: 50px;
     align-self: flex-end; /* Ensures alignment with the unified control */
     margin-right: 10px;
-    margin-bottom: 0;
+    margin-bottom: 10;
 }
 
 #wikipedia-panel * {
@@ -407,13 +407,6 @@ body, html {
     font-family: 'Montserrat', Arial, sans-serif;
     padding: 10px;
     width: 300px;
-    margin-top: 10px;
-}
-
-.highest-peaks-panel h3 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 16px;
 }
 
 #highest-peaks-table {
@@ -426,7 +419,7 @@ body, html {
 }
 
 #highest-peaks-table td {
-    padding: 5px;
+    padding: 8px 5px;
     font-size: 14px;
 }
 
@@ -436,6 +429,10 @@ body, html {
 }
 
 #highest-peaks-table .highest-peak td:first-child {
+    color: inherit; /* Reset the text color */
+}
+
+#highest-peaks-table .highest-peak td:first-child::first-letter {
     color: #FFD700; /* Gold color for the star */
 }
 
