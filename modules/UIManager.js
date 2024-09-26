@@ -74,7 +74,7 @@ export class UIManager {
                 content.innerHTML = '<p>No peaks in current view</p>';
             } else {
                 let html = '<table id="highest-peaks-table">';
-                html += '<thead><tr></tr></thead><tbody>';
+                html += '<thead><tr></tr></thead>';
                 
                 highestPeaks.forEach(peak => {
                     html += `<tr>
@@ -83,7 +83,7 @@ export class UIManager {
                     </tr>`;
                 });
                 
-                html += '</tbody></table>';
+                html += '</table>';
                 content.innerHTML = html;
             }
         }
