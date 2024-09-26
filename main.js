@@ -138,6 +138,24 @@ class App {
         }
     }
 
+    handleMatchingLayers(matchingLayers, searchValue) {
+        const bounds = matchingLayers[0].layer.getBounds();
+        const center = bounds.getCenter();
+        const zoom = this.mapManager.map.getBoundsZoom(bounds);
+        this.mapManager.flyTo(center, zoom);
+
+        const selectedFeature = matchingLayers[0].layer.feature;
+        this.layerManager.filterAndDisplayPeaks(null, selectedFeature.properties.MapName);
+        this.uiManager.updateHighestPeaksPanel(selectedFeature);
+        this.uiManager.updateWikipediaPanel(searchValue);
+    }
+
+    resetSearch() {
+        this.layerManager.resetHighlight();
+        this.uiManager.updateHighestPeaksPanel();
+        this.uiManager.updateWikipediaPanel(null);
+    }
+
     handleFilterChange(selectedValue) {
         console.log('Filter change initiated with value:', selectedValue);
         if (!this.dataLoader.isDataLoaded()) {
@@ -203,22 +221,6 @@ class App {
         } else {
             console.warn('No hierarchy levels found');
         }
-    }
-
-    resetSearch() {
-        this.layerManager.resetHighlight();
-        this.uiManager.updateWikipediaPanel(null);
-    }
-
-    handleMatchingLayers(matchingLayers, searchValue) {
-        const bounds = matchingLayers[0].layer.getBounds();
-        const center = bounds.getCenter();
-        const zoom = this.mapManager.map.getBoundsZoom(bounds);
-        this.mapManager.flyTo(center, zoom);
-
-        const matchingMapName = matchingLayers[0].properties.MapName;
-        this.layerManager.filterAndDisplayPeaks(null, matchingMapName);
-        this.uiManager.updateWikipediaPanel(searchValue);
     }
 
     handleNoMatchingLayers(searchValue) {

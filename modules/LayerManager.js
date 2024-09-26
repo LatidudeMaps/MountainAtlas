@@ -207,23 +207,23 @@ export class LayerManager {
         this.filterAndDisplayPeaks(this.currentHierLevel);
     }
 
-    getHighestPeaks(n = 5) {
-        const visiblePeaks = this.getVisiblePeaks();
-        const uniquePeaks = this.removeDuplicatePeaks(visiblePeaks);
+    getHighestPeaks(n = 5, selectedFeature = null) {
+        let filteredPeaks;
+        if (selectedFeature) {
+            // Filter peaks based on the selected feature's MapName
+            const mapName = selectedFeature.properties.MapName_it || selectedFeature.properties.MapName;
+            filteredPeaks = this.allOsmPeaks.filter(peak => 
+                peak.properties.MapName_it === mapName || peak.properties.MapName === mapName
+            );
+        } else {
+            // Use the existing method for general map panning
+            filteredPeaks = this.getVisiblePeaks();
+        }
+
+        const uniquePeaks = this.removeDuplicatePeaks(filteredPeaks);
         return uniquePeaks
             .sort((a, b) => b.properties.elevation - a.properties.elevation)
             .slice(0, n);
-    }
-
-    removeDuplicatePeaks(peaks) {
-        const uniquePeaks = new Map();
-        peaks.forEach(peak => {
-            const key = `${peak.geometry.coordinates[0]},${peak.geometry.coordinates[1]}`;
-            if (!uniquePeaks.has(key) || peak.properties.elevation > uniquePeaks.get(key).properties.elevation) {
-                uniquePeaks.set(key, peak);
-            }
-        });
-        return Array.from(uniquePeaks.values());
     }
 
     getVisiblePeaks() {
@@ -236,5 +236,16 @@ export class LayerManager {
             const latlng = L.latLng(peak.geometry.coordinates[1], peak.geometry.coordinates[0]);
             return visibleBounds.contains(latlng);
         });
+    }
+
+    removeDuplicatePeaks(peaks) {
+        const uniquePeaks = new Map();
+        peaks.forEach(peak => {
+            const key = `${peak.geometry.coordinates[0]},${peak.geometry.coordinates[1]}`;
+            if (!uniquePeaks.has(key) || peak.properties.elevation > uniquePeaks.get(key).properties.elevation) {
+                uniquePeaks.set(key, peak);
+            }
+        });
+        return Array.from(uniquePeaks.values());
     }
 }
