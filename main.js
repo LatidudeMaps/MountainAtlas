@@ -50,15 +50,8 @@ class App {
         
         this.uiManager.initializeElements(unifiedControl);
         
-        // Update the highest peaks panel on map move and zoom
-        this.mapManager.map.on('moveend zoomend', () => {
-            this.uiManager.updateHighestPeaksPanel();
-        });
-
-        // Also update when the marker cluster group adds or removes layers
-        this.layerManager.markers.on('layeradd layerremove', () => {
-            this.uiManager.updateHighestPeaksPanel();
-        });
+        // Add this line to set up the event listener for updating the highest peaks panel
+        this.mapManager.map.on('moveend', () => this.uiManager.updateHighestPeaksPanel());
         
         console.log('UI initialization complete');
     }

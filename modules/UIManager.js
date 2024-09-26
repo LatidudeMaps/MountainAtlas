@@ -531,12 +531,16 @@ export class UIManager {
     }
 
     updateHighestPeaksPanel() {
+        if (!this.mapManager.map.getBounds().isValid()) {
+            console.log('Map bounds not yet valid, skipping update');
+            return;
+        }
         const highestPeaks = this.layerManager.getHighestPeaks(5);
         const content = document.getElementById('highest-peaks-content');
         
         if (content) {
             if (highestPeaks.length === 0) {
-                content.innerHTML = '<p>No visible peaks in current view</p>';
+                content.innerHTML = '<p>No peaks in current view</p>';
             } else {
                 let html = '<table id="highest-peaks-table">';
                 html += '<thead><tr><th>Name</th><th>Elevation (m)</th></tr></thead><tbody>';
