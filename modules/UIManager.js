@@ -23,7 +23,6 @@ export class UIManager {
         this.initializeUIComponents();
         this.setupEventListeners();
         this.setupWikipediaPanel();
-        this.setupHighestPeaksPanel(); // Move this call here
     }
 
     initializeUIComponents() {
@@ -514,48 +513,5 @@ export class UIManager {
             isDragging = false;
             this.filterHandler(this.hierLvlSlider.value);
         });
-    }
-
-    setupHighestPeaksPanel() {
-        console.log('Setting up highest peaks panel');
-        this.highestPeaksPanel = document.createElement('div');
-        this.highestPeaksPanel.id = 'highest-peaks-panel';
-        this.highestPeaksPanel.innerHTML = '<table id="highest-peaks-table"></table>';
-
-        if (this.filterControl) {
-            const controlContainer = this.filterControl.getContainer();
-            if (controlContainer) {
-                if (this.wikipediaPanel) {
-                    controlContainer.parentNode.insertBefore(this.highestPeaksPanel, this.wikipediaPanel);
-                } else {
-                    controlContainer.parentNode.appendChild(this.highestPeaksPanel);
-                }
-                this.updateHighestPeaksPanel();
-            } else {
-                console.error('Control container not found');
-            }
-        } else {
-            console.error('Filter control not initialized');
-        }
-    }
-
-    updateHighestPeaksPanel() {
-        if (!this.highestPeaksPanel) {
-            console.warn('Highest peaks panel not initialized');
-            return;
-        }
-
-        const highestPeaks = this.layerManager.getHighestVisiblePeaks();
-        const table = this.highestPeaksPanel.querySelector('#highest-peaks-table');
-        if (table) {
-            table.innerHTML = highestPeaks.map(peak => `
-                <tr>
-                    <td>${peak.name}</td>
-                    <td>${peak.elevation} m</td>
-                </tr>
-            `).join('');
-        } else {
-            console.warn('Highest peaks table not found');
-        }
     }
 }

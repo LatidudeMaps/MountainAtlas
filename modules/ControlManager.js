@@ -10,7 +10,6 @@ export class ControlManager {
         console.log('Initializing controls');
         this.unifiedControl = this.addUnifiedControl();
         this.handleResponsiveControls();
-        // Remove the call to setupHighestPeaksPanel from here
         window.uiManager = this.uiManager;
         return this.unifiedControl;
     }

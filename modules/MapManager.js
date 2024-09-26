@@ -5,7 +5,6 @@ export class MapManager {
         this.baseMaps = this.initBaseMaps();
         this.initialBounds = null;
         this.activeBaseMap = "Dark Positron";
-        this.uiManager = null;
     }
 
     initMap(mapId) {
@@ -17,7 +16,6 @@ export class MapManager {
         });
 
         this.addResetViewControl(map);
-        this.setupMapEventListeners(map);
         console.log('Map initialized');
         return map;
     }
@@ -160,13 +158,5 @@ export class MapManager {
 
     getBounds() {
         return this.map.getBounds();
-    }
-
-    setupMapEventListeners(map) {
-        map.on('moveend', () => {
-            if (this.uiManager) {
-                this.uiManager.updateHighestPeaksPanel();
-            }
-        });
     }
 }
