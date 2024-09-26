@@ -407,7 +407,6 @@ body, html {
     font-family: 'Montserrat', Arial, sans-serif;
     padding: 15px;
     width: 300px;
-    margin-bottom: 20px;
     transition: all 0.3s ease;
 }
 
@@ -417,11 +416,11 @@ body, html {
 
 .highest-peaks-panel h3 {
     margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 16px;
+    margin-bottom: 5px;
+    font-size: 14px;
     color: #333;
     border-bottom: 2px solid #ffa600;
-    padding-bottom: 5px;
+    padding-bottom: 2px;
 }
 
 #highest-peaks-table {
