@@ -121,7 +121,8 @@ class App {
         }
 
         this.layerManager.highlightSearchedAreas(searchValue);
-        const matchingLayers = this.layerManager.getMatchingLayers(searchValue);
+        const currentHierLevel = this.uiManager.getCurrentHierLevel();
+        const matchingLayers = this.layerManager.getMatchingLayers(searchValue, currentHierLevel);
 
         if (matchingLayers.length > 0) {
             this.handleMatchingLayers(matchingLayers, searchValue);

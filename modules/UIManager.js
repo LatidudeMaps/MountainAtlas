@@ -188,6 +188,10 @@ export class UIManager {
         }
     }
 
+    getCurrentHierLevel() {
+        return this.hierLvlSlider ? this.hierLvlSlider.value : null;
+    }
+
     updateSearchSuggestions(showAll = false) {
         if (!this.searchInput || !this.searchSuggestions) return;
 

@@ -93,19 +93,22 @@ export class LayerManager {
         };
     }
 
-    getMatchingLayers(searchValue) {
+    getMatchingLayers(searchValue, hierLevel = null) {
         if (!searchValue) return [];
 
-        console.log('Getting matching layers for:', searchValue);
+        console.log('Getting matching layers for:', searchValue, 'Hier Level:', hierLevel);
         const matchingLayers = [];
 
         this.mountainAreasLayer.eachLayer(layer => {
             const mapName = layer.feature?.properties?.MapName_it || layer.feature?.properties?.MapName;
+            const layerHierLevel = layer.feature?.properties?.Hier_lvl;
             if (mapName && mapName.trim().toLowerCase().includes(searchValue.toLowerCase())) {
-                matchingLayers.push({
-                    layer: layer,
-                    properties: layer.feature.properties
-                });
+                if (hierLevel === null || String(layerHierLevel) === String(hierLevel)) {
+                    matchingLayers.push({
+                        layer: layer,
+                        properties: layer.feature.properties
+                    });
+                }
             }
         });
         console.log('Matching layers found:', matchingLayers.length);
