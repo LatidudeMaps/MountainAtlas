@@ -121,7 +121,6 @@ class App {
         
         this.uiManager.initializeElements(unifiedControl);
         this.setupUI();
-        this.mapManager.uiManager = this.uiManager;
         console.log('UI setup complete');
     }
 

@@ -14,7 +14,6 @@ export class UIManager {
         this.wikipediaPanel = null;
         this.isDraggingWikiPanel = false;
         this.currentLanguage = 'it';
-        this.highestPeaksPanel = null;
     }
 
     initializeElements(filterControl) {
@@ -513,27 +512,5 @@ export class UIManager {
             isDragging = false;
             this.filterHandler(this.hierLvlSlider.value);
         });
-    }
-
-    setupHighestPeaksPanel() {
-        this.highestPeaksPanel = document.createElement('div');
-        this.highestPeaksPanel.id = 'highest-peaks-panel';
-        this.highestPeaksPanel.innerHTML = '<table id="highest-peaks-table"></table>';
-
-        const controlContainer = this.filterControl.getContainer();
-        controlContainer.parentNode.insertBefore(this.highestPeaksPanel, this.wikipediaPanel);
-
-        this.updateHighestPeaksPanel();
-    }
-
-    updateHighestPeaksPanel() {
-        const highestPeaks = this.layerManager.getHighestVisiblePeaks();
-        const table = document.getElementById('highest-peaks-table');
-        table.innerHTML = highestPeaks.map(peak => `
-            <tr>
-                <td>${peak.name}</td>
-                <td>${peak.elevation} m</td>
-            </tr>
-        `).join('');
     }
 }
