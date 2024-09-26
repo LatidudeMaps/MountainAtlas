@@ -44,7 +44,7 @@ class App {
             this.layerManager,
             this.mapManager
         );
-
+    
         this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
         const unifiedControl = this.controlManager.initControls();
         
