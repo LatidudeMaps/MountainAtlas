@@ -1,15 +1,16 @@
 export class MapManager {
     constructor(mapId) {
         console.log('MapManager constructor called');
-        this.map = this.initMap(mapId);
-        this.baseMaps = this.initBaseMaps();
+        this.map = null;
+        this.mapId = mapId;
+        this.baseMaps = null;
         this.initialBounds = null;
         this.activeBaseMap = "Dark Positron";
     }
 
-    initMap(mapId) {
+    initMap() {
         console.log('Initializing map...');
-        const map = L.map(mapId, {
+        this.map = L.map(this.mapId, {
             zoomAnimation: true,
             preferCanvas: true,
             zoomControl: true
@@ -18,6 +19,10 @@ export class MapManager {
         this.addResetViewControl(map);
         console.log('Map initialized');
         return map;
+    }
+
+    isMapReady() {
+        return this.map !== null && typeof this.map.getCenter === 'function';
     }
 
     initBaseMaps() {

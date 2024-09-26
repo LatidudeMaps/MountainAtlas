@@ -213,6 +213,10 @@ export class LayerManager {
     }
     
     getVisiblePeaks() {
+        if (!this.map || !this.map.getBounds) {
+            console.error('Map is not ready');
+            return [];
+        }
         const visiblePeaks = [];
         const mapBounds = this.map.getBounds();
         

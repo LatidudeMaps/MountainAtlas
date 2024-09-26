@@ -8,7 +8,7 @@ class App {
     constructor() {
         console.log('App constructor called');
         this.mapManager = new MapManager('map');
-        this.layerManager = new LayerManager(this.mapManager.map);
+        this.layerManager = null;
         this.dataLoader = new DataLoader();
         this.uiManager = null;
         this.controlManager = null;
@@ -20,7 +20,9 @@ class App {
         try {
             console.log('App initialization started');
             this.showLoading();
+            this.mapManager.initMap();
             await this.loadData();
+            this.initializeLayers();
             this.initializeUI();
             this.applyInitialFilter();
             this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
@@ -34,6 +36,13 @@ class App {
         } finally {
             this.hideLoading();
         }
+    }
+
+    initializeLayers() {
+        if (!this.mapManager.isMapReady()) {
+            throw new Error('Map is not ready');
+        }
+        this.layerManager = new LayerManager(this.mapManager.map);
     }
 
     initializeUI() {
@@ -56,6 +65,10 @@ class App {
         console.log('Setting up highest peaks updates');
         if (!this.uiManager) {
             console.error('UIManager not initialized');
+            return;
+        }
+        if (!this.mapManager.isMapReady()) {
+            console.error('Map is not ready');
             return;
         }
         this.mapManager.map.on('moveend', () => {
