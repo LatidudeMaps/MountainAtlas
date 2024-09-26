@@ -207,6 +207,14 @@ export class LayerManager {
         this.filterAndDisplayPeaks(this.currentHierLevel);
     }
 
+    getHighestPeaks(n = 5) {
+        const visiblePeaks = this.getVisiblePeaks();
+        const uniquePeaks = this.removeDuplicatePeaks(visiblePeaks);
+        return uniquePeaks
+            .sort((a, b) => b.properties.elevation - a.properties.elevation)
+            .slice(0, n);
+    }
+
     removeDuplicatePeaks(peaks) {
         const uniquePeaks = new Map();
         peaks.forEach(peak => {
@@ -224,39 +232,9 @@ export class LayerManager {
             return [];
         }
         const visibleBounds = this.map.getBounds();
-        const visibleMountainAreas = this.getVisibleMountainAreas();
-        
         return this.allOsmPeaks.filter(peak => {
             const latlng = L.latLng(peak.geometry.coordinates[1], peak.geometry.coordinates[0]);
-            if (!visibleBounds.contains(latlng)) {
-                return false;
-            }
-            // Check if the peak is within any visible mountain area
-            return visibleMountainAreas.some(area => this.isPointInPolygon(latlng, area));
+            return visibleBounds.contains(latlng);
         });
     }
-
-    getVisibleMountainAreas() {
-        const visibleAreas = [];
-        this.mountainAreasLayer.eachLayer(layer => {
-            if (this.map.getBounds().intersects(layer.getBounds())) {
-                visibleAreas.push(layer.feature);
-            }
-        });
-        return visibleAreas;
-    }
-
-    isPointInPolygon(point, polygon) {
-        const latLngs = polygon.geometry.coordinates[0].map(coord => L.latLng(coord[1], coord[0]));
-        return L.GeometryUtil.geodesicArea(latLngs) > 0 && L.PolyUtil.pointInPolygon(point, latLngs);
-    }
-    
-    getHighestPeaks(n = 5) {
-        const visiblePeaks = this.getVisiblePeaks();
-        const uniquePeaks = this.removeDuplicatePeaks(visiblePeaks);
-        return uniquePeaks
-            .sort((a, b) => b.properties.elevation - a.properties.elevation)
-            .slice(0, n);
-    }
-
 }
