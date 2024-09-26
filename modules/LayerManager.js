@@ -204,4 +204,19 @@ export class LayerManager {
         });
         this.filterAndDisplayPeaks(this.currentHierLevel);
     }
+
+    getHighestPeaks(n = 5) {
+        const visiblePeaks = this.getVisiblePeaks();
+        return visiblePeaks
+            .sort((a, b) => b.properties.elevation - a.properties.elevation)
+            .slice(0, n);
+    }
+
+    getVisiblePeaks() {
+        const visibleBounds = this.map.getBounds();
+        return this.allOsmPeaks.filter(peak => {
+            const latlng = L.latLng(peak.geometry.coordinates[1], peak.geometry.coordinates[0]);
+            return visibleBounds.contains(latlng);
+        });
+    }
 }

@@ -23,6 +23,7 @@ export class UIManager {
         this.initializeUIComponents();
         this.setupEventListeners();
         this.setupWikipediaPanel();
+        this.setupHighestPeaksPanel();
     }
 
     initializeUIComponents() {
@@ -513,5 +514,38 @@ export class UIManager {
             isDragging = false;
             this.filterHandler(this.hierLvlSlider.value);
         });
+    }
+
+    setupHighestPeaksPanel() {
+        this.highestPeaksPanel = L.control({ position: 'bottomright' });
+        
+        this.highestPeaksPanel.onAdd = () => {
+            const container = L.DomUtil.create('div', 'highest-peaks-panel');
+            container.innerHTML = '<h3>Highest Peaks</h3><div id="highest-peaks-content"></div>';
+            return container;
+        };
+        
+        this.highestPeaksPanel.addTo(this.mapManager.map);
+        this.updateHighestPeaksPanel();
+    }
+
+    updateHighestPeaksPanel() {
+        const highestPeaks = this.layerManager.getHighestPeaks(5);
+        const content = document.getElementById('highest-peaks-content');
+        
+        if (content) {
+            let html = '<table id="highest-peaks-table">';
+            html += '<thead><tr><th>Name</th><th>Elevation (m)</th></tr></thead><tbody>';
+            
+            highestPeaks.forEach(peak => {
+                html += `<tr>
+                    <td>${peak.properties.name || 'Unnamed Peak'}</td>
+                    <td>${peak.properties.elevation}</td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            content.innerHTML = html;
+        }
     }
 }

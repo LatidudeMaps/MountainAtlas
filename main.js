@@ -22,6 +22,7 @@ class App {
             this.showLoading();
             await this.loadData();
             this.initializeUI();
+            this.setupMapEventListeners();  // Add this line
             this.applyInitialFilter();
             this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
             this.setupInfoButton(); // Add this line
@@ -33,6 +34,12 @@ class App {
         } finally {
             this.hideLoading();
         }
+    }
+
+    setupMapEventListeners() {
+        this.mapManager.map.on('moveend', () => {
+            this.uiManager.updateHighestPeaksPanel();
+        });
     }
 
     setupInfoButton() {
