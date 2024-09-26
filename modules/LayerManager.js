@@ -207,20 +207,9 @@ export class LayerManager {
         this.filterAndDisplayPeaks(this.currentHierLevel);
     }
 
-    getHighestPeaks(n = 5, selectedFeature = null) {
-        let filteredPeaks;
-        if (selectedFeature) {
-            // Filter peaks based on the selected feature's MapName
-            const mapName = selectedFeature.properties.MapName_it || selectedFeature.properties.MapName;
-            filteredPeaks = this.allOsmPeaks.filter(peak => 
-                peak.properties.MapName_it === mapName || peak.properties.MapName === mapName
-            );
-        } else {
-            // Use only visible peaks within the current map bounds
-            filteredPeaks = this.getVisiblePeaks();
-        }
-
-        const uniquePeaks = this.removeDuplicatePeaks(filteredPeaks);
+    getHighestPeaks(n = 5) {
+        const visiblePeaks = this.getVisiblePeaks();
+        const uniquePeaks = this.removeDuplicatePeaks(visiblePeaks);
         return uniquePeaks
             .sort((a, b) => b.properties.elevation - a.properties.elevation)
             .slice(0, n);

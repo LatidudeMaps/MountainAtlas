@@ -136,9 +136,8 @@ class App {
         const zoom = this.mapManager.map.getBoundsZoom(bounds);
         this.mapManager.flyTo(center, zoom);
 
-        const selectedFeature = matchingLayers[0].layer.feature;
-        this.layerManager.filterAndDisplayPeaks(null, selectedFeature.properties.MapName);
-        this.uiManager.updateHighestPeaksPanel(selectedFeature);
+        this.layerManager.filterAndDisplayPeaks(null, matchingLayers[0].properties.MapName);
+        this.uiManager.updateHighestPeaksPanel();
         this.uiManager.updateWikipediaPanel(searchValue);
     }
 
