@@ -1,34 +1,23 @@
 export class MapManager {
     constructor(mapId) {
         console.log('MapManager constructor called');
-        this.map = null;
-        this.baseMaps = null;
+        this.map = this.initMap(mapId);
+        this.baseMaps = this.initBaseMaps();
         this.initialBounds = null;
         this.activeBaseMap = "Dark Positron";
-        this.isInitialized = false;
-        this.initMap(mapId);
     }
 
     initMap(mapId) {
         console.log('Initializing map...');
-        this.map = L.map(mapId, {
+        const map = L.map(mapId, {
             zoomAnimation: true,
             preferCanvas: true,
             zoomControl: true
         });
 
-        this.addResetViewControl(this.map);
-        this.initBaseMaps();
-
-        // Wait for the map to be loaded
-        this.map.whenReady(() => {
-            console.log('Map is ready');
-            this.isInitialized = true;
-            // Set an initial view to ensure the map is properly loaded
-            this.map.setView([0, 0], 2);
-        });
-
-        console.log('Map initialization started');
+        this.addResetViewControl(map);
+        console.log('Map initialized');
+        return map;
     }
 
     initBaseMaps() {
@@ -49,23 +38,6 @@ export class MapManager {
         baseMaps["Dark Positron"].addTo(this.map);
         console.log('Base maps initialized');
         return baseMaps;
-    }
-
-    isMapReady() {
-        return this.isInitialized;
-    }
-
-    waitForMap() {
-        return new Promise((resolve) => {
-            if (this.isInitialized) {
-                resolve();
-            } else {
-                this.map.whenReady(() => {
-                    this.isInitialized = true;
-                    resolve();
-                });
-            }
-        });
     }
 
     createTileLayer(url, options) {
