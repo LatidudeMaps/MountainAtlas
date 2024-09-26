@@ -24,7 +24,7 @@ class App {
             await this.loadData();
             this.initializeUI();
             await this.showDisclaimer();
-            await this.initializeMap();
+            this.initializeMap();
             this.applyInitialFilter();
             this.setupMapEventListeners();
             this.uiManager.updateHighestPeaksPanel();
@@ -44,7 +44,6 @@ class App {
                 if (acceptButton) {
                     acceptButton.addEventListener('click', () => {
                         this.hideDisclaimer();
-                        this.disclaimerAccepted = true;
                         resolve();
                     });
                 }
@@ -55,20 +54,17 @@ class App {
         });
     }
 
-    async initializeMap() {
-        if (!this.disclaimerAccepted) {
-            console.log('Waiting for disclaimer acceptance before initializing map');
-            await new Promise(resolve => setTimeout(resolve, 100));
-            return this.initializeMap();
+    hideDisclaimer() {
+        if (this.disclaimerPopup) {
+            this.disclaimerPopup.style.display = 'none';
         }
-        return new Promise((resolve) => {
-            this.mapManager.setInitialExtent(this.layerManager.mountainAreasLayer);
-            this.mapManager.map.on('load', () => {
-                this.mapInitialized = true;
-                resolve();
-            });
-            setTimeout(resolve, 2000);
-        });
+    }
+
+    initializeMap() {
+        console.log('Initializing map');
+        this.mapManager.setInitialExtent(this.layerManager.mountainAreasLayer);
+        this.mapInitialized = true;
+        console.log('Map initialized');
     }
 
     applyInitialFilter() {
@@ -88,60 +84,6 @@ class App {
                 this.uiManager.updateHighestPeaksPanel();
             }
         });
-    }
-
-    setupInfoButton() {
-        const infoButton = document.getElementById('info-button');
-        const infoPopup = document.getElementById('info-popup');
-        const closeInfoPopup = document.getElementById('close-info-popup');
-
-        infoButton.addEventListener('click', () => {
-            infoPopup.style.display = 'block';
-        });
-
-        closeInfoPopup.addEventListener('click', () => {
-            infoPopup.style.display = 'none';
-        });
-
-        infoPopup.addEventListener('click', (event) => {
-            if (event.target === infoPopup) {
-                infoPopup.style.display = 'none';
-            }
-        });
-    }
-
-    showDisclaimer() {
-        if (this.disclaimerPopup) {
-            this.disclaimerPopup.style.display = 'block';
-            const acceptButton = document.getElementById('accept-disclaimer');
-            if (acceptButton) {
-                acceptButton.addEventListener('click', () => {
-                    this.hideDisclaimer();
-                });
-            }
-        } else {
-            console.warn('Disclaimer popup element not found');
-        }
-    }
-
-    hideDisclaimer() {
-        if (this.disclaimerPopup) {
-            this.disclaimerPopup.style.display = 'none';
-        }
-    }
-
-    showLoading() {
-        if (this.loadingIndicator) {
-            this.loadingIndicator.style.display = 'block';
-        } else {
-            console.warn('Loading indicator element not found');
-        }
-    }
-
-    hideLoading() {
-        if (this.loadingIndicator) {
-            this.loadingIndicator.style.display = 'none';
-        }
     }
 
     async loadData() {
@@ -175,23 +117,7 @@ class App {
         const unifiedControl = this.controlManager.initControls();
         
         this.uiManager.initializeElements(unifiedControl);
-        this.setupUI();
-        console.log('UI setup complete');
-    }
-
-    setupUI() {
-        const uniqueHierLevels = this.dataLoader.getUniqueHierLevels();
-        console.log('Unique hierarchy levels:', uniqueHierLevels);
-        
-        if (uniqueHierLevels.length > 0) {
-            this.uiManager.updateHierLevelSlider(
-                Math.min(...uniqueHierLevels),
-                Math.max(...uniqueHierLevels),
-                4  // Default value
-            );
-        } else {
-            console.warn('No hierarchy levels found');
-        }
+        console.log('UI initialization complete');
     }
 
     handleSearch(searchValue) {
@@ -209,6 +135,73 @@ class App {
             this.handleMatchingLayers(matchingLayers, searchValue);
         } else {
             this.handleNoMatchingLayers(searchValue);
+        }
+    }
+
+    handleFilterChange(selectedValue) {
+        console.log('Filter change initiated with value:', selectedValue);
+        if (!this.dataLoader.isDataLoaded()) {
+            console.log('Data not fully loaded, skipping filter change');
+            return;
+        }
+
+        this.layerManager.filterMountainAreas(selectedValue);
+        this.layerManager.filterAndDisplayPeaks(selectedValue);
+        this.uiManager.updateSearchSuggestions();
+    }
+
+    showLoading() {
+        if (this.loadingIndicator) {
+            this.loadingIndicator.style.display = 'block';
+        } else {
+            console.warn('Loading indicator element not found');
+        }
+    }
+
+    hideLoading() {
+        if (this.loadingIndicator) {
+            this.loadingIndicator.style.display = 'none';
+        }
+    }
+
+    handleInitializationError(error) {
+        console.error('Failed to initialize the application:', error);
+        alert('An error occurred while initializing the application. Please try refreshing the page.');
+        // Here you could also add code to display a user-friendly error message on the page
+    }
+
+    setupInfoButton() {
+        const infoButton = document.getElementById('info-button');
+        const infoPopup = document.getElementById('info-popup');
+        const closeInfoPopup = document.getElementById('close-info-popup');
+
+        infoButton.addEventListener('click', () => {
+            infoPopup.style.display = 'block';
+        });
+
+        closeInfoPopup.addEventListener('click', () => {
+            infoPopup.style.display = 'none';
+        });
+
+        infoPopup.addEventListener('click', (event) => {
+            if (event.target === infoPopup) {
+                infoPopup.style.display = 'none';
+            }
+        });
+    }
+
+    setupUI() {
+        const uniqueHierLevels = this.dataLoader.getUniqueHierLevels();
+        console.log('Unique hierarchy levels:', uniqueHierLevels);
+        
+        if (uniqueHierLevels.length > 0) {
+            this.uiManager.updateHierLevelSlider(
+                Math.min(...uniqueHierLevels),
+                Math.max(...uniqueHierLevels),
+                4  // Default value
+            );
+        } else {
+            console.warn('No hierarchy levels found');
         }
     }
 
@@ -232,24 +225,6 @@ class App {
         console.log('No matching polygons found for:', searchValue);
         alert('No matching polygons found.');
         this.uiManager.updateWikipediaPanel(null);
-    }
-
-    handleFilterChange(selectedValue) {
-        console.log('Filter change initiated with value:', selectedValue);
-        if (!this.dataLoader.isDataLoaded()) {
-            console.log('Data not fully loaded, skipping filter change');
-            return;
-        }
-
-        this.layerManager.filterMountainAreas(selectedValue);
-        this.layerManager.filterAndDisplayPeaks(selectedValue);
-        this.uiManager.updateSearchSuggestions();
-    }
-
-    handleInitializationError(error) {
-        console.error('Failed to initialize the application:', error);
-        alert('An error occurred while initializing the application. Please try refreshing the page.');
-        // Here you could also add code to display a user-friendly error message on the page
     }
 }
 
