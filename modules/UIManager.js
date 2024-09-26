@@ -25,6 +25,7 @@ export class UIManager {
         this.setupEventListeners();
         this.setupWikipediaPanel();
         this.setupHighestPeaksPanel();
+        this.adjustHighestPeaksPanelPosition();
     }
 
     initializeUIComponents() {
@@ -59,6 +60,28 @@ export class UIManager {
         };
         
         this.highestPeaksPanel.addTo(this.mapManager.map);
+
+        // Adjust the position after adding to the map
+        this.adjustHighestPeaksPanelPosition();
+    }
+
+    adjustHighestPeaksPanelPosition() {
+        const unifiedControl = document.querySelector('.unified-control');
+        const wikipediaPanel = document.getElementById('wikipedia-panel');
+        const highestPeaksPanel = document.querySelector('.highest-peaks-panel');
+
+        if (unifiedControl && wikipediaPanel && highestPeaksPanel) {
+            const unifiedControlRect = unifiedControl.getBoundingClientRect();
+            const wikipediaPanelRect = wikipediaPanel.getBoundingClientRect();
+            
+            const topOffset = wikipediaPanelRect.bottom + (wikipediaPanelRect.top - unifiedControlRect.bottom);
+            
+            highestPeaksPanel.style.position = 'absolute';
+            highestPeaksPanel.style.top = `${topOffset}px`;
+            highestPeaksPanel.style.right = '10px';
+            highestPeaksPanel.style.left = 'auto';
+            highestPeaksPanel.style.width = `${wikipediaPanelRect.width}px`;
+        }
     }
 
     updateHighestPeaksPanel() {
