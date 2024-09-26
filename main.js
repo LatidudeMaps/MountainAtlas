@@ -158,7 +158,6 @@ class App {
 
         if (matchingLayers.length > 0) {
             this.handleMatchingLayers(matchingLayers, searchValue);
-            this.updateHighestPeaksPanel();
         } else {
             this.handleNoMatchingLayers(searchValue);
         }
@@ -196,18 +195,12 @@ class App {
         this.layerManager.filterMountainAreas(selectedValue);
         this.layerManager.filterAndDisplayPeaks(selectedValue);
         this.uiManager.updateSearchSuggestions();
-        this.updateHighestPeaksPanel();
     }
 
     handleInitializationError(error) {
         console.error('Failed to initialize the application:', error);
         alert('An error occurred while initializing the application. Please try refreshing the page.');
         // Here you could also add code to display a user-friendly error message on the page
-    }
-
-    updateHighestPeaksPanel() {
-        const highestPeaks = this.layerManager.getHighestVisiblePeaks();
-        this.uiManager.updateHighestPeaksPanel(highestPeaks);
     }
 }
 
