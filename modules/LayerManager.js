@@ -142,7 +142,10 @@ export class LayerManager {
         if (mapName) {
             return this.allOsmPeaks.filter(feature => {
                 const featureMapName = feature.properties.MapName_it || feature.properties.MapName;
-                return featureMapName && featureMapName.trim().toLowerCase() === mapName.toLowerCase();
+                return featureMapName && (
+                    featureMapName.trim().toLowerCase() === mapName.toLowerCase() ||
+                    (feature.properties.MapName && feature.properties.MapName.trim().toLowerCase() === mapName.toLowerCase())
+                );
             });
         } else {
             return hierLvl === "all" 
