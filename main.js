@@ -25,7 +25,7 @@ class App {
             this.applyInitialFilter();
             this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
             this.setupInfoButton();
-            this.setupHighestPeaksUpdates(); // Add this line
+            this.setupHighestPeaksUpdates();
             console.log('App initialization complete');
             this.showDisclaimer();
         } catch (error) {
@@ -36,12 +36,46 @@ class App {
         }
     }
 
+    initializeUI() {
+        console.log('Initializing UI');
+        this.uiManager = new UIManager(
+            this.handleSearch.bind(this),
+            this.handleFilterChange.bind(this),
+            this.layerManager,
+            this.mapManager
+        );
+
+        this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
+        const unifiedControl = this.controlManager.initControls();
+        
+        this.uiManager.initializeElements(unifiedControl);
+        console.log('UI initialized');
+    }
+
     setupHighestPeaksUpdates() {
-        this.mapManager.map.on('moveend', () => this.uiManager.updateHighestPeaksPanel());
-        this.mapManager.map.on('zoomend', () => this.uiManager.updateHighestPeaksPanel());
-        this.layerManager.mountainAreasLayer.on('add remove', () => this.uiManager.updateHighestPeaksPanel());
-        this.layerManager.markers.on('add remove', () => this.uiManager.updateHighestPeaksPanel());
-        this.uiManager.updateHighestPeaksPanel(); // Initial update
+        console.log('Setting up highest peaks updates');
+        if (!this.uiManager) {
+            console.error('UIManager not initialized');
+            return;
+        }
+        this.mapManager.map.on('moveend', () => {
+            console.log('Map moved, updating highest peaks panel');
+            this.uiManager.updateHighestPeaksPanel();
+        });
+        this.mapManager.map.on('zoomend', () => {
+            console.log('Map zoomed, updating highest peaks panel');
+            this.uiManager.updateHighestPeaksPanel();
+        });
+        this.layerManager.mountainAreasLayer.on('add remove', () => {
+            console.log('Mountain areas layer changed, updating highest peaks panel');
+            this.uiManager.updateHighestPeaksPanel();
+        });
+        this.layerManager.markers.on('add remove', () => {
+            console.log('Markers layer changed, updating highest peaks panel');
+            this.uiManager.updateHighestPeaksPanel();
+        });
+        console.log('Performing initial update of highest peaks panel');
+        this.uiManager.updateHighestPeaksPanel();
     }
 
     setupInfoButton() {
@@ -116,23 +150,6 @@ class App {
         }
     }
 
-    initializeUI() {
-        console.log('Initializing UI...');
-        this.uiManager = new UIManager(
-            this.handleSearch.bind(this),
-            this.handleFilterChange.bind(this),
-            this.layerManager,
-            this.mapManager
-        );
-
-        this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
-        const unifiedControl = this.controlManager.initControls();
-        
-        this.uiManager.initializeElements(unifiedControl);
-        this.setupUI();
-        console.log('UI setup complete');
-    }
-
     setupUI() {
         const uniqueHierLevels = this.dataLoader.getUniqueHierLevels();
         console.log('Unique hierarchy levels:', uniqueHierLevels);
@@ -205,8 +222,12 @@ class App {
 
         this.layerManager.filterMountainAreas(selectedValue);
         this.layerManager.filterAndDisplayPeaks(selectedValue);
-        this.uiManager.updateSearchSuggestions();
-        this.uiManager.updateHighestPeaksPanel(); // Add this line
+        if (this.uiManager) {
+            this.uiManager.updateSearchSuggestions();
+            this.uiManager.updateHighestPeaksPanel();
+        } else {
+            console.error('UIManager not initialized in handleFilterChange');
+        }
     }
 
     handleInitializationError(error) {

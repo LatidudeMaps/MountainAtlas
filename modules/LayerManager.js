@@ -226,9 +226,13 @@ export class LayerManager {
     }
 
     getHighestVisiblePeaks(limit = 5) {
+        console.log('Getting highest visible peaks');
         const visiblePeaks = this.getVisiblePeaks();
-        return visiblePeaks
+        console.log('Total visible peaks:', visiblePeaks.length);
+        const sortedPeaks = visiblePeaks
             .sort((a, b) => b.properties.elevation - a.properties.elevation)
             .slice(0, limit);
+        console.log('Highest peaks:', sortedPeaks);
+        return sortedPeaks;
     }
 }

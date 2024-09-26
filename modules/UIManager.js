@@ -14,6 +14,8 @@ export class UIManager {
         this.wikipediaPanel = null;
         this.isDraggingWikiPanel = false;
         this.currentLanguage = 'it';
+        this.highestPeaksPanel = null;
+        console.log('UIManager constructor called');
     }
 
     initializeElements(filterControl) {
@@ -22,6 +24,8 @@ export class UIManager {
         this.initializeUIComponents();
         this.setupEventListeners();
         this.setupWikipediaPanel();
+        this.setupHighestPeaksPanel();
+        console.log('UI elements initialized');
     }
 
     initializeUIComponents() {
@@ -515,9 +519,10 @@ export class UIManager {
     }
 
     setupHighestPeaksPanel() {
+        console.log('Setting up highest peaks panel');
         this.highestPeaksPanel = document.createElement('div');
         this.highestPeaksPanel.id = 'highest-peaks-panel';
-        this.highestPeaksPanel.style.display = 'block'; // Ensure the panel is visible
+        this.highestPeaksPanel.style.display = 'block';
         this.highestPeaksPanel.innerHTML = `
             <h3>Highest Visible Peaks</h3>
             <table id="highest-peaks-table">
@@ -533,13 +538,26 @@ export class UIManager {
             </table>
         `;
 
+        if (!this.filterControl) {
+            console.error('Filter control not initialized');
+            return;
+        }
+
         const controlContainer = this.filterControl.getContainer();
-        controlContainer.parentNode.insertBefore(this.highestPeaksPanel, this.wikipediaPanel.nextSibling);
+        if (!controlContainer) {
+            console.error('Control container not found');
+            return;
+        }
+
+        if (!this.wikipediaPanel) {
+            console.error('Wikipedia panel not initialized');
+            controlContainer.appendChild(this.highestPeaksPanel);
+        } else {
+            controlContainer.parentNode.insertBefore(this.highestPeaksPanel, this.wikipediaPanel.nextSibling);
+        }
 
         this.setupHighestPeaksPanelEventListeners();
-        
-        // Log to confirm panel creation
-        console.log('Highest peaks panel created:', this.highestPeaksPanel);
+        console.log('Highest peaks panel created and added to DOM');
     }
 
     setupHighestPeaksPanelEventListeners() {
@@ -548,8 +566,14 @@ export class UIManager {
     }
 
     updateHighestPeaksPanel() {
+        console.log('Updating highest peaks panel');
         if (!this.highestPeaksPanel) {
             console.error('Highest peaks panel not found');
+            return;
+        }
+
+        if (!this.layerManager) {
+            console.error('Layer manager not initialized');
             return;
         }
 
@@ -569,7 +593,6 @@ export class UIManager {
             row.insertCell(1).textContent = peak.properties.elevation;
         });
 
-        // Log to confirm panel update
         console.log('Highest peaks panel updated with', highestPeaks.length, 'peaks');
     }
 }
