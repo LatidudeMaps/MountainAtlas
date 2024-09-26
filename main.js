@@ -8,7 +8,7 @@ class App {
     constructor() {
         console.log('App constructor called');
         this.mapManager = new MapManager('map');
-        this.layerManager = null;
+        this.layerManager = new LayerManager(this.mapManager.map);
         this.dataLoader = new DataLoader();
         this.uiManager = null;
         this.controlManager = null;
@@ -18,16 +18,14 @@ class App {
 
     async init() {
         try {
-            console.log('App initialization started');
+            cconsole.log('App initialization started');
             this.showLoading();
-            this.mapManager.initMap();
             await this.loadData();
-            this.initializeLayers();
             this.initializeUI();
+            this.applyInitialFilter();
             this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
             this.setupInfoButton();
-            this.setupHighestPeaksUpdates();
-            this.applyInitialFilter(); // Move this here, after all initializations
+            this.setupHighestPeaksUpdates(); // Add this line
             console.log('App initialization complete');
             this.showDisclaimer();
         } catch (error) {
@@ -38,74 +36,12 @@ class App {
         }
     }
 
-    initializeLayers() {
-        console.log('Initializing layers');
-        if (!this.mapManager.isMapReady()) {
-            throw new Error('Map is not ready');
-        }
-        this.layerManager = new LayerManager(this.mapManager.map);
-        this.layerManager.setMountainAreasData(this.dataLoader.mountainAreasData);
-        this.layerManager.setOsmPeaksData(this.dataLoader.allOsmPeaks);
-    }
-
-    async loadData() {
-        console.log('Loading data...');
-        try {
-            await Promise.all([
-                this.dataLoader.loadMountainAreas(),
-                this.dataLoader.loadOsmPeaks()
-            ]);
-            console.log('Data loaded successfully');
-        } catch (error) {
-            console.error('Error loading data:', error);
-            throw new Error('Failed to load necessary data');
-        }
-    }
-
-    initializeUI() {
-        console.log('Initializing UI');
-        this.uiManager = new UIManager(
-            this.handleSearch.bind(this),
-            this.handleFilterChange.bind(this),
-            this.layerManager,
-            this.mapManager
-        );
-
-        this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
-        const unifiedControl = this.controlManager.initControls();
-        
-        this.uiManager.initializeElements(unifiedControl);
-        console.log('UI initialized');
-    }
-
     setupHighestPeaksUpdates() {
-        console.log('Setting up highest peaks updates');
-        if (!this.uiManager) {
-            console.error('UIManager not initialized');
-            return;
-        }
-        if (!this.mapManager.isMapReady()) {
-            console.error('Map is not ready');
-            return;
-        }
-        this.mapManager.map.on('moveend', () => {
-            console.log('Map moved, updating highest peaks panel');
-            this.uiManager.updateHighestPeaksPanel();
-        });
-        this.mapManager.map.on('zoomend', () => {
-            console.log('Map zoomed, updating highest peaks panel');
-            this.uiManager.updateHighestPeaksPanel();
-        });
-        this.layerManager.mountainAreasLayer.on('add remove', () => {
-            console.log('Mountain areas layer changed, updating highest peaks panel');
-            this.uiManager.updateHighestPeaksPanel();
-        });
-        this.layerManager.markers.on('add remove', () => {
-            console.log('Markers layer changed, updating highest peaks panel');
-            this.uiManager.updateHighestPeaksPanel();
-        });
-        console.log('Performing initial update of highest peaks panel');
-        this.uiManager.updateHighestPeaksPanel();
+        this.mapManager.map.on('moveend', () => this.uiManager.updateHighestPeaksPanel());
+        this.mapManager.map.on('zoomend', () => this.uiManager.updateHighestPeaksPanel());
+        this.layerManager.mountainAreasLayer.on('add remove', () => this.uiManager.updateHighestPeaksPanel());
+        this.layerManager.markers.on('add remove', () => this.uiManager.updateHighestPeaksPanel());
+        this.uiManager.updateHighestPeaksPanel(); // Initial update
     }
 
     setupInfoButton() {
@@ -160,6 +96,41 @@ class App {
         if (this.loadingIndicator) {
             this.loadingIndicator.style.display = 'none';
         }
+    }
+
+    async loadData() {
+        console.log('Loading data...');
+        try {
+            const [mountainAreasData, osmPeaksData] = await Promise.all([
+                this.dataLoader.loadMountainAreas(),
+                this.dataLoader.loadOsmPeaks()
+            ]);
+            
+            this.layerManager.setMountainAreasData(mountainAreasData);
+            this.layerManager.setOsmPeaksData(osmPeaksData);
+            
+            console.log('Data loaded and set in LayerManager');
+        } catch (error) {
+            console.error('Error loading data:', error);
+            throw new Error('Failed to load necessary data');
+        }
+    }
+
+    initializeUI() {
+        console.log('Initializing UI...');
+        this.uiManager = new UIManager(
+            this.handleSearch.bind(this),
+            this.handleFilterChange.bind(this),
+            this.layerManager,
+            this.mapManager
+        );
+
+        this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
+        const unifiedControl = this.controlManager.initControls();
+        
+        this.uiManager.initializeElements(unifiedControl);
+        this.setupUI();
+        console.log('UI setup complete');
     }
 
     setupUI() {
@@ -234,12 +205,8 @@ class App {
 
         this.layerManager.filterMountainAreas(selectedValue);
         this.layerManager.filterAndDisplayPeaks(selectedValue);
-        if (this.uiManager) {
-            this.uiManager.updateSearchSuggestions();
-            this.uiManager.updateHighestPeaksPanel();
-        } else {
-            console.error('UIManager not initialized in handleFilterChange');
-        }
+        this.uiManager.updateSearchSuggestions();
+        this.uiManager.updateHighestPeaksPanel(); // Add this line
     }
 
     handleInitializationError(error) {

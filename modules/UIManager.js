@@ -14,8 +14,6 @@ export class UIManager {
         this.wikipediaPanel = null;
         this.isDraggingWikiPanel = false;
         this.currentLanguage = 'it';
-        this.highestPeaksPanel = null;
-        console.log('UIManager constructor called');
     }
 
     initializeElements(filterControl) {
@@ -24,8 +22,6 @@ export class UIManager {
         this.initializeUIComponents();
         this.setupEventListeners();
         this.setupWikipediaPanel();
-        this.setupHighestPeaksPanel();
-        console.log('UI elements initialized');
     }
 
     initializeUIComponents() {
@@ -516,83 +512,5 @@ export class UIManager {
             isDragging = false;
             this.filterHandler(this.hierLvlSlider.value);
         });
-    }
-
-    setupHighestPeaksPanel() {
-        console.log('Setting up highest peaks panel');
-        this.highestPeaksPanel = document.createElement('div');
-        this.highestPeaksPanel.id = 'highest-peaks-panel';
-        this.highestPeaksPanel.style.display = 'block';
-        this.highestPeaksPanel.innerHTML = `
-            <h3>Highest Visible Peaks</h3>
-            <table id="highest-peaks-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Elevation (m)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- This will be populated dynamically -->
-                </tbody>
-            </table>
-        `;
-
-        if (!this.filterControl) {
-            console.error('Filter control not initialized');
-            return;
-        }
-
-        const controlContainer = this.filterControl.getContainer();
-        if (!controlContainer) {
-            console.error('Control container not found');
-            return;
-        }
-
-        if (!this.wikipediaPanel) {
-            console.error('Wikipedia panel not initialized');
-            controlContainer.appendChild(this.highestPeaksPanel);
-        } else {
-            controlContainer.parentNode.insertBefore(this.highestPeaksPanel, this.wikipediaPanel.nextSibling);
-        }
-
-        this.setupHighestPeaksPanelEventListeners();
-        console.log('Highest peaks panel created and added to DOM');
-    }
-
-    setupHighestPeaksPanelEventListeners() {
-        L.DomEvent.disableClickPropagation(this.highestPeaksPanel);
-        L.DomEvent.disableScrollPropagation(this.highestPeaksPanel);
-    }
-
-    updateHighestPeaksPanel() {
-        console.log('Updating highest peaks panel');
-        if (!this.highestPeaksPanel) {
-            console.error('Highest peaks panel not found');
-            return;
-        }
-
-        if (!this.layerManager) {
-            console.error('Layer manager not initialized');
-            return;
-        }
-
-        const highestPeaks = this.layerManager.getHighestVisiblePeaks();
-        const tableBody = this.highestPeaksPanel.querySelector('tbody');
-        
-        if (!tableBody) {
-            console.error('Table body not found in highest peaks panel');
-            return;
-        }
-
-        tableBody.innerHTML = '';
-
-        highestPeaks.forEach(peak => {
-            const row = tableBody.insertRow();
-            row.insertCell(0).textContent = peak.properties.name || 'Unnamed Peak';
-            row.insertCell(1).textContent = peak.properties.elevation;
-        });
-
-        console.log('Highest peaks panel updated with', highestPeaks.length, 'peaks');
     }
 }

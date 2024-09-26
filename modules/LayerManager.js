@@ -11,7 +11,7 @@ export class LayerManager {
 
     initMountainAreasLayer() {
         console.log('Initializing mountain areas layer');
-        this.mountainAreasLayer = L.geoJSON(null, {
+        return L.geoJSON(null, {
             style: this.defaultPolygonStyle,
             onEachFeature: this.onEachMountainArea.bind(this)
         }).addTo(this.map);
@@ -19,7 +19,7 @@ export class LayerManager {
 
     initMarkers() {
         console.log('Initializing markers');
-        this.markers = L.markerClusterGroup({
+        return L.markerClusterGroup({
             spiderfyOnMaxZoom: false,
             disableClusteringAtZoom: 18,
             zoomToBoundsOnClick: true,
@@ -43,13 +43,9 @@ export class LayerManager {
     setMountainAreasData(data) {
         console.log('Setting mountain areas data');
         this.allMountainAreas = data;
-        if (this.mountainAreasLayer) {
-            this.mountainAreasLayer.clearLayers();
-            this.mountainAreasLayer.addData(data);
-            console.log('Mountain areas data added to layer');
-        } else {
-            console.error('Mountain areas layer not initialized');
-        }
+        this.mountainAreasLayer.clearLayers();
+        this.mountainAreasLayer.addData(data);
+        console.log('Mountain areas data added to layer');
     }
 
     setOsmPeaksData(data) {
@@ -119,10 +115,6 @@ export class LayerManager {
     filterMountainAreas(selectedValue) {
         this.currentHierLevel = selectedValue;
         this.mountainAreasLayer.clearLayers();
-        if (!this.allMountainAreas || !this.allMountainAreas.features) {
-            console.error('Mountain areas data is not loaded');
-            return;
-        }
         this.filteredMountainAreas = this.allMountainAreas.features.filter(feature => 
             String(feature.properties.Hier_lvl).trim() === selectedValue
         );
@@ -221,10 +213,6 @@ export class LayerManager {
     }
     
     getVisiblePeaks() {
-        if (!this.map || !this.map.getBounds) {
-            console.error('Map is not ready');
-            return [];
-        }
         const visiblePeaks = [];
         const mapBounds = this.map.getBounds();
         
@@ -238,13 +226,9 @@ export class LayerManager {
     }
 
     getHighestVisiblePeaks(limit = 5) {
-        console.log('Getting highest visible peaks');
         const visiblePeaks = this.getVisiblePeaks();
-        console.log('Total visible peaks:', visiblePeaks.length);
-        const sortedPeaks = visiblePeaks
+        return visiblePeaks
             .sort((a, b) => b.properties.elevation - a.properties.elevation)
             .slice(0, limit);
-        console.log('Highest peaks:', sortedPeaks);
-        return sortedPeaks;
     }
 }
