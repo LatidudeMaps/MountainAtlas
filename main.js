@@ -78,14 +78,6 @@ class App {
         );
     }
 
-    setupMapEventListeners() {
-        this.mapManager.map.on('moveend', () => {
-            if (this.mapInitialized) {
-                this.uiManager.updateHighestPeaksPanel();
-            }
-        });
-    }
-
     async loadData() {
         console.log('Loading data...');
         try {
@@ -154,6 +146,14 @@ class App {
         this.layerManager.resetHighlight();
         this.uiManager.updateHighestPeaksPanel();
         this.uiManager.updateWikipediaPanel(null);
+    }
+
+    setupMapEventListeners() {
+        this.mapManager.map.on('moveend', () => {
+            if (this.mapInitialized) {
+                this.uiManager.updateHighestPeaksPanel();
+            }
+        });
     }
 
     handleFilterChange(selectedValue) {

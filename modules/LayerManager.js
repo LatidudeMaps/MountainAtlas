@@ -216,7 +216,7 @@ export class LayerManager {
                 peak.properties.MapName_it === mapName || peak.properties.MapName === mapName
             );
         } else {
-            // Use the existing method for general map panning
+            // Use only visible peaks within the current map bounds
             filteredPeaks = this.getVisiblePeaks();
         }
 
