@@ -84,57 +84,6 @@ export class LayerManager {
         };
     }
 
-    getMatchingLayers(searchValue, hierLevel = null) {
-        console.log(`Getting matching layers for: "${searchValue}", Hier Level: ${hierLevel}`);
-        if (!searchValue) return [];
-
-        const matchingLayers = [];
-        let totalLayers = 0;
-
-        this.mountainAreasLayer.eachLayer(layer => {
-            totalLayers++;
-            const mapName = layer.feature?.properties?.MapName_it || layer.feature?.properties?.MapName;
-            const layerHierLevel = layer.feature?.properties?.Hier_lvl;
-            
-            console.log(`Checking layer: ${mapName}, Hier Level: ${layerHierLevel}`);
-            
-            if (mapName && mapName.trim().toLowerCase().includes(searchValue.toLowerCase())) {
-                if (hierLevel === null || String(layerHierLevel) === String(hierLevel)) {
-                    console.log(`Match found: ${mapName}`);
-                    matchingLayers.push({
-                        layer: layer,
-                        properties: layer.feature.properties
-                    });
-                } else {
-                    console.log(`Hierarchy level mismatch: ${layerHierLevel} !== ${hierLevel}`);
-                }
-            } else {
-                console.log(`No name match for: ${mapName}`);
-            }
-        });
-
-        console.log(`Total layers checked: ${totalLayers}`);
-        console.log(`Matching layers found: ${matchingLayers.length}`);
-        return matchingLayers;
-    }
-
-    highlightSearchedAreas(searchValue, hierLevel = null) {
-        console.log(`Highlighting searched areas: "${searchValue}", Hier Level: ${hierLevel}`);
-        this.mountainAreasLayer.eachLayer(layer => {
-            const mapName = layer.feature?.properties?.MapName_it || layer.feature?.properties?.MapName;
-            const layerHierLevel = layer.feature?.properties?.Hier_lvl;
-            const isMatch = mapName && mapName.trim().toLowerCase().includes(searchValue.toLowerCase()) &&
-                            (hierLevel === null || String(layerHierLevel) === String(hierLevel));
-            
-            if (isMatch) {
-                console.log(`Highlighting: ${mapName}`);
-                layer.setStyle(this.highlightStyle());
-            } else {
-                layer.setStyle(this.defaultPolygonStyle());
-            }
-        });
-    }
-
     filterMountainAreas(selectedValue) {
         console.log('Filtering mountain areas with value:', selectedValue);
         this.currentHierLevel = selectedValue;
@@ -148,6 +97,34 @@ export class LayerManager {
             features: this.filteredMountainAreas
         });
         console.log('Filtered mountain areas:', this.filteredMountainAreas.length);
+    }
+
+    getMatchingLayers(searchValue) {
+        if (!searchValue) return [];
+
+        console.log('Getting matching layers for:', searchValue);
+        const matchingLayers = [];
+
+        this.mountainAreasLayer.eachLayer(layer => {
+            const mapName = layer.feature?.properties?.MapName_it || layer.feature?.properties?.MapName;
+            if (mapName && mapName.trim().toLowerCase().includes(searchValue.toLowerCase())) {
+                matchingLayers.push({
+                    layer: layer,
+                    properties: layer.feature.properties
+                });
+            }
+        });
+        console.log('Matching layers found:', matchingLayers.length);
+        return matchingLayers;
+    }
+
+    highlightSearchedAreas(searchValue) {
+        console.log('Highlighting searched areas:', searchValue);
+        this.mountainAreasLayer.eachLayer(layer => {
+            const mapName = layer.feature?.properties?.MapName_it || layer.feature?.properties?.MapName;
+            const isMatch = mapName && mapName.trim().toLowerCase().includes(searchValue.toLowerCase());
+            layer.setStyle(isMatch ? this.highlightStyle() : this.defaultPolygonStyle());
+        });
     }
 
     getCurrentHierLevelMountainAreaNames() {

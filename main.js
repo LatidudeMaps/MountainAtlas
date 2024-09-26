@@ -112,21 +112,29 @@ class App {
         console.log('UI initialization complete');
     }
 
+    handleFilterChange(selectedValue) {
+        console.log('Filter change initiated with value:', selectedValue);
+        if (!this.dataLoader.isDataLoaded()) {
+            console.log('Data not fully loaded, skipping filter change');
+            return;
+        }
+
+        this.layerManager.filterMountainAreas(selectedValue);
+        this.layerManager.filterAndDisplayPeaks(selectedValue);
+        this.uiManager.updateSearchSuggestions();
+        this.uiManager.updateHighestPeaksPanel();
+    }
+
     handleSearch(searchValue) {
-        console.log(`Search initiated with value: "${searchValue}"`);
+        console.log('Search initiated with value:', searchValue);
         
         if (searchValue === null) {
             this.resetSearch();
             return;
         }
 
-        const currentHierLevel = this.layerManager.currentHierLevel;
-        console.log(`Current Hierarchy Level: ${currentHierLevel}`);
-
-        this.layerManager.highlightSearchedAreas(searchValue, currentHierLevel);
-        const matchingLayers = this.layerManager.getMatchingLayers(searchValue, currentHierLevel);
-
-        console.log(`Matching Layers: ${JSON.stringify(matchingLayers.map(l => l.properties.MapName))}`);
+        this.layerManager.highlightSearchedAreas(searchValue);
+        const matchingLayers = this.layerManager.getMatchingLayers(searchValue);
 
         if (matchingLayers.length > 0) {
             this.handleMatchingLayers(matchingLayers, searchValue);
@@ -136,17 +144,12 @@ class App {
     }
 
     handleMatchingLayers(matchingLayers, searchValue) {
-        console.log(`Handling matching layers: ${matchingLayers.length}`);
-        const layer = matchingLayers[0].layer;
-        const bounds = layer.getBounds();
+        const bounds = matchingLayers[0].layer.getBounds();
         const center = bounds.getCenter();
         const zoom = this.mapManager.map.getBoundsZoom(bounds);
-        console.log(`Flying to: ${JSON.stringify(center)}, with zoom: ${zoom}`);
         this.mapManager.flyTo(center, zoom);
 
-        const mapName = matchingLayers[0].properties.MapName_it || matchingLayers[0].properties.MapName;
-        console.log(`Filtering and displaying peaks for: ${mapName}`);
-        this.layerManager.filterAndDisplayPeaks(null, mapName);
+        this.layerManager.filterAndDisplayPeaks(null, matchingLayers[0].properties.MapName);
         this.uiManager.updateHighestPeaksPanel();
         this.uiManager.updateWikipediaPanel(searchValue);
     }
@@ -163,18 +166,6 @@ class App {
                 this.uiManager.updateHighestPeaksPanel();
             }
         });
-    }
-
-    handleFilterChange(selectedValue) {
-        console.log('Filter change initiated with value:', selectedValue);
-        if (!this.dataLoader.isDataLoaded()) {
-            console.log('Data not fully loaded, skipping filter change');
-            return;
-        }
-
-        this.layerManager.filterMountainAreas(selectedValue);
-        this.layerManager.filterAndDisplayPeaks(selectedValue);
-        this.uiManager.updateSearchSuggestions();
     }
 
     showLoading() {

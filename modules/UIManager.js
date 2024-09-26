@@ -194,24 +194,17 @@ export class UIManager {
         const searchValue = this.searchInput.value.trim().toLowerCase();
         this.searchSuggestions.innerHTML = '';
 
-        console.log(`Updating search suggestions for: "${searchValue}", showAll: ${showAll}`);
-
         if (!showAll && searchValue.length === 0) {
-            console.log('Hiding suggestions due to empty search');
             this.hideSuggestions();
             return;
         }
 
         const currentLevelNames = this.layerManager.getCurrentHierLevelMountainAreaNames();
-        console.log(`Current level names: ${JSON.stringify(currentLevelNames)}`);
         const matchingNames = this.getMatchingNames(searchValue, currentLevelNames);
-
-        console.log(`Matching names: ${JSON.stringify(matchingNames)}`);
 
         if (matchingNames.length > 0) {
             this.populateSuggestionsList(matchingNames);
         } else {
-            console.log('No matching names found, hiding suggestions');
             this.hideSuggestions();
         }
     }
