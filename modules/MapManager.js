@@ -5,6 +5,8 @@ export class MapManager {
         this.baseMaps = this.initBaseMaps();
         this.initialBounds = null;
         this.activeBaseMap = "Dark Positron";
+        this.uiManager = null; // We'll set this later
+        this.setupMapEventListeners();
     }
 
     initMap(mapId) {
@@ -38,6 +40,18 @@ export class MapManager {
         baseMaps["Dark Positron"].addTo(this.map);
         console.log('Base maps initialized');
         return baseMaps;
+    }
+
+    setupMapEventListeners() {
+        this.map.on('moveend', () => {
+            if (this.uiManager) {
+                this.uiManager.updateHighestPeaksPanel();
+            }
+        });
+    }
+
+    setUIManager(uiManager) {
+        this.uiManager = uiManager;
     }
 
     createTileLayer(url, options) {

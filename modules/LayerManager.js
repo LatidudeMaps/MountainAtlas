@@ -216,14 +216,6 @@ export class LayerManager {
         this.filterAndDisplayPeaks(this.currentHierLevel);
     }
 
-    getHighestPeaks(n = 5) {
-        const visiblePeaks = this.getVisiblePeaks();
-        const uniquePeaks = this.removeDuplicatePeaks(visiblePeaks);
-        return uniquePeaks
-            .sort((a, b) => b.properties.elevation - a.properties.elevation)
-            .slice(0, n);
-    }
-
     getVisiblePeaks() {
         if (!this.map.getBounds().isValid()) {
             console.log('Map bounds not yet valid, returning empty array');
@@ -234,6 +226,14 @@ export class LayerManager {
             const latlng = L.latLng(peak.geometry.coordinates[1], peak.geometry.coordinates[0]);
             return visibleBounds.contains(latlng);
         });
+    }
+
+    getHighestPeaks(n = 5) {
+        const visiblePeaks = this.getVisiblePeaks();
+        const uniquePeaks = this.removeDuplicatePeaks(visiblePeaks);
+        return uniquePeaks
+            .sort((a, b) => b.properties.elevation - a.properties.elevation)
+            .slice(0, n);
     }
 
     removeDuplicatePeaks(peaks) {

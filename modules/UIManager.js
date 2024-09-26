@@ -528,7 +528,6 @@ export class UIManager {
         };
         
         this.highestPeaksPanel.addTo(this.mapManager.map);
-        // Remove the immediate call to updateHighestPeaksPanel here
     }
 
     updateHighestPeaksPanel() {

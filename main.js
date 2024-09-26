@@ -36,6 +36,26 @@ class App {
         }
     }
 
+    initializeUI() {
+        console.log('Initializing UI...');
+        this.uiManager = new UIManager(
+            this.handleSearch.bind(this),
+            this.handleFilterChange.bind(this),
+            this.layerManager,
+            this.mapManager
+        );
+
+        this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
+        const unifiedControl = this.controlManager.initControls();
+        
+        this.uiManager.initializeElements(unifiedControl);
+        
+        // Add this line to set up the event listener for updating the highest peaks panel
+        this.mapManager.map.on('moveend', () => this.uiManager.updateHighestPeaksPanel());
+        
+        console.log('UI initialization complete');
+    }
+
     showDisclaimer() {
         return new Promise((resolve) => {
             if (this.disclaimerPopup) {
@@ -94,22 +114,6 @@ class App {
             console.error('Error loading data:', error);
             throw new Error('Failed to load necessary data');
         }
-    }
-
-    initializeUI() {
-        console.log('Initializing UI...');
-        this.uiManager = new UIManager(
-            this.handleSearch.bind(this),
-            this.handleFilterChange.bind(this),
-            this.layerManager,
-            this.mapManager
-        );
-
-        this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
-        const unifiedControl = this.controlManager.initControls();
-        
-        this.uiManager.initializeElements(unifiedControl);
-        console.log('UI initialization complete');
     }
 
     handleFilterChange(selectedValue) {
