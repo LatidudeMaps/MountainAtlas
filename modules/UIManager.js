@@ -518,16 +518,32 @@ export class UIManager {
         });
     }
 
-    setupHighestPeaksPanel() {
-        this.highestPeaksPanel = L.control({ position: 'bottomright' });
+    updateHighestPeaksPanel() {
+        if (!this.mapManager.map.getBounds().isValid()) {
+            console.log('Map bounds not yet valid, skipping update');
+            return;
+        }
+        const highestPeaks = this.layerManager.getHighestPeaks(5);
+        const content = document.getElementById('highest-peaks-content');
         
-        this.highestPeaksPanel.onAdd = () => {
-            const container = L.DomUtil.create('div', 'highest-peaks-panel');
-            container.innerHTML = '<h3>Highest Peaks</h3><div id="highest-peaks-content"></div>';
-            return container;
-        };
-        
-        this.highestPeaksPanel.addTo(this.mapManager.map);
+        if (content) {
+            if (highestPeaks.length === 0) {
+                content.innerHTML = '<p>No peaks in current view</p>';
+            } else {
+                let html = '<table id="highest-peaks-table">';
+                html += '<thead><tr><th>Name</th><th>Elevation (m)</th></tr></thead><tbody>';
+                
+                highestPeaks.forEach(peak => {
+                    html += `<tr>
+                        <td>${peak.properties.name || 'Unnamed Peak'}</td>
+                        <td>${peak.properties.elevation}</td>
+                    </tr>`;
+                });
+                
+                html += '</tbody></table>';
+                content.innerHTML = html;
+            }
+        }
     }
 
     updateHighestPeaksPanel() {

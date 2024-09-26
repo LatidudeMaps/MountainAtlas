@@ -7,6 +7,7 @@ export class LayerManager {
         this.allOsmPeaks = null;
         this.filteredMountainAreas = [];
         this.currentHierLevel = null;
+        this.visiblePeaksCache = new Map();
     }
 
     initMountainAreasLayer() {
@@ -147,6 +148,15 @@ export class LayerManager {
         this.markers.clearLayers();
         let filteredPeaks = this.filterPeaks(hierLvl, mapName);
         this.addPeaksToMarkers(filteredPeaks);
+        this.visiblePeaksCache.clear(); // Clear the cache when filtering
+    }
+
+    addPeaksToMarkers(filteredPeaks) {
+        this.markers.clearLayers();
+        L.geoJSON(filteredPeaks, {
+            pointToLayer: this.createMarker.bind(this)
+        }).addTo(this.markers);
+        console.log('Filtered peaks added to markers');
     }
 
     filterPeaks(hierLvl, mapName) {
@@ -217,42 +227,25 @@ export class LayerManager {
     }
 
     getVisiblePeaks() {
-        if (!this.map.getBounds().isValid()) {
-            console.log('Map bounds not yet valid, returning empty array');
-            return [];
+        const cacheKey = this.map.getBounds().toBBoxString() + '-' + this.map.getZoom();
+        if (this.visiblePeaksCache.has(cacheKey)) {
+            return this.visiblePeaksCache.get(cacheKey);
         }
-        const visibleBounds = this.map.getBounds();
-        const currentZoom = this.map.getZoom();
-        const maxZoom = this.map.getMaxZoom();
 
-        return this.allOsmPeaks.filter(peak => {
-            const latlng = L.latLng(peak.geometry.coordinates[1], peak.geometry.coordinates[0]);
-            
-            // Check if the peak is within the visible bounds
-            if (!visibleBounds.contains(latlng)) {
-                return false;
+        const visiblePeaks = [];
+        this.markers.eachLayer(layer => {
+            if (this.map.getBounds().contains(layer.getLatLng())) {
+                visiblePeaks.push(layer.feature);
             }
-
-            // Implement a zoom-based visibility check
-            const peakElevation = peak.properties.elevation;
-            const zoomThreshold = this.getZoomThresholdForElevation(peakElevation);
-
-            return currentZoom >= zoomThreshold;
         });
-    }
-    
-    getZoomThresholdForElevation(elevation) {
-        // Implement a simple elevation-based visibility rule
-        if (elevation > 4000) return 6;
-        if (elevation > 3000) return 8;
-        if (elevation > 2000) return 10;
-        return 12; // Default zoom level for smaller peaks
+
+        this.visiblePeaksCache.set(cacheKey, visiblePeaks);
+        return visiblePeaks;
     }
 
     getHighestPeaks(n = 5) {
         const visiblePeaks = this.getVisiblePeaks();
-        const uniquePeaks = this.removeDuplicatePeaks(visiblePeaks);
-        return uniquePeaks
+        return visiblePeaks
             .sort((a, b) => b.properties.elevation - a.properties.elevation)
             .slice(0, n);
     }
