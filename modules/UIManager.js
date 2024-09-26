@@ -15,6 +15,7 @@ export class UIManager {
         this.isDraggingWikiPanel = false;
         this.currentLanguage = 'it';
         this.highestPeaksPanel = null;
+        this.disclaimerAccepted = false;
     }
 
     initializeElements(filterControl) {

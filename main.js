@@ -23,27 +23,50 @@ class App {
             this.showLoading();
             await this.loadData();
             this.initializeUI();
+            await this.showDisclaimer();
             await this.initializeMap();
             this.applyInitialFilter();
             this.setupMapEventListeners();
-            this.uiManager.updateHighestPeaksPanel(); // Add this line
-            this.hideLoading(); // Move this here
+            this.uiManager.updateHighestPeaksPanel();
+            this.hideLoading();
             console.log('App initialization complete');
-            this.showDisclaimer();
         } catch (error) {
             console.error('Error initializing app:', error);
             this.handleInitializationError(error);
         }
     }
 
+    showDisclaimer() {
+        return new Promise((resolve) => {
+            if (this.disclaimerPopup) {
+                this.disclaimerPopup.style.display = 'block';
+                const acceptButton = document.getElementById('accept-disclaimer');
+                if (acceptButton) {
+                    acceptButton.addEventListener('click', () => {
+                        this.hideDisclaimer();
+                        this.disclaimerAccepted = true;
+                        resolve();
+                    });
+                }
+            } else {
+                console.warn('Disclaimer popup element not found');
+                resolve();
+            }
+        });
+    }
+
     async initializeMap() {
+        if (!this.disclaimerAccepted) {
+            console.log('Waiting for disclaimer acceptance before initializing map');
+            await new Promise(resolve => setTimeout(resolve, 100));
+            return this.initializeMap();
+        }
         return new Promise((resolve) => {
             this.mapManager.setInitialExtent(this.layerManager.mountainAreasLayer);
             this.mapManager.map.on('load', () => {
                 this.mapInitialized = true;
                 resolve();
             });
-            // Add a timeout in case the 'load' event doesn't fire
             setTimeout(resolve, 2000);
         });
     }

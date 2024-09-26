@@ -209,9 +209,21 @@ export class LayerManager {
 
     getHighestPeaks(n = 5) {
         const visiblePeaks = this.getVisiblePeaks();
-        return visiblePeaks
+        const uniquePeaks = this.removeDuplicatePeaks(visiblePeaks);
+        return uniquePeaks
             .sort((a, b) => b.properties.elevation - a.properties.elevation)
             .slice(0, n);
+    }
+
+    removeDuplicatePeaks(peaks) {
+        const uniquePeaks = new Map();
+        peaks.forEach(peak => {
+            const key = `${peak.geometry.coordinates[0]},${peak.geometry.coordinates[1]}`;
+            if (!uniquePeaks.has(key) || peak.properties.elevation > uniquePeaks.get(key).properties.elevation) {
+                uniquePeaks.set(key, peak);
+            }
+        });
+        return Array.from(uniquePeaks.values());
     }
 
     getVisiblePeaks() {
