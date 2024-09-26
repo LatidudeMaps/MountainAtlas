@@ -18,7 +18,7 @@ class App {
 
     async init() {
         try {
-            cconsole.log('App initialization started');
+            console.log('App initialization started');
             this.showLoading();
             await this.loadData();
             this.initializeUI();
