@@ -55,6 +55,8 @@ export class UIManager {
         this.highestPeaksPanel.onAdd = () => {
             const container = L.DomUtil.create('div', 'highest-peaks-panel');
             container.innerHTML = '<h3>Top 5 peaks in map view</h3><div id="highest-peaks-content"></div>';
+            L.DomEvent.disableClickPropagation(container);
+            L.DomEvent.disableScrollPropagation(container);
             return container;
         };
         
@@ -92,19 +94,18 @@ export class UIManager {
     }
 
     setupWikipediaPanel() {
-        this.wikipediaPanel = document.createElement('div');
-        this.wikipediaPanel.id = 'wikipedia-panel';
-        this.wikipediaPanel.style.display = 'none';
-    
-        // Find the .leaflet-right container
-        const leafletRightContainer = document.querySelector('.leaflet-right');
-        if (leafletRightContainer) {
-            // Append the Wikipedia panel to the end of .leaflet-right
-            leafletRightContainer.appendChild(this.wikipediaPanel);
-        } else {
-            console.error('Could not find .leaflet-right container');
-        }
-    
+        this.wikipediaPanel = L.control({ position: 'topright' });
+        
+        this.wikipediaPanel.onAdd = () => {
+            const container = L.DomUtil.create('div', 'wikipedia-panel');
+            container.id = 'wikipedia-panel';
+            container.style.display = 'none';
+            L.DomEvent.disableClickPropagation(container);
+            L.DomEvent.disableScrollPropagation(container);
+            return container;
+        };
+        
+        this.wikipediaPanel.addTo(this.mapManager.map);
         this.setupWikiPanelEventListeners();
     }
     
@@ -317,13 +318,16 @@ export class UIManager {
     }
 
     updateWikipediaPanel(name) {
+        const panel = document.getElementById('wikipedia-panel');
+        if (!panel) return;
+    
         if (!name) {
-            this.wikipediaPanel.style.display = 'none';
+            panel.style.display = 'none';
             return;
         }
     
-        this.wikipediaPanel.style.display = 'block';
-        this.wikipediaPanel.innerHTML = this.createLanguageToggle();
+        panel.style.display = 'block';
+        panel.innerHTML = this.createLanguageToggle();
     
         const matchingLayers = this.layerManager.getMatchingLayers(name);
         if (matchingLayers.length > 0) {
@@ -336,10 +340,10 @@ export class UIManager {
                 const message = this.currentLanguage === 'it' 
                     ? '<p>Info non disponibili</p>'
                     : '<p>Information not available in English</p>';
-                this.wikipediaPanel.innerHTML += message;
+                panel.innerHTML += message;
             }
         } else {
-            this.wikipediaPanel.innerHTML += '<p>No matching content found</p>';
+            panel.innerHTML += '<p>No matching content found</p>';
         }
     }
 
@@ -565,5 +569,20 @@ export class UIManager {
             isDragging = false;
             this.filterHandler(this.hierLvlSlider.value);
         });
+    }
+
+    setupControlOrder() {
+        const container = document.querySelector('.leaflet-top.leaflet-right');
+        if (container) {
+            const unifiedControl = container.querySelector('.unified-control');
+            const highestPeaksPanel = container.querySelector('.highest-peaks-panel');
+            const wikipediaPanel = container.querySelector('#wikipedia-panel');
+    
+            if (unifiedControl && highestPeaksPanel && wikipediaPanel) {
+                container.appendChild(unifiedControl);
+                container.appendChild(highestPeaksPanel);
+                container.appendChild(wikipediaPanel);
+            }
+        }
     }
 }

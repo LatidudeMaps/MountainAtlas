@@ -20,24 +20,25 @@ body, html {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    max-height: 100vh;
-    overflow-y: auto;
+    overflow-y: visible;
+    pointer-events: none;
+}
+
+.leaflet-right > * {
+    pointer-events: auto;
 }
 
 .unified-control {
-    order: 1;
     margin-bottom: 10px;
 }
 
 .highest-peaks-panel {
-    order: 2;
     margin-bottom: 10px;
 }
 
 #wikipedia-panel {
-    order: 3;
     margin-top: 0;
-    align-self: flex-end;
+    margin-bottom: 10px;
 }
 
 /* Adjust the existing styles for these elements */
@@ -57,7 +58,6 @@ body, html {
 #wikipedia-panel {
     height: auto;
     max-height: 50vh;
-    margin-bottom: 10px;
 }
 
 /* Leaflet Control Styles */
@@ -303,7 +303,7 @@ body, html {
     border: 1px solid #ccc;
     border-top: none;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    z-index: 1000;
+    z-index: 1001;
     display: none;
 }
 
