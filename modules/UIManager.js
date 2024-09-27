@@ -25,6 +25,7 @@ export class UIManager {
         this.setupEventListeners();
         this.setupWikipediaPanel();
         this.setupHighestPeaksPanel();
+        this.setupControlOrder();
     }
 
     initializeUIComponents() {
