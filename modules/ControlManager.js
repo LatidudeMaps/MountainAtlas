@@ -23,8 +23,11 @@ export class ControlManager {
         const panelContainer = document.querySelector('.panel-container');
         if (panelContainer) {
             panelContainer.appendChild(container);
+            console.log('Unified control added to panel container');
         } else {
-            console.error('Panel container not found');
+            console.error('Panel container not found, unified control not added');
+            // Instead of throwing an error, we'll return the container
+            // so it can be added later if needed
         }
         
         return container;

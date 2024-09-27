@@ -21,19 +21,66 @@ class App {
         try {
             console.log('App initialization started');
             this.showLoading();
+
+            // Load data
+            console.log('Loading data...');
             await this.loadData();
+            console.log('Data loaded successfully');
+
+            // Create panel container
+            console.log('Creating panel container...');
             this.createPanelContainer();
+            console.log('Panel container created');
+
+            // Initialize UI
+            console.log('Initializing UI...');
             this.initializeUI();
+            console.log('UI initialized');
+
+            // Show disclaimer
+            console.log('Showing disclaimer...');
             await this.showDisclaimer();
+            console.log('Disclaimer shown');
+
+            // Initialize map
+            console.log('Initializing map...');
             this.initializeMap();
+            console.log('Map initialized');
+
+            // Apply initial filter
+            console.log('Applying initial filter...');
             this.applyInitialFilter();
+            console.log('Initial filter applied');
+
+            // Setup map event listeners
+            console.log('Setting up map event listeners...');
             this.setupMapEventListeners();
+            console.log('Map event listeners set up');
+
+            // Update highest peaks panel
+            console.log('Updating highest peaks panel...');
             this.uiManager.updateHighestPeaksPanel();
+            console.log('Highest peaks panel updated');
+
             this.hideLoading();
             console.log('App initialization complete');
         } catch (error) {
             console.error('Error initializing app:', error);
             this.handleInitializationError(error);
+        }
+    }
+
+    async loadData() {
+        try {
+            const [mountainAreasData, osmPeaksData] = await Promise.all([
+                this.dataLoader.loadMountainAreas(),
+                this.dataLoader.loadOsmPeaks()
+            ]);
+            this.layerManager.setMountainAreasData(mountainAreasData);
+            this.layerManager.setOsmPeaksData(osmPeaksData);
+        } catch (error) {
+            console.error('Error loading data:', error);
+            throw new Error('Failed to load necessary data');
         }
     }
 
@@ -44,7 +91,6 @@ class App {
     }
 
     initializeUI() {
-        console.log('Initializing UI...');
         this.uiManager = new UIManager(
             this.handleSearch.bind(this),
             this.handleFilterChange.bind(this),
@@ -57,10 +103,7 @@ class App {
         
         this.uiManager.initializeElements(unifiedControl);
         
-        // Add this line to set up the event listener for updating the highest peaks panel
         this.mapManager.map.on('moveend', () => this.uiManager.updateHighestPeaksPanel());
-        
-        console.log('UI initialization complete');
     }
 
     showDisclaimer() {
@@ -103,24 +146,6 @@ class App {
             Math.max(...this.dataLoader.getUniqueHierLevels()),
             parseInt(initialHierLevel)
         );
-    }
-
-    async loadData() {
-        console.log('Loading data...');
-        try {
-            const [mountainAreasData, osmPeaksData] = await Promise.all([
-                this.dataLoader.loadMountainAreas(),
-                this.dataLoader.loadOsmPeaks()
-            ]);
-            
-            this.layerManager.setMountainAreasData(mountainAreasData);
-            this.layerManager.setOsmPeaksData(osmPeaksData);
-            
-            console.log('Data loaded and set in LayerManager');
-        } catch (error) {
-            console.error('Error loading data:', error);
-            throw new Error('Failed to load necessary data');
-        }
     }
 
     handleFilterChange(selectedValue) {
@@ -198,8 +223,8 @@ class App {
 
     handleInitializationError(error) {
         console.error('Failed to initialize the application:', error);
-        alert('An error occurred while initializing the application. Please try refreshing the page.');
-        // Here you could also add code to display a user-friendly error message on the page
+        alert('An error occurred while initializing the application. Please check the console for more details and try refreshing the page.');
+        this.hideLoading();
     }
 
     setupInfoButton() {
@@ -249,6 +274,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const app = new App();
     app.init().catch(error => {
         console.error('Unhandled error during app initialization:', error);
-        alert('An unexpected error occurred. Please try refreshing the page.');
+        alert('An unexpected error occurred. Please check the console for more details and try refreshing the page.');
     });
 });
