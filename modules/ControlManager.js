@@ -16,25 +16,23 @@ export class ControlManager {
 
     addUnifiedControl() {
         console.log('Adding unified control');
-        const unifiedControl = L.control({ position: 'topright' });
-        
-        unifiedControl.onAdd = () => {
-            const container = this.createControlContainer();
-            this.addLayerControl(container);
-            this.addFilterControl(container);
-            return container;
-        };
+        const container = this.createControlContainer();
+        this.addLayerControl(container);
+        this.addFilterControl(container);
         
         const panelContainer = document.querySelector('.panel-container');
-        panelContainer.appendChild(unifiedControl.getContainer());
+        if (panelContainer) {
+            panelContainer.appendChild(container);
+        } else {
+            console.error('Panel container not found');
+        }
         
-        return unifiedControl;
+        return container;
     }
 
     createControlContainer() {
-        const container = L.DomUtil.create('div', 'unified-control');
-        L.DomEvent.disableClickPropagation(container);
-        L.DomEvent.disableScrollPropagation(container);
+        const container = document.createElement('div');
+        container.className = 'unified-control';
         return container;
     }
 

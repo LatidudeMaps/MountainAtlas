@@ -22,6 +22,7 @@ class App {
             console.log('App initialization started');
             this.showLoading();
             await this.loadData();
+            this.createPanelContainer();
             this.initializeUI();
             await this.showDisclaimer();
             this.initializeMap();
@@ -34,6 +35,12 @@ class App {
             console.error('Error initializing app:', error);
             this.handleInitializationError(error);
         }
+    }
+
+    createPanelContainer() {
+        const panelContainer = document.createElement('div');
+        panelContainer.className = 'panel-container';
+        document.body.appendChild(panelContainer);
     }
 
     initializeUI() {
