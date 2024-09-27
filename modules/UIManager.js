@@ -50,7 +50,7 @@ export class UIManager {
     }
 
     setupHighestPeaksPanel() {
-        this.highestPeaksPanel = L.control({ position: 'bottomright' });
+        this.highestPeaksPanel = L.control({ position: 'topright' });
         
         this.highestPeaksPanel.onAdd = () => {
             const container = L.DomUtil.create('div', 'highest-peaks-panel');
