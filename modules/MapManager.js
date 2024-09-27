@@ -58,7 +58,6 @@ export class MapManager {
         return L.tileLayer(url, {
             detectRetina: true,
             tileSize: 256,
-            zoomOffset: -1,
             updateWhenZooming: false,
             keepBuffer: 4,
             ...options
