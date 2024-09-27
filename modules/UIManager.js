@@ -95,12 +95,19 @@ export class UIManager {
         this.wikipediaPanel = document.createElement('div');
         this.wikipediaPanel.id = 'wikipedia-panel';
         this.wikipediaPanel.style.display = 'none';
-
-        const controlContainer = this.filterControl.getContainer();
-        controlContainer.parentNode.insertBefore(this.wikipediaPanel, controlContainer.nextSibling);
-
+    
+        // Find the .leaflet-right container
+        const leafletRightContainer = document.querySelector('.leaflet-right');
+        if (leafletRightContainer) {
+            // Append the Wikipedia panel to the .leaflet-right container
+            leafletRightContainer.appendChild(this.wikipediaPanel);
+        } else {
+            console.error('Could not find .leaflet-right container');
+        }
+    
         this.setupWikiPanelEventListeners();
     }
+    
 
     setupWikiPanelEventListeners() {
         L.DomEvent.disableClickPropagation(this.wikipediaPanel);
@@ -310,8 +317,12 @@ export class UIManager {
     }
 
     updateWikipediaPanel(name) {
+        if (!name) {
+            this.wikipediaPanel.style.display = 'none';
+            return;
+        }
+    
         this.wikipediaPanel.style.display = 'block';
-        this.wikipediaPanel.innerHTML = this.createLanguageToggle();
 
         if (!name) {
             this.wikipediaPanel.innerHTML += '<p>No content selected</p>';
