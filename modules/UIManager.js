@@ -25,7 +25,6 @@ export class UIManager {
         this.setupEventListeners();
         this.setupWikipediaPanel();
         this.setupHighestPeaksPanel();
-        this.setupControlOrder();
     }
 
     initializeUIComponents() {
@@ -570,20 +569,5 @@ export class UIManager {
             isDragging = false;
             this.filterHandler(this.hierLvlSlider.value);
         });
-    }
-
-    setupControlOrder() {
-        const container = document.querySelector('.leaflet-top.leaflet-right');
-        if (container) {
-            const unifiedControl = container.querySelector('.unified-control');
-            const highestPeaksPanel = container.querySelector('.highest-peaks-panel');
-            const wikipediaPanel = container.querySelector('#wikipedia-panel');
-    
-            if (unifiedControl && highestPeaksPanel && wikipediaPanel) {
-                container.appendChild(unifiedControl);
-                container.appendChild(highestPeaksPanel);
-                container.appendChild(wikipediaPanel);
-            }
-        }
     }
 }
