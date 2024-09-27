@@ -22,23 +22,21 @@ body, html {
     align-items: flex-end;
     max-height: 100vh;
     overflow-y: auto;
-    padding-right: 10px; /* Add padding to the right side */
 }
 
 .unified-control {
     order: 1;
-    margin-bottom: 10px; /* Space between unified control and highest peaks panel */
+    margin-bottom: 10px;
 }
 
 .highest-peaks-panel {
     order: 2;
-    margin-bottom: 10px; /* Space between highest peaks panel and Wikipedia panel */
+    margin-bottom: 10px;
 }
 
 #wikipedia-panel {
     order: 3;
     margin-top: 0;
-    margin-bottom: 10px; /* Add bottom margin for consistency */
     align-self: flex-end;
 }
 
@@ -48,7 +46,7 @@ body, html {
 #wikipedia-panel {
     width: 300px;
     max-width: 300px;
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    box-sizing: border-box;
 }
 
 .highest-peaks-panel {
@@ -59,6 +57,7 @@ body, html {
 #wikipedia-panel {
     height: auto;
     max-height: 50vh;
+    margin-bottom: 10px;
 }
 
 /* Leaflet Control Styles */

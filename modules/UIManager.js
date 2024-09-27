@@ -99,15 +99,8 @@ export class UIManager {
         // Find the .leaflet-right container
         const leafletRightContainer = document.querySelector('.leaflet-right');
         if (leafletRightContainer) {
-            // Find the highest peaks panel
-            const highestPeaksPanel = leafletRightContainer.querySelector('.highest-peaks-panel');
-            if (highestPeaksPanel) {
-                // Insert the Wikipedia panel after the highest peaks panel
-                highestPeaksPanel.insertAdjacentElement('afterend', this.wikipediaPanel);
-            } else {
-                // If highest peaks panel is not found, append to the end of .leaflet-right
-                leafletRightContainer.appendChild(this.wikipediaPanel);
-            }
+            // Append the Wikipedia panel to the end of .leaflet-right
+            leafletRightContainer.appendChild(this.wikipediaPanel);
         } else {
             console.error('Could not find .leaflet-right container');
         }
@@ -330,7 +323,8 @@ export class UIManager {
         }
     
         this.wikipediaPanel.style.display = 'block';
-
+        this.wikipediaPanel.innerHTML = this.createLanguageToggle();
+    
         const matchingLayers = this.layerManager.getMatchingLayers(name);
         if (matchingLayers.length > 0) {
             const properties = matchingLayers[0].properties;
