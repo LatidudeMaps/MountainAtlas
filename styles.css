@@ -43,25 +43,6 @@ body, html {
     order: 3;
     margin-top: 0;
 }
-/* Adjust the existing styles for these elements */
-.unified-control,
-.highest-peaks-panel,
-#wikipedia-panel {
-    width: 300px;
-    max-width: 300px;
-    margin: 0; /* Remove any existing margins */
-    box-sizing: border-box;
-}
-
-.highest-peaks-panel {
-    max-height: none;
-    height: auto;
-}
-
-#wikipedia-panel {
-    height: auto;
-    max-height: 50vh;
-}
 
 /* Leaflet Control Styles */
 .leaflet-control:not(.leaflet-control-attribution) {
