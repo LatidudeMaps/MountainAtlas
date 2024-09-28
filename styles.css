@@ -335,7 +335,6 @@ body, html {
 .opacity-slider-container {
     display: flex;
     align-items: center;
-    margin-top: var(--spacing-small);
     margin-left: 1.25rem;
 }
 
