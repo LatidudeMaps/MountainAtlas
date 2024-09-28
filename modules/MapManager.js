@@ -14,7 +14,8 @@ export class MapManager {
         const map = L.map(mapId, {
             zoomAnimation: true,
             preferCanvas: true,
-            zoomControl: true
+            zoomControl: true,
+            maxBoundsViscosity: 1.0
         });
 
         this.addResetViewControl(map);
