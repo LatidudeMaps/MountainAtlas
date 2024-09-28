@@ -480,6 +480,8 @@ body, html {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0 var(--spacing-small);
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 #highest-peaks-table tr {
