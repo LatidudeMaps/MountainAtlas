@@ -266,4 +266,27 @@ export class LayerManager {
         });
         return Array.from(uniquePeaks.values());
     }
+
+    handleResize() {
+        console.log('Handling layer resize');
+        this.updateLayerVisibility();
+        this.refreshMarkers();
+    }
+
+    updateLayerVisibility() {
+        // Update layer visibility based on current map bounds
+        const bounds = this.map.getBounds();
+        this.mountainAreasLayer.eachLayer(layer => {
+            if (layer.getBounds().intersects(bounds)) {
+                layer.addTo(this.map);
+            } else {
+                this.map.removeLayer(layer);
+            }
+        });
+    }
+
+    refreshMarkers() {
+        // Refresh marker cluster
+        this.markers.refreshClusters();
+    }
 }

@@ -16,6 +16,7 @@ export class UIManager {
         this.currentLanguage = 'it';
         this.highestPeaksPanel = null;
         this.disclaimerAccepted = false;
+        this.debouncedResize = debounce(this.handleResize.bind(this), 250);
     }
 
     initializeElements(filterControl) {
@@ -25,6 +26,9 @@ export class UIManager {
         this.setupEventListeners();
         this.setupWikipediaPanel();
         this.setupHighestPeaksPanel();
+        
+        // Add window resize listener
+        window.addEventListener('resize', this.debouncedResize);
     }
 
     initializeUIComponents() {
@@ -35,6 +39,18 @@ export class UIManager {
         this.hierLvlValue = container.querySelector('#hier-lvl-value');
 
         this.logComponentInitialization();
+    }
+
+    handleResize() {
+        console.log('Window resized, reinitializing components');
+        this.initializeUIComponents();
+        this.setupEventListeners();
+        this.updateHighestPeaksPanel();
+        this.updateSearchSuggestions();
+        
+        // Notify other managers about the resize
+        this.mapManager.handleResize();
+        this.layerManager.handleResize();
     }
 
     logComponentInitialization() {
@@ -548,14 +564,13 @@ export class UIManager {
             return;
         }
 
-        this.hierLvlSlider.addEventListener('input', () => {
+        const updateSlider = () => {
             this.hierLvlValue.textContent = this.hierLvlSlider.value;
-        });
-
-        this.hierLvlSlider.addEventListener('change', () => {
-            console.log('Slider value changed to:', this.hierLvlSlider.value);
             this.filterHandler(this.hierLvlSlider.value);
-        });
+        };
+
+        this.hierLvlSlider.addEventListener('input', updateSlider);
+        this.hierLvlSlider.addEventListener('change', updateSlider);
 
         this.setupTouchEvents();
     }

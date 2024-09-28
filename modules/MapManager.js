@@ -176,4 +176,16 @@ export class MapManager {
     getBounds() {
         return this.map.getBounds();
     }
+
+    handleResize() {
+        console.log('Handling map resize');
+        this.map.invalidateSize();
+        this.updateControlPositions();
+    }
+
+    updateControlPositions() {
+        const isMobile = window.innerWidth <= 768;
+        this.map.zoomControl.setPosition(isMobile ? 'bottomright' : 'topright');
+        // Update positions of other controls if necessary
+    }
 }

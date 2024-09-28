@@ -35,11 +35,22 @@ class App {
                 this.hideLoading();
             }, 500); // 500ms delay, adjust if needed
 
+            // Add window resize event listener
+            window.addEventListener('resize', this.handleResize.bind(this));
+
             console.log('App initialization complete');
         } catch (error) {
             console.error('Error initializing app:', error);
             this.handleInitializationError(error);
         }
+    }
+
+    handleResize() {
+        console.log('Window resized, updating components');
+        this.mapManager.handleResize();
+        this.layerManager.handleResize();
+        this.uiManager.handleResize();
+        this.controlManager.handleResize();
     }
 
     initializeUI() {
