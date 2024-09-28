@@ -50,9 +50,6 @@ class App {
         
         this.uiManager.initializeElements(unifiedControl);
         
-        // Add this line to set up the event listener for updating the highest peaks panel
-        this.mapManager.map.on('moveend', () => this.uiManager.updateHighestPeaksPanel());
-        
         console.log('UI initialization complete');
     }
 
@@ -145,6 +142,9 @@ class App {
         } else {
             this.handleNoMatchingLayers(searchValue);
         }
+
+        // Ensure the Wikipedia panel is updated
+        this.uiManager.updateWikipediaPanel(searchValue);
     }
 
     handleMatchingLayers(matchingLayers, searchValue) {
@@ -158,7 +158,9 @@ class App {
 
         this.layerManager.filterAndDisplayPeaks(null, matchingLayers[0].properties.MapName);
         this.uiManager.updateHighestPeaksPanel();
-        this.uiManager.updateWikipediaPanel(searchValue);
+        
+        // Move this line to handleSearch method
+        // this.uiManager.updateWikipediaPanel(searchValue);
     }
 
     resetSearch() {
