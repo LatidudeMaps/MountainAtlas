@@ -341,6 +341,13 @@ export class UIManager {
         } else {
             this.wikipediaPanel.innerHTML += '<p>No matching content found</p>';
         }
+
+        // Ensure the Wikipedia panel is below the highest peaks panel
+        const highestPeaksPanel = document.querySelector('.highest-peaks-panel');
+        if (highestPeaksPanel) {
+            const highestPeaksPanelRect = highestPeaksPanel.getBoundingClientRect();
+            this.wikipediaPanel.style.top = `${highestPeaksPanelRect.bottom + 10}px`;
+        }
     }
 
     handleWikiPanelWheel(e) {
