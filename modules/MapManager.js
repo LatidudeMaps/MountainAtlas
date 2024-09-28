@@ -17,7 +17,6 @@ export class MapManager {
             zoomControl: true,
             maxBoundsViscosity: 1.0,
             minZoom: 6,
-            maxBounds: initialBounds
         });
 
         this.addResetViewControl(map);
