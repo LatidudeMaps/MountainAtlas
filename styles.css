@@ -58,6 +58,7 @@ body, html {
     overflow-y: visible;
     pointer-events: none;
     box-sizing: border-box;
+    padding-top: var(--spacing-medium); /* Add top padding to the container */
 }
 
 .leaflet-right > * {
@@ -110,6 +111,7 @@ body, html {
     order: 1;
     z-index: calc(var(--z-index-controls)+ 1);
     margin-right: 0.625rem; /* Add consistent right margin */
+    margin-bottom: var(--spacing-medium); /* Add consistent bottom margin */
 }
 
 .control-section {
@@ -361,7 +363,6 @@ body, html {
     z-index: var(--z-index-controls);
     overflow-x: hidden;
     order: 3;
-    margin-top: var(--spacing-medium);
 }
 
 #wikipedia-panel * {
@@ -450,7 +451,7 @@ body, html {
     max-height: 15.625rem;
     overflow-y: auto;
     order: 2;
-    margin-bottom: var(--spacing-medium);
+    margin-bottom: var(--spacing-medium); /* Consistent bottom margin */
     margin-right: 0.625rem; /* Add consistent right margin */
     z-index: var(--z-index-controls);
 }
@@ -641,7 +642,7 @@ body, html {
 /* Responsive adjustments */
 @media (max-width: 768px) {
     :root {
-        --control-panel-width: calc(100% - 1.25rem); /* Adjust for consistent margins on small screens */
+        --control-panel-width: calc(100% - 1.25rem);
     }
 
     .unified-control,
