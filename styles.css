@@ -363,6 +363,7 @@ body, html {
     padding-top: 50px;
     margin-right: 10px;
     z-index: 1000; /* Ensure it's above other elements */
+    overflow-x: hidden;
 }
 
 #wikipedia-panel * {
