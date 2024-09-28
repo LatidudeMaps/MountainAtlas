@@ -356,7 +356,6 @@ body, html {
     max-height: 25rem;
     position: relative;
     pointer-events: auto;
-    margin-right: var(--spacing-medium);
     z-index: var(--z-index-controls);
     overflow-x: hidden;
     order: 3;
@@ -371,7 +370,7 @@ body, html {
 #wikipedia-panel h2, 
 #wikipedia-panel h3 {
     font-family: var(--font-family);
-    margin-top: 0;
+    margin-top: var(--spacing-medium); /* Add top margin to headings */
 }
 
 #wikipedia-panel p {
@@ -392,12 +391,12 @@ body, html {
 /* Language Toggle Styles */
 .language-toggle {
     position: absolute;
-    top: var(--spacing-medium);
+    top: var(--spacing-small);
     left: 50%;
     transform: translateX(-50%);
     z-index: calc(var(--z-index-controls) + 1);
     background-color: var(--color-background);
-    padding: var(--spacing-small);
+    padding: 0.125rem; /* Reduce padding */
     border-radius: var(--spacing-small);
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     display: flex;
@@ -406,17 +405,17 @@ body, html {
 .language-toggle button {
     background-color: #f0f0f0;
     border: 1px solid var(--color-border);
-    padding: var(--spacing-small) var(--spacing-medium);
+    padding: 0.25rem 0.5rem; /* Reduce padding */
     cursor: pointer;
-    font-size: var(--font-size-small);
+    font-size: 0.75rem; /* Reduce font size */
     display: flex;
     align-items: center;
     transition: background-color 0.3s, color 0.3s;
 }
 
 .language-toggle button .fi {
-    margin-right: var(--spacing-small);
-    font-size: 1.2em;
+    margin-right: 0.25rem; /* Reduce margin */
+    font-size: 1em; /* Adjust size relative to button text */
 }
 
 .language-toggle button:first-child {
