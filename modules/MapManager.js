@@ -15,7 +15,9 @@ export class MapManager {
             zoomAnimation: true,
             preferCanvas: true,
             zoomControl: true,
-            maxBoundsViscosity: 1.0
+            maxBoundsViscosity: 1.0,
+            minZoom: 6,
+            maxBounds: initialBounds
         });
 
         this.addResetViewControl(map);
@@ -82,10 +84,11 @@ export class MapManager {
         this.map.setView(center, 6);
         this.initialBounds = this.map.getBounds();
         
-        const maxBounds = this.initialBounds.pad(0.1);
-        this.map.setMaxBounds(maxBounds);
+        // Set max bounds with some padding
+        this.maxBounds = this.initialBounds.pad(0.1);
+        this.map.setMaxBounds(this.maxBounds);
         
-        console.log('Initial extent set');
+        console.log('Initial extent and max bounds set');
     }
 
     addResetViewControl(map) {
