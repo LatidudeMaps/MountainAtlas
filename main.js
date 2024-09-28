@@ -14,7 +14,11 @@ class App {
         this.controlManager = null;
         this.loadingIndicator = document.getElementById('loading-indicator');
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
-        this.mapInitialized = false;
+        this.readyState = {
+            map: false,
+            data: false,
+            ui: false
+        };
     }
 
     async init() {
@@ -22,18 +26,13 @@ class App {
             console.log('App initialization started');
             this.showLoading();
             await this.loadData();
+            this.readyState.data = true;
             this.initializeUI();
             await this.showDisclaimer();
             this.initializeMap();
             this.applyInitialFilter();
             this.setupMapEventListeners();
-            
-            // Add a short delay before updating the highest peaks panel
-            setTimeout(() => {
-                this.uiManager.updateHighestPeaksPanel();
-                this.hideLoading();
-            }, 500); // 500ms delay, adjust if needed
-
+            this.hideLoading();
             console.log('App initialization complete');
         } catch (error) {
             console.error('Error initializing app:', error);
@@ -55,7 +54,8 @@ class App {
         
         this.uiManager.initializeElements(unifiedControl);
         
-        console.log('UI initialization complete');
+        this.readyState.ui = true;
+        this.checkAllReady();
     }
 
     showDisclaimer() {
@@ -85,8 +85,8 @@ class App {
     initializeMap() {
         console.log('Initializing map');
         this.mapManager.setInitialExtent(this.layerManager.mountainAreasLayer);
-        this.mapInitialized = true;
-        console.log('Map initialized');
+        this.readyState.map = true;
+        this.checkAllReady();
     }
 
     applyInitialFilter() {
@@ -176,17 +176,19 @@ class App {
 
     setupMapEventListeners() {
         this.mapManager.map.on('moveend', () => {
-            if (this.mapInitialized) {
-                this.uiManager.updateHighestPeaksPanel();
-            }
+            this.uiManager.updateHighestPeaksPanel();
         });
 
-        // Add this new event listener
         this.mapManager.map.on('layeradd', () => {
-            if (this.mapInitialized) {
-                this.uiManager.updateHighestPeaksPanel();
-            }
+            this.uiManager.updateHighestPeaksPanel();
         });
+    }
+
+    checkAllReady() {
+        if (this.readyState.map && this.readyState.data && this.readyState.ui) {
+            console.log('All components are ready, updating highest peaks panel');
+            this.uiManager.updateHighestPeaksPanel();
+        }
     }
 
     showLoading() {

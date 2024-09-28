@@ -68,42 +68,50 @@ export class UIManager {
     }
 
     updateHighestPeaksPanel() {
+        if (!this.mapManager || !this.mapManager.map) {
+            console.log('Map not initialized, skipping update');
+            return;
+        }
+
         if (!this.mapManager.map.getBounds().isValid()) {
             console.log('Map bounds not yet valid, skipping update');
             return;
         }
         
-        if (!this.layerManager.allOsmPeaks) {
-            console.log('OSM peaks data not yet loaded, skipping update');
+        if (!this.layerManager || !this.layerManager.allOsmPeaks) {
+            console.log('LayerManager or OSM peaks data not initialized, skipping update');
             return;
         }
 
         const highestPeaks = this.layerManager.getHighestPeaks(5);
         const content = document.getElementById('highest-peaks-content');
         
-        if (content) {
-            if (highestPeaks.length === 0) {
-                content.innerHTML = '<p class="no-peaks">No peaks in current view</p>';
-            } else {
-                let html = '<table id="highest-peaks-table">';
-                
-                highestPeaks.forEach((peak, index) => {
-                    const isHighest = index === 0;
-                    const highlightClass = isHighest ? 'highest-peak' : '';
-                    const starIcon = isHighest ? '&#9733; ' : '';
-                    const peakName = peak.properties.name || 'Unnamed Peak';
-                    html += `<tr class="${highlightClass}">
-                        <td class="peak-name" title="${peakName}">${starIcon}${peakName}</td>
-                        <td class="peak-elevation">${peak.properties.elevation} m</td>
-                    </tr>`;
-                });
-                
-                html += '</table>';
-                content.innerHTML = html;
-            }
-        } else {
+        if (!content) {
             console.log('Highest peaks content element not found');
+            return;
         }
+
+        if (highestPeaks.length === 0) {
+            content.innerHTML = '<p class="no-peaks">No peaks in current view</p>';
+        } else {
+            let html = '<table id="highest-peaks-table">';
+            
+            highestPeaks.forEach((peak, index) => {
+                const isHighest = index === 0;
+                const highlightClass = isHighest ? 'highest-peak' : '';
+                const starIcon = isHighest ? '&#9733; ' : '';
+                const peakName = peak.properties.name || 'Unnamed Peak';
+                html += `<tr class="${highlightClass}">
+                    <td class="peak-name" title="${peakName}">${starIcon}${peakName}</td>
+                    <td class="peak-elevation">${peak.properties.elevation} m</td>
+                </tr>`;
+            });
+            
+            html += '</table>';
+            content.innerHTML = html;
+        }
+
+        console.log('Highest peaks panel updated successfully');
     }
 
     setupWikipediaPanel() {
