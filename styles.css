@@ -494,6 +494,13 @@ body, html {
     padding: calc(var(--spacing-small) / 2) var(--spacing-small); /* Reduce vertical padding in cells */
     font-size: var(--font-size-small);
     line-height: 1.0;
+    overflow: hidden; /* Hide overflowing content */
+    text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+    white-space: nowrap; /* Prevent wrapping */
+}
+
+#highest-peaks-table td:first-child[title] {
+    cursor: help;
 }
 
 #highest-peaks-table td:first-child {
