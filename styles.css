@@ -110,7 +110,10 @@ body, html {
     border-radius: var(--spacing-small);
     box-shadow: 0 1px 5px var(--color-shadow);
     font-family: var(--font-family);
-    padding: var(--spacing-medium);
+    padding-right: var(--spacing-medium);
+    padding-left: var(--spacing-medium);
+    padding-top: var(--spacing-medium);
+    padding-bottom: 0;
     width: var(--control-panel-width);
     box-sizing: border-box;
     overflow: visible;
