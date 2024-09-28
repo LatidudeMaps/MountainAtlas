@@ -3,7 +3,6 @@ import { LayerManager } from './modules/LayerManager.js';
 import { ControlManager } from './modules/ControlManager.js';
 import { DataLoader } from './modules/DataLoader.js';
 import { UIManager } from './modules/UIManager.js';
-import { debounce } from './utils/helpers.js';
 
 class App {
     constructor() {
@@ -16,7 +15,7 @@ class App {
         this.loadingIndicator = document.getElementById('loading-indicator');
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
         this.mapInitialized = false;
-        this.setupInfoButton()
+        this.setupInfoButton();
     }
 
     async init() {
@@ -32,7 +31,6 @@ class App {
             this.uiManager.updateHighestPeaksPanel();
             this.hideLoading();
             console.log('App initialization complete');
-            this.setupResponsiveHandling();
         } catch (error) {
             console.error('Error initializing app:', error);
             this.handleInitializationError(error);
@@ -45,8 +43,7 @@ class App {
             this.handleSearch.bind(this),
             this.handleFilterChange.bind(this),
             this.layerManager,
-            this.mapManager,
-            this.uiManager.checkScreenSize()
+            this.mapManager
         );
     
         this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
@@ -245,18 +242,6 @@ class App {
         alert('No matching polygons found.');
         this.uiManager.updateWikipediaPanel(null);
     }
-
-    setupResponsiveHandling() {
-        window.addEventListener('resize', debounce(() => {
-            this.uiManager.checkScreenSize();
-            this.controlManager.adjustControlsForScreenSize();
-            this.uiManager.reinitializeEventListeners();
-        }, 250));
-    }
-
-    togglePanels() {
-        this.uiManager.togglePanels();
-    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -266,9 +251,4 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Unhandled error during app initialization:', error);
         alert('An unexpected error occurred. Please try refreshing the page.');
     });
-
-    // Add a global function to toggle panels, which can be called from HTML
-    window.togglePanels = () => {
-        app.togglePanels();
-    };
 });
