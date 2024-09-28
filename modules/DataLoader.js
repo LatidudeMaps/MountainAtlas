@@ -17,9 +17,9 @@ export class DataLoader {
             console.log('Mountain areas loaded successfully');
             return this.mountainAreasData;
         } catch (error) {
-            console.error('Error loading Mountain Areas:', error);
+            console.error('Detailed error loading Mountain Areas:', error);
             this.mountainAreasLoaded = false;
-            throw error;
+            throw new Error('Failed to load Mountain Areas: ' + error.message);
         }
     }
 
@@ -33,16 +33,16 @@ export class DataLoader {
             console.log('OSM peaks loaded successfully');
             return this.allOsmPeaks;
         } catch (error) {
-            console.error('Error loading OSM Peaks:', error);
+            console.error('Detailed error loading OSM Peaks:', error);
             this.osmPeaksLoaded = false;
-            throw error;
+            throw new Error('Failed to load OSM Peaks: ' + error.message);
         }
     }
 
     async fetchData(url) {
         const response = await fetch(url);
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`HTTP error! status: ${response.status}, url: ${url}`);
         }
         return response;
     }

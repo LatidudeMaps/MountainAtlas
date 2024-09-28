@@ -27,19 +27,36 @@ class App {
             this.showLoading();
             
             // Load data first
+            console.log('Starting data load');
             await this.loadData();
+            console.log('Data load complete');
             
             // Then initialize UI and other components
+            console.log('Initializing UI');
             this.initializeUI();
+            console.log('UI initialization complete');
+
+            console.log('Initializing map');
             this.initializeMap();
+            console.log('Map initialization complete');
+
+            console.log('Applying initial filter');
             this.applyInitialFilter();
+            console.log('Initial filter applied');
             
+            console.log('Showing disclaimer');
             await this.showDisclaimer();
+            console.log('Disclaimer shown');
+
+            console.log('Setting up map event listeners');
             this.setupMapEventListeners();
+            console.log('Map event listeners set up');
             
             setTimeout(() => {
                 if (this.uiManager) {
+                    console.log('Updating highest peaks panel');
                     this.uiManager.updateHighestPeaksPanel();
+                    console.log('Highest peaks panel updated');
                 }
                 this.hideLoading();
             }, 500);
@@ -48,7 +65,7 @@ class App {
 
             console.log('App initialization complete');
         } catch (error) {
-            console.error('Error initializing app:', error);
+            console.error('Detailed error in app initialization:', error);
             this.handleInitializationError(error);
         }
     }
@@ -57,15 +74,17 @@ class App {
         console.log('Loading data...');
         try {
             const mountainAreasData = await this.dataLoader.loadMountainAreas();
+            console.log('Mountain areas data loaded');
             const osmPeaksData = await this.dataLoader.loadOsmPeaks();
+            console.log('OSM peaks data loaded');
             
             this.layerManager.setMountainAreasData(mountainAreasData);
             this.layerManager.setOsmPeaksData(osmPeaksData);
             
             console.log('Data loaded and set in LayerManager');
         } catch (error) {
-            console.error('Error loading data:', error);
-            throw new Error('Failed to load necessary data');
+            console.error('Detailed error loading data:', error);
+            throw new Error('Failed to load necessary data: ' + error.message);
         }
     }
 
@@ -90,6 +109,7 @@ class App {
     applyInitialFilter() {
         console.log('Applying initial filter');
         const uniqueHierLevels = this.dataLoader.getUniqueHierLevels();
+        console.log('Unique hierarchy levels:', uniqueHierLevels);
         if (uniqueHierLevels.length > 0) {
             const initialHierLevel = "4";
             this.handleFilterChange(initialHierLevel);
@@ -101,6 +121,12 @@ class App {
         } else {
             console.warn('No hierarchy levels found');
         }
+    }
+
+    handleInitializationError(error) {
+        console.error('Failed to initialize the application:', error);
+        alert('An error occurred while initializing the application: ' + error.message + '. Please try refreshing the page.');
+        this.hideLoading();
     }
 
     handleResize() {
@@ -225,12 +251,6 @@ class App {
         if (this.loadingIndicator) {
             this.loadingIndicator.style.display = 'none';
         }
-    }
-
-    handleInitializationError(error) {
-        console.error('Failed to initialize the application:', error);
-        alert('An error occurred while initializing the application. Please try refreshing the page.');
-        // Here you could also add code to display a user-friendly error message on the page
     }
 
     setupInfoButton() {
