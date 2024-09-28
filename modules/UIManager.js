@@ -1,12 +1,12 @@
 import { debounce } from '../utils/helpers.js';
 
 export class UIManager {
-    constructor(searchHandler, filterHandler, layerManager, mapManager) {
+    constructor(searchHandler, filterHandler, layerManager, mapManager, dataLoader) {
         this.searchHandler = searchHandler;
         this.filterHandler = filterHandler;
         this.layerManager = layerManager;
         this.mapManager = mapManager;
-        this.dataLoader = dataLoader;
+        this.dataLoader = dataLoader; // Ensure this line is present
         this.filterControl = null;
         this.searchInput = null;
         this.searchSuggestions = null;
@@ -18,6 +18,8 @@ export class UIManager {
         this.highestPeaksPanel = null;
         this.disclaimerAccepted = false;
         this.debouncedResize = debounce(this.handleResize.bind(this), 250);
+
+        console.log('UIManager initialized with dataLoader:', !!this.dataLoader);
     }
 
     initializeElements(filterControl) {
@@ -236,22 +238,34 @@ export class UIManager {
         this.hierLvlValue.textContent = value;
     }
 
-    updateHierLevelSlider(min, max, value) {
-        console.log('Updating hierarchy level slider:', { min, max, value });
+    updateHierLevelSlider() {
+        console.log('Updating hierarchy level slider');
         if (!this.hierLvlSlider || !this.hierLvlValue) {
             console.error('Hierarchy level elements not found, cannot update slider');
             return;
         }
 
-        if (typeof min !== 'number' || typeof max !== 'number' || typeof value !== 'number') {
-            console.error('Invalid values for slider update:', { min, max, value });
+        if (!this.dataLoader) {
+            console.error('DataLoader not available in UIManager');
             return;
         }
 
+        const hierLevels = this.dataLoader.getUniqueHierLevels();
+        if (hierLevels.length === 0) {
+            console.warn('No hierarchy levels available');
+            return;
+        }
+
+        const min = Math.min(...hierLevels);
+        const max = Math.max(...hierLevels);
+        const defaultValue = hierLevels.includes(4) ? 4 : min;
+
         this.hierLvlSlider.min = min;
         this.hierLvlSlider.max = max;
-        this.hierLvlSlider.value = value;
-        this.hierLvlValue.textContent = value;
+        this.hierLvlSlider.value = defaultValue;
+        this.hierLvlValue.textContent = defaultValue;
+
+        console.log(`Slider updated with min: ${min}, max: ${max}, default: ${defaultValue}`);
     }
 
     clearSearch() {

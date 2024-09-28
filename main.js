@@ -95,7 +95,7 @@ class App {
             this.handleFilterChange.bind(this),
             this.layerManager,
             this.mapManager,
-            this.dataLoader
+            this.dataLoader  // Ensure this line is present and correct
         );
     
         this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
