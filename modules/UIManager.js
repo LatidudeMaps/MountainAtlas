@@ -319,40 +319,34 @@ export class UIManager {
     }
 
     updateWikipediaPanel(name) {
-        console.log('updateWikipediaPanel called with name:', name);
         if (!name) {
-            console.log('No name provided, hiding Wikipedia panel');
             this.wikipediaPanel.style.display = 'none';
             return;
         }
     
-        console.log('Showing Wikipedia panel');
         this.wikipediaPanel.style.display = 'block';
         this.wikipediaPanel.innerHTML = this.createLanguageToggle();
     
         const matchingLayers = this.layerManager.getMatchingLayers(name);
-        console.log('Matching layers found:', matchingLayers.length);
-
         if (matchingLayers.length > 0) {
             const properties = matchingLayers[0].properties;
             const wikiUrl = this.currentLanguage === 'it' ? properties.wiki_url_it : properties.wiki_url_en;
             
             if (wikiUrl) {
-                console.log('Fetching Wikipedia content from:', wikiUrl);
                 this.fetchWikipediaContent(wikiUrl);
             } else {
-                console.log('No Wikipedia URL found');
                 const message = this.currentLanguage === 'it' 
                     ? '<p>Info non disponibili</p>'
                     : '<p>Information not available in English</p>';
                 this.wikipediaPanel.innerHTML += message;
             }
         } else {
-            console.log('No matching layers found');
             this.wikipediaPanel.innerHTML += '<p>No matching content found</p>';
         }
 
-        console.log('Wikipedia panel update complete');
+        // Remove any inline positioning styles
+        this.wikipediaPanel.style.top = '';
+        this.wikipediaPanel.style.bottom = '';
     }
 
     handleWikiPanelWheel(e) {
