@@ -452,7 +452,7 @@ body, html {
     border-radius: var(--spacing-small);
     box-shadow: 0 1px 5px var(--color-shadow);
     font-family: var(--font-family);
-    padding: var(--spacing-small);
+    padding: var(--spacing-small) var(--spacing-small) calc(var(--spacing-small) / 2); /* Reduce bottom padding */
     box-sizing: border-box;
     pointer-events: auto;
     width: var(--control-panel-width);
@@ -479,9 +479,7 @@ body, html {
 #highest-peaks-table {
     width: 100%;
     border-collapse: separate;
-    border-spacing: 0 var(--spacing-small);
-    padding-top: 0;
-    padding-bottom: 0;
+    border-spacing: 0 calc(var(--spacing-small) / 2);
 }
 
 #highest-peaks-table tr {
@@ -493,7 +491,7 @@ body, html {
 }
 
 #highest-peaks-table td {
-    padding: 0.5rem var(--spacing-small);
+    padding: calc(var(--spacing-small) / 2) var(--spacing-small); /* Reduce vertical padding in cells */
     font-size: var(--font-size-small);
     line-height: 1.0;
 }
