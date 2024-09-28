@@ -29,21 +29,6 @@ body, html {
     pointer-events: auto;
 }
 
-.unified-control {
-    order: 1;
-    margin-bottom: 10px;
-}
-
-.highest-peaks-panel {
-    order: 2;
-    margin-bottom: 10px;
-}
-
-#wikipedia-panel {
-    order: 3;
-    margin-top: 0;
-}
-
 /* Leaflet Control Styles */
 .leaflet-control:not(.leaflet-control-attribution) {
     font-family: 'Montserrat', Arial, sans-serif;
@@ -88,6 +73,7 @@ body, html {
     width: 300px;
     box-sizing: border-box;
     overflow: visible;
+    order: 1;
 }
 
 .control-section {
@@ -345,6 +331,8 @@ body, html {
     margin-right: 10px;
     z-index: 1000; /* Ensure it's above other elements */
     overflow-x: hidden;
+    order: 3;
+    margin-top: 0;
 }
 
 #wikipedia-panel * {
@@ -432,6 +420,7 @@ body, html {
     width: 300px;
     max-height: 250px;
     overflow-y: auto;
+    order: 2;
     margin-bottom: 10px;
 }
 
