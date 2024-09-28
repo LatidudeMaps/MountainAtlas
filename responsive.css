@@ -5,29 +5,42 @@ body, html {
     overflow: hidden;
 }
 
+/* Ensure controls are always usable */
+.unified-control,
+.highest-peaks-panel,
+#wikipedia-panel {
+    min-width: 250px;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
 /* Small screens (mobile phones) */
 @media screen and (max-width: 600px) {
     .unified-control {
         width: 100%;
         max-width: none;
-        position: absolute;
+        position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
         z-index: 1000;
         border-radius: 0;
+        height: auto;
+        max-height: 50vh;
+        overflow-y: auto;
     }
 
     .highest-peaks-panel,
     #wikipedia-panel {
         width: 100%;
         max-width: none;
-        position: absolute;
+        position: fixed;
         top: 0;
         left: 0;
         right: 0;
         height: 50vh;
-        max-height: none;
+        max-height: 50vh;
+        overflow-y: auto;
     }
 
     #wikipedia-panel {
@@ -43,6 +56,32 @@ body, html {
         top: 10px;
         right: 10px;
     }
+
+    /* Ensure text doesn't overflow */
+    .control-section,
+    .highest-peaks-panel,
+    #wikipedia-panel {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    /* Adjust input and slider sizes for better mobile usability */
+    .custom-select,
+    #search-input,
+    .custom-slider {
+        width: 100%;
+        max-width: none;
+    }
+
+    .opacity-slider-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .opacity-slider {
+        width: 100%;
+        margin-bottom: 5px;
+    }
 }
 
 /* Medium screens (tablets) */
@@ -50,7 +89,7 @@ body, html {
     .unified-control,
     .highest-peaks-panel,
     #wikipedia-panel {
-        width: 250px;
+        width: 300px;
     }
 
     #wikipedia-panel {
@@ -82,17 +121,6 @@ body, html {
     .highest-peaks-panel,
     #wikipedia-panel {
         margin-bottom: 10px;
-    }
-
-    .opacity-slider-container {
-        flex-direction: column;
-        align-items: flex-start;
-        margin-left: 10px;
-    }
-
-    .opacity-slider {
-        width: 100%;
-        margin-bottom: 5px;
     }
 }
 
@@ -138,4 +166,23 @@ body, html {
     #wikipedia-panel {
         font-size: 14px;
     }
+}
+
+/* Ensure controls are always visible and usable */
+.leaflet-control-container {
+    position: fixed !important;
+    top: 10px;
+    right: 10px;
+    bottom: 10px;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.leaflet-control-container .leaflet-top,
+.leaflet-control-container .leaflet-bottom {
+    position: static;
+}
+
+.leaflet-control-container .leaflet-control {
+    pointer-events: auto;
 }
