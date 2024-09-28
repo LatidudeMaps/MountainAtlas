@@ -176,9 +176,4 @@ export class MapManager {
     getBounds() {
         return this.map.getBounds();
     }
-
-    handleResize() {
-        console.log('MapManager handling resize');
-        this.map.invalidateSize();
-    }
 }

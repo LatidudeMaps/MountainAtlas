@@ -1,12 +1,11 @@
 import { debounce } from '../utils/helpers.js';
 
 export class UIManager {
-    constructor(searchHandler, filterHandler, layerManager, mapManager, dataLoader) {
+    constructor(searchHandler, filterHandler, layerManager, mapManager) {
         this.searchHandler = searchHandler;
         this.filterHandler = filterHandler;
         this.layerManager = layerManager;
         this.mapManager = mapManager;
-        this.dataLoader = dataLoader; // Ensure this line is present
         this.filterControl = null;
         this.searchInput = null;
         this.searchSuggestions = null;
@@ -17,9 +16,6 @@ export class UIManager {
         this.currentLanguage = 'it';
         this.highestPeaksPanel = null;
         this.disclaimerAccepted = false;
-        this.debouncedResize = debounce(this.handleResize.bind(this), 250);
-
-        console.log('UIManager initialized with dataLoader:', !!this.dataLoader);
     }
 
     initializeElements(filterControl) {
@@ -38,29 +34,7 @@ export class UIManager {
         this.hierLvlSlider = container.querySelector('#hier-lvl-slider');
         this.hierLvlValue = container.querySelector('#hier-lvl-value');
 
-        this.updateHierLevelSlider();
-
         this.logComponentInitialization();
-    }
-
-    handleResize() {
-        console.log('UIManager handling resize');
-        this.updateHierLevelSlider();
-        this.updateHighestPeaksPanel();
-        this.updateSearchSuggestions();
-        this.repositionPanels();
-    }
-
-    repositionPanels() {
-        // Adjust panel positions based on new window size
-        const isMobile = window.innerWidth <= 768;
-        if (this.wikipediaPanel) {
-            this.wikipediaPanel.style.maxHeight = isMobile ? '50vh' : '70vh';
-        }
-        if (this.highestPeaksPanel) {
-            const panelContainer = this.highestPeaksPanel.getContainer();
-            panelContainer.style.maxHeight = isMobile ? '30vh' : '15.625rem';
-        }
     }
 
     logComponentInitialization() {
@@ -238,34 +212,17 @@ export class UIManager {
         this.hierLvlValue.textContent = value;
     }
 
-    updateHierLevelSlider() {
-        console.log('Updating hierarchy level slider');
+    updateHierLevelSlider(min, max, value) {
+        console.log('Updating hierarchy level slider:', { min, max, value });
         if (!this.hierLvlSlider || !this.hierLvlValue) {
             console.error('Hierarchy level elements not found, cannot update slider');
             return;
         }
 
-        if (!this.dataLoader) {
-            console.error('DataLoader not available in UIManager');
-            return;
-        }
-
-        const hierLevels = this.dataLoader.getUniqueHierLevels();
-        if (hierLevels.length === 0) {
-            console.warn('No hierarchy levels available');
-            return;
-        }
-
-        const min = Math.min(...hierLevels);
-        const max = Math.max(...hierLevels);
-        const defaultValue = hierLevels.includes(4) ? 4 : min;
-
         this.hierLvlSlider.min = min;
         this.hierLvlSlider.max = max;
-        this.hierLvlSlider.value = defaultValue;
-        this.hierLvlValue.textContent = defaultValue;
-
-        console.log(`Slider updated with min: ${min}, max: ${max}, default: ${defaultValue}`);
+        this.hierLvlSlider.value = value;
+        this.hierLvlValue.textContent = value;
     }
 
     clearSearch() {
@@ -591,14 +548,14 @@ export class UIManager {
             return;
         }
 
-        const updateSlider = () => {
-            const value = this.hierLvlSlider.value;
-            this.hierLvlValue.textContent = value;
-            this.filterHandler(value);
-        };
+        this.hierLvlSlider.addEventListener('input', () => {
+            this.hierLvlValue.textContent = this.hierLvlSlider.value;
+        });
 
-        this.hierLvlSlider.addEventListener('input', updateSlider);
-        this.hierLvlSlider.addEventListener('change', updateSlider);
+        this.hierLvlSlider.addEventListener('change', () => {
+            console.log('Slider value changed to:', this.hierLvlSlider.value);
+            this.filterHandler(this.hierLvlSlider.value);
+        });
 
         this.setupTouchEvents();
     }

@@ -3,88 +3,42 @@ import { LayerManager } from './modules/LayerManager.js';
 import { ControlManager } from './modules/ControlManager.js';
 import { DataLoader } from './modules/DataLoader.js';
 import { UIManager } from './modules/UIManager.js';
-import { debounce } from './utils/helpers.js';
 
 class App {
     constructor() {
         console.log('App constructor called');
         this.mapManager = new MapManager('map');
-        this.dataLoader = new DataLoader();
         this.layerManager = new LayerManager(this.mapManager.map);
+        this.dataLoader = new DataLoader();
         this.uiManager = null;
         this.controlManager = null;
         this.loadingIndicator = document.getElementById('loading-indicator');
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
         this.mapInitialized = false;
         this.setupInfoButton();
-        
-        this.debouncedResize = debounce(this.handleResize.bind(this), 250);
     }
 
     async init() {
         try {
             console.log('App initialization started');
             this.showLoading();
-            
-            // Load data first
-            console.log('Starting data load');
             await this.loadData();
-            console.log('Data load complete');
-            
-            // Then initialize UI and other components
-            console.log('Initializing UI');
             this.initializeUI();
-            console.log('UI initialization complete');
-
-            console.log('Initializing map');
-            this.initializeMap();
-            console.log('Map initialization complete');
-
-            console.log('Applying initial filter');
-            this.applyInitialFilter();
-            console.log('Initial filter applied');
-            
-            console.log('Showing disclaimer');
             await this.showDisclaimer();
-            console.log('Disclaimer shown');
-
-            console.log('Setting up map event listeners');
+            this.initializeMap();
+            this.applyInitialFilter();
             this.setupMapEventListeners();
-            console.log('Map event listeners set up');
             
+            // Add a short delay before updating the highest peaks panel
             setTimeout(() => {
-                if (this.uiManager) {
-                    console.log('Updating highest peaks panel');
-                    this.uiManager.updateHighestPeaksPanel();
-                    console.log('Highest peaks panel updated');
-                }
+                this.uiManager.updateHighestPeaksPanel();
                 this.hideLoading();
-            }, 500);
-
-            window.addEventListener('resize', this.debouncedResize);
+            }, 500); // 500ms delay, adjust if needed
 
             console.log('App initialization complete');
         } catch (error) {
-            console.error('Detailed error in app initialization:', error);
+            console.error('Error initializing app:', error);
             this.handleInitializationError(error);
-        }
-    }
-
-    async loadData() {
-        console.log('Loading data...');
-        try {
-            const mountainAreasData = await this.dataLoader.loadMountainAreas();
-            console.log('Mountain areas data loaded');
-            const osmPeaksData = await this.dataLoader.loadOsmPeaks();
-            console.log('OSM peaks data loaded');
-            
-            this.layerManager.setMountainAreasData(mountainAreasData);
-            this.layerManager.setOsmPeaksData(osmPeaksData);
-            
-            console.log('Data loaded and set in LayerManager');
-        } catch (error) {
-            console.error('Detailed error loading data:', error);
-            throw new Error('Failed to load necessary data: ' + error.message);
         }
     }
 
@@ -94,8 +48,7 @@ class App {
             this.handleSearch.bind(this),
             this.handleFilterChange.bind(this),
             this.layerManager,
-            this.mapManager,
-            this.dataLoader  // Ensure this line is present and correct
+            this.mapManager
         );
     
         this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
@@ -104,37 +57,6 @@ class App {
         this.uiManager.initializeElements(unifiedControl);
         
         console.log('UI initialization complete');
-    }
-
-    applyInitialFilter() {
-        console.log('Applying initial filter');
-        const uniqueHierLevels = this.dataLoader.getUniqueHierLevels();
-        console.log('Unique hierarchy levels:', uniqueHierLevels);
-        if (uniqueHierLevels.length > 0) {
-            const initialHierLevel = "4";
-            this.handleFilterChange(initialHierLevel);
-            this.uiManager.updateHierLevelSlider(
-                Math.min(...uniqueHierLevels),
-                Math.max(...uniqueHierLevels),
-                parseInt(initialHierLevel)
-            );
-        } else {
-            console.warn('No hierarchy levels found');
-        }
-    }
-
-    handleInitializationError(error) {
-        console.error('Failed to initialize the application:', error);
-        alert('An error occurred while initializing the application: ' + error.message + '. Please try refreshing the page.');
-        this.hideLoading();
-    }
-
-    handleResize() {
-        console.log('Window resized, updating components');
-        if (this.mapManager) this.mapManager.handleResize();
-        if (this.layerManager) this.layerManager.handleResize();
-        if (this.uiManager) this.uiManager.handleResize();
-        // Remove the call to controlManager.handleResize()
     }
 
     showDisclaimer() {
@@ -166,6 +88,35 @@ class App {
         this.mapManager.setInitialExtent(this.layerManager.mountainAreasLayer);
         this.mapInitialized = true;
         console.log('Map initialized');
+    }
+
+    applyInitialFilter() {
+        console.log('Applying initial filter');
+        const initialHierLevel = "4";
+        this.handleFilterChange(initialHierLevel);
+        this.uiManager.updateHierLevelSlider(
+            Math.min(...this.dataLoader.getUniqueHierLevels()),
+            Math.max(...this.dataLoader.getUniqueHierLevels()),
+            parseInt(initialHierLevel)
+        );
+    }
+
+    async loadData() {
+        console.log('Loading data...');
+        try {
+            const [mountainAreasData, osmPeaksData] = await Promise.all([
+                this.dataLoader.loadMountainAreas(),
+                this.dataLoader.loadOsmPeaks()
+            ]);
+            
+            this.layerManager.setMountainAreasData(mountainAreasData);
+            this.layerManager.setOsmPeaksData(osmPeaksData);
+            
+            console.log('Data loaded and set in LayerManager');
+        } catch (error) {
+            console.error('Error loading data:', error);
+            throw new Error('Failed to load necessary data');
+        }
     }
 
     handleFilterChange(selectedValue) {
@@ -251,6 +202,12 @@ class App {
         if (this.loadingIndicator) {
             this.loadingIndicator.style.display = 'none';
         }
+    }
+
+    handleInitializationError(error) {
+        console.error('Failed to initialize the application:', error);
+        alert('An error occurred while initializing the application. Please try refreshing the page.');
+        // Here you could also add code to display a user-friendly error message on the page
     }
 
     setupInfoButton() {

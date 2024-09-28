@@ -266,34 +266,4 @@ export class LayerManager {
         });
         return Array.from(uniquePeaks.values());
     }
-
-    handleResize() {
-        console.log('LayerManager handling resize');
-        this.updateLayerVisibility();
-        if (this.markers) {
-            this.markers.refreshClusters();
-        }
-    }
-
-    updateLayerVisibility() {
-        if (!this.map || !this.mountainAreasLayer) return;
-        
-        const bounds = this.map.getBounds();
-        this.mountainAreasLayer.eachLayer(layer => {
-            if (layer.getBounds && layer.getBounds().intersects(bounds)) {
-                if (!this.map.hasLayer(layer)) {
-                    this.map.addLayer(layer);
-                }
-            } else {
-                if (this.map.hasLayer(layer)) {
-                    this.map.removeLayer(layer);
-                }
-            }
-        });
-    }
-
-    refreshMarkers() {
-        // Refresh marker cluster
-        this.markers.refreshClusters();
-    }
 }
