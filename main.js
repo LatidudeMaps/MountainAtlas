@@ -25,15 +25,22 @@ class App {
         try {
             console.log('App initialization started');
             this.showLoading();
+            
+            // Load data first
             await this.loadData();
+            
+            // Then initialize UI and other components
             this.initializeUI();
-            await this.showDisclaimer();
             this.initializeMap();
             this.applyInitialFilter();
+            
+            await this.showDisclaimer();
             this.setupMapEventListeners();
             
             setTimeout(() => {
-                this.uiManager.updateHighestPeaksPanel();
+                if (this.uiManager) {
+                    this.uiManager.updateHighestPeaksPanel();
+                }
                 this.hideLoading();
             }, 500);
 
@@ -46,6 +53,22 @@ class App {
         }
     }
 
+    async loadData() {
+        console.log('Loading data...');
+        try {
+            const mountainAreasData = await this.dataLoader.loadMountainAreas();
+            const osmPeaksData = await this.dataLoader.loadOsmPeaks();
+            
+            this.layerManager.setMountainAreasData(mountainAreasData);
+            this.layerManager.setOsmPeaksData(osmPeaksData);
+            
+            console.log('Data loaded and set in LayerManager');
+        } catch (error) {
+            console.error('Error loading data:', error);
+            throw new Error('Failed to load necessary data');
+        }
+    }
+
     initializeUI() {
         console.log('Initializing UI...');
         this.uiManager = new UIManager(
@@ -53,7 +76,7 @@ class App {
             this.handleFilterChange.bind(this),
             this.layerManager,
             this.mapManager,
-            this.dataLoader  // Pass the DataLoader instance here
+            this.dataLoader
         );
     
         this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
@@ -62,6 +85,22 @@ class App {
         this.uiManager.initializeElements(unifiedControl);
         
         console.log('UI initialization complete');
+    }
+
+    applyInitialFilter() {
+        console.log('Applying initial filter');
+        const uniqueHierLevels = this.dataLoader.getUniqueHierLevels();
+        if (uniqueHierLevels.length > 0) {
+            const initialHierLevel = "4";
+            this.handleFilterChange(initialHierLevel);
+            this.uiManager.updateHierLevelSlider(
+                Math.min(...uniqueHierLevels),
+                Math.max(...uniqueHierLevels),
+                parseInt(initialHierLevel)
+            );
+        } else {
+            console.warn('No hierarchy levels found');
+        }
     }
 
     handleResize() {
@@ -101,35 +140,6 @@ class App {
         this.mapManager.setInitialExtent(this.layerManager.mountainAreasLayer);
         this.mapInitialized = true;
         console.log('Map initialized');
-    }
-
-    applyInitialFilter() {
-        console.log('Applying initial filter');
-        const initialHierLevel = "4";
-        this.handleFilterChange(initialHierLevel);
-        this.uiManager.updateHierLevelSlider(
-            Math.min(...this.dataLoader.getUniqueHierLevels()),
-            Math.max(...this.dataLoader.getUniqueHierLevels()),
-            parseInt(initialHierLevel)
-        );
-    }
-
-    async loadData() {
-        console.log('Loading data...');
-        try {
-            const [mountainAreasData, osmPeaksData] = await Promise.all([
-                this.dataLoader.loadMountainAreas(),
-                this.dataLoader.loadOsmPeaks()
-            ]);
-            
-            this.layerManager.setMountainAreasData(mountainAreasData);
-            this.layerManager.setOsmPeaksData(osmPeaksData);
-            
-            console.log('Data loaded and set in LayerManager');
-        } catch (error) {
-            console.error('Error loading data:', error);
-            throw new Error('Failed to load necessary data');
-        }
     }
 
     handleFilterChange(selectedValue) {

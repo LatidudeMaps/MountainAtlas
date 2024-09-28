@@ -6,6 +6,7 @@ export class UIManager {
         this.filterHandler = filterHandler;
         this.layerManager = layerManager;
         this.mapManager = mapManager;
+        this.dataLoader = dataLoader;
         this.filterControl = null;
         this.searchInput = null;
         this.searchSuggestions = null;
@@ -235,29 +236,22 @@ export class UIManager {
         this.hierLvlValue.textContent = value;
     }
 
-    updateHierLevelSlider() {
-        console.log('Updating hierarchy level slider');
+    updateHierLevelSlider(min, max, value) {
+        console.log('Updating hierarchy level slider:', { min, max, value });
         if (!this.hierLvlSlider || !this.hierLvlValue) {
             console.error('Hierarchy level elements not found, cannot update slider');
             return;
         }
 
-        const hierLevels = this.dataLoader.getUniqueHierLevels();
-        if (hierLevels.length === 0) {
-            console.warn('No hierarchy levels available');
+        if (typeof min !== 'number' || typeof max !== 'number' || typeof value !== 'number') {
+            console.error('Invalid values for slider update:', { min, max, value });
             return;
         }
 
-        const min = Math.min(...hierLevels);
-        const max = Math.max(...hierLevels);
-        const defaultValue = hierLevels.includes(4) ? 4 : min;
-
         this.hierLvlSlider.min = min;
         this.hierLvlSlider.max = max;
-        this.hierLvlSlider.value = defaultValue;
-        this.hierLvlValue.textContent = defaultValue;
-
-        console.log(`Slider updated with min: ${min}, max: ${max}, default: ${defaultValue}`);
+        this.hierLvlSlider.value = value;
+        this.hierLvlValue.textContent = value;
     }
 
     clearSearch() {
