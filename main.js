@@ -15,6 +15,7 @@ class App {
         this.loadingIndicator = document.getElementById('loading-indicator');
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
         this.mapInitialized = false;
+        this.setupInfoButton();
     }
 
     async init() {
