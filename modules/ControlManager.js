@@ -4,6 +4,7 @@ export class ControlManager {
         this.layerManager = layerManager;
         this.uiManager = uiManager;
         this.unifiedControl = null;
+        this.defaultOpacity = 1; // Add this line to store the default opacity
     }
 
     initControls() {
@@ -102,8 +103,8 @@ export class ControlManager {
     addOpacitySlider(li) {
         const opacityContainer = L.DomUtil.create('div', 'opacity-slider-container', li);
         opacityContainer.innerHTML = `
-            <input type="range" class="opacity-slider" min="0" max="1" step="0.1" value="0.65">
-            <span class="opacity-value">65%</span>
+            <input type="range" class="opacity-slider" min="0" max="1" step="0.1" value="${this.defaultOpacity}">
+            <span class="opacity-value">${Math.round(this.defaultOpacity * 100)}%</span>
         `;
         
         const slider = opacityContainer.querySelector('.opacity-slider');
@@ -115,6 +116,16 @@ export class ControlManager {
             this.layerManager.setMountainAreasOpacity(opacity);
             opacityValue.textContent = Math.round(opacity * 100) + '%';
         });
+
+        // Sync the slider with the actual layer opacity
+        this.syncOpacitySlider(slider, opacityValue);
+    }
+
+    syncOpacitySlider(slider, opacityValue) {
+        // Get the current opacity from the layer manager
+        const currentOpacity = this.layerManager.getMountainAreasOpacity();
+        slider.value = currentOpacity;
+        opacityValue.textContent = Math.round(currentOpacity * 100) + '%';
     }
 
     addFilterControl(container) {

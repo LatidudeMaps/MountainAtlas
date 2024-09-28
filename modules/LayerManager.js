@@ -8,6 +8,7 @@ export class LayerManager {
         this.filteredMountainAreas = [];
         this.currentHierLevel = null;
         this.visiblePeaksCache = new Map();
+        this.currentOpacity = 1;
     }
 
     initMountainAreasLayer() {
@@ -217,6 +218,11 @@ export class LayerManager {
     setMountainAreasOpacity(opacity) {
         console.log(`Setting mountain areas opacity to ${opacity}`);
         this.mountainAreasLayer.setStyle({ fillOpacity: opacity });
+        this.currentOpacity = opacity; // Update the stored opacity value
+    }
+
+    getMountainAreasOpacity() {
+        return this.currentOpacity;
     }
 
     resetHighlight() {
