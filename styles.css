@@ -458,6 +458,7 @@ body, html {
     width: var(--control-panel-width);
     max-height: 15.625rem;
     overflow-y: auto;
+    overflow-x: hidden;
     order: 2;
     margin-bottom: var(--spacing-unit); /* Consistent bottom margin */
     margin-right: 0.625rem; /* Add consistent right margin */
@@ -480,6 +481,7 @@ body, html {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0 calc(var(--spacing-small) / 2);
+    table-layout: fixed;
 }
 
 #highest-peaks-table tr {
