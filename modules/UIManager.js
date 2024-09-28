@@ -79,8 +79,9 @@ export class UIManager {
                     const isHighest = index === 0;
                     const highlightClass = isHighest ? 'class="highest-peak"' : '';
                     const starIcon = isHighest ? '&#9733; ' : '';
+                    const peakName = peak.properties.name || 'Unnamed Peak';
                     html += `<tr ${highlightClass}>
-                        <td>${starIcon}${peak.properties.name || 'Unnamed Peak'}</td>
+                        <td title="${peakName}">${starIcon}${peakName}</td>
                         <td>${peak.properties.elevation} m</td>
                     </tr>`;
                 });
