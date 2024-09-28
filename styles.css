@@ -108,7 +108,7 @@ body, html {
     box-sizing: border-box;
     overflow: visible;
     order: 1;
-    z-index: var(--z-index-controls);
+    z-index: calc(var(--z-index-controls)+ 1);
     margin-right: 0.625rem; /* Add consistent right margin */
 }
 
@@ -452,7 +452,7 @@ body, html {
     order: 2;
     margin-bottom: var(--spacing-medium);
     margin-right: 0.625rem; /* Add consistent right margin */
-    z-index: calc(var(--z-index-controls) + 1);
+    z-index: var(--z-index-controls);
 }
 
 .highest-peaks-panel:hover {
