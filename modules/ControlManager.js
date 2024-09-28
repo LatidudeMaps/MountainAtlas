@@ -25,10 +25,7 @@ export class ControlManager {
             return container;
         };
         
-        const panelContainer = document.querySelector('.panel-container');
-        panelContainer.appendChild(unifiedControl.getContainer());
-        
-        return unifiedControl;
+        return unifiedControl.addTo(this.mapManager.map);
     }
 
     createControlContainer() {
