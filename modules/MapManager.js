@@ -180,14 +180,5 @@ export class MapManager {
     handleResize() {
         console.log('MapManager handling resize');
         this.map.invalidateSize();
-        this.updateControlPositions();
-    }
-
-    updateControlPositions() {
-        const isMobile = window.innerWidth <= 768;
-        if (this.map.zoomControl) {
-            this.map.zoomControl.setPosition(isMobile ? 'bottomright' : 'topright');
-        }
-        // Update positions of other controls if necessary
     }
 }

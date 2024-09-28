@@ -4,6 +4,7 @@ export class DataLoader {
         this.allOsmPeaks = null;
         this.mountainAreasLoaded = false;
         this.osmPeaksLoaded = false;
+        this.uniqueHierLevels = null;
     }
 
     async loadMountainAreas() {
@@ -12,6 +13,7 @@ export class DataLoader {
             const response = await this.fetchData("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson");
             this.mountainAreasData = await response.json();
             this.mountainAreasLoaded = true;
+            this.extractUniqueHierLevels();
             console.log('Mountain areas loaded successfully');
             return this.mountainAreasData;
         } catch (error) {
@@ -45,15 +47,24 @@ export class DataLoader {
         return response;
     }
 
-    getUniqueHierLevels() {
-        if (!this.mountainAreasData) {
-            console.warn('Mountain areas data not loaded');
-            return [];
+    extractUniqueHierLevels() {
+        if (!this.mountainAreasData || !this.mountainAreasData.features) {
+            console.warn('Mountain areas data not loaded or invalid');
+            return;
         }
         const hierLevels = this.mountainAreasData.features
             .map(feature => feature.properties?.Hier_lvl)
-            .filter(level => level !== undefined);
-        return [...new Set(hierLevels)].sort((a, b) => a - b);
+            .filter(level => level !== undefined && level !== null);
+        this.uniqueHierLevels = [...new Set(hierLevels)].sort((a, b) => a - b);
+        console.log('Extracted unique hierarchy levels:', this.uniqueHierLevels);
+    }
+
+    getUniqueHierLevels() {
+        if (!this.uniqueHierLevels) {
+            console.warn('Unique hierarchy levels not yet extracted');
+            return [];
+        }
+        return this.uniqueHierLevels;
     }
 
     isDataLoaded() {

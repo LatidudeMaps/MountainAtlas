@@ -9,8 +9,8 @@ class App {
     constructor() {
         console.log('App constructor called');
         this.mapManager = new MapManager('map');
-        this.layerManager = new LayerManager(this.mapManager.map);
         this.dataLoader = new DataLoader();
+        this.layerManager = new LayerManager(this.mapManager.map);
         this.uiManager = null;
         this.controlManager = null;
         this.loadingIndicator = document.getElementById('loading-indicator');
@@ -18,7 +18,6 @@ class App {
         this.mapInitialized = false;
         this.setupInfoButton();
         
-        // Debounce the resize handler
         this.debouncedResize = debounce(this.handleResize.bind(this), 250);
     }
 
@@ -33,13 +32,11 @@ class App {
             this.applyInitialFilter();
             this.setupMapEventListeners();
             
-            // Add a short delay before updating the highest peaks panel
             setTimeout(() => {
                 this.uiManager.updateHighestPeaksPanel();
                 this.hideLoading();
-            }, 500); // 500ms delay, adjust if needed
+            }, 500);
 
-            // Add window resize event listener
             window.addEventListener('resize', this.debouncedResize);
 
             console.log('App initialization complete');
@@ -49,21 +46,14 @@ class App {
         }
     }
 
-    handleResize() {
-        console.log('Window resized, updating components');
-        if (this.mapManager) this.mapManager.handleResize();
-        if (this.layerManager) this.layerManager.handleResize();
-        if (this.uiManager) this.uiManager.handleResize();
-        // Remove the call to controlManager.handleResize()
-    }
-
     initializeUI() {
         console.log('Initializing UI...');
         this.uiManager = new UIManager(
             this.handleSearch.bind(this),
             this.handleFilterChange.bind(this),
             this.layerManager,
-            this.mapManager
+            this.mapManager,
+            this.dataLoader  // Pass the DataLoader instance here
         );
     
         this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
@@ -72,6 +62,14 @@ class App {
         this.uiManager.initializeElements(unifiedControl);
         
         console.log('UI initialization complete');
+    }
+
+    handleResize() {
+        console.log('Window resized, updating components');
+        if (this.mapManager) this.mapManager.handleResize();
+        if (this.layerManager) this.layerManager.handleResize();
+        if (this.uiManager) this.uiManager.handleResize();
+        // Remove the call to controlManager.handleResize()
     }
 
     showDisclaimer() {
