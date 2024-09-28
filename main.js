@@ -16,7 +16,7 @@ class App {
         this.loadingIndicator = document.getElementById('loading-indicator');
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
         this.mapInitialized = false;
-        this.setupInfoButton();
+        this.setupInfoButton()
     }
 
     async init() {
@@ -29,10 +29,10 @@ class App {
             this.initializeMap();
             this.applyInitialFilter();
             this.setupMapEventListeners();
-            this.setupResponsiveHandling();
             this.uiManager.updateHighestPeaksPanel();
             this.hideLoading();
             console.log('App initialization complete');
+            this.setupResponsiveHandling();
         } catch (error) {
             console.error('Error initializing app:', error);
             this.handleInitializationError(error);
@@ -45,19 +45,14 @@ class App {
             this.handleSearch.bind(this),
             this.handleFilterChange.bind(this),
             this.layerManager,
-            this.mapManager
+            this.mapManager,
+            this.uiManager.checkScreenSize()
         );
     
         this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
         const unifiedControl = this.controlManager.initControls();
         
         this.uiManager.initializeElements(unifiedControl);
-        
-        // Add this line to set up the event listener for updating the highest peaks panel
-        this.mapManager.map.on('moveend', () => this.uiManager.updateHighestPeaksPanel());
-        
-        // Add this line to check the screen size and adjust the layout accordingly
-        this.uiManager.checkScreenSize();
         
         console.log('UI initialization complete');
     }
