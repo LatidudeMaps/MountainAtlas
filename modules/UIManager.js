@@ -16,6 +16,8 @@ export class UIManager {
         this.currentLanguage = 'it';
         this.highestPeaksPanel = null;
         this.disclaimerAccepted = false;
+        this.isMobile = window.innerWidth <= 600;
+        this.setupResponsiveListeners();
     }
 
     initializeElements(filterControl) {
@@ -25,6 +27,62 @@ export class UIManager {
         this.setupEventListeners();
         this.setupWikipediaPanel();
         this.setupHighestPeaksPanel();
+        this.checkScreenSize();
+    }
+
+    setupResponsiveListeners() {
+        window.addEventListener('resize', debounce(() => {
+            this.checkScreenSize();
+            this.reinitializeEventListeners();
+        }, 250));
+    }
+
+    checkScreenSize() {
+        const wasMobile = this.isMobile;
+        this.isMobile = window.innerWidth <= 600;
+        if (wasMobile !== this.isMobile) {
+            this.adjustLayoutForScreenSize();
+        }
+    }
+
+    adjustLayoutForScreenSize() {
+        const toggleButton = document.getElementById('toggle-panels-btn');
+        if (this.isMobile) {
+            this.applyMobileLayout();
+            toggleButton.style.display = 'block';
+        } else {
+            this.applyDesktopLayout();
+            toggleButton.style.display = 'none';
+        }
+    }
+
+    applyMobileLayout() {
+        if (this.wikipediaPanel) this.wikipediaPanel.style.display = 'none';
+        if (this.highestPeaksPanel) this.highestPeaksPanel.style.display = 'block';
+        // Add more mobile-specific adjustments here
+    }
+
+    applyDesktopLayout() {
+        if (this.wikipediaPanel) this.wikipediaPanel.style.display = 'block';
+        if (this.highestPeaksPanel) this.highestPeaksPanel.style.display = 'block';
+        // Add more desktop-specific adjustments here
+    }
+
+    reinitializeEventListeners() {
+        this.setupSearchListeners();
+        this.setupFilterListeners();
+    }
+
+    togglePanels() {
+        if (this.isMobile) {
+            if (this.wikipediaPanel.style.display === 'none') {
+                this.wikipediaPanel.style.display = 'block';
+                this.highestPeaksPanel.style.display = 'none';
+            } else {
+                this.wikipediaPanel.style.display = 'none';
+                this.highestPeaksPanel.style.display = 'block';
+            }
+        }
     }
 
     initializeUIComponents() {
@@ -174,6 +232,12 @@ export class UIManager {
         this.searchInput.addEventListener('input', debounce(() => this.updateSearchSuggestions(), 300));
         this.searchInput.addEventListener('keydown', (e) => this.handleSearchKeydown(e));
         this.searchInput.addEventListener('showAllSuggestions', () => this.updateSearchSuggestions(true));
+
+        // Add touch event listener
+        this.searchInput.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.showSuggestions();
+        });
 
         const searchContainer = this.filterControl.getContainer().querySelector('.custom-search');
         if (searchContainer) {
@@ -550,7 +614,12 @@ export class UIManager {
             this.filterHandler(this.hierLvlSlider.value);
         });
 
-        this.setupTouchEvents();
+        // Add touch event listeners
+        this.hierLvlSlider.addEventListener('touchstart', this.handleSliderTouch.bind(this));
+        this.hierLvlSlider.addEventListener('touchmove', this.handleSliderTouch.bind(this));
+        this.hierLvlSlider.addEventListener('touchend', () => {
+            this.filterHandler(this.hierLvlSlider.value);
+        });
     }
 
     setupTouchEvents() {

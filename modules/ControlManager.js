@@ -4,6 +4,7 @@ export class ControlManager {
         this.layerManager = layerManager;
         this.uiManager = uiManager;
         this.unifiedControl = null;
+        this.isMobile = window.innerWidth <= 600;
     }
 
     initControls() {
@@ -171,11 +172,29 @@ export class ControlManager {
 
     handleResponsiveControls() {
         const handleResize = () => {
-            const isMobile = window.innerWidth <= 768;
-            this.unifiedControl.setPosition(isMobile ? 'topleft' : 'topright');
+            this.isMobile = window.innerWidth <= 600;
+            this.adjustControlsForScreenSize();
         };
 
         window.addEventListener('resize', handleResize);
-        handleResize();
+        handleResize(); // Call once to set initial state
+    }
+
+    adjustControlsForScreenSize() {
+        if (this.isMobile) {
+            this.applyMobileControlLayout();
+        } else {
+            this.applyDesktopControlLayout();
+        }
+    }
+
+    applyMobileControlLayout() {
+        this.unifiedControl.setPosition('bottomleft');
+        // Add more mobile-specific control adjustments here
+    }
+
+    applyDesktopControlLayout() {
+        this.unifiedControl.setPosition('topright');
+        // Add more desktop-specific control adjustments here
     }
 }
