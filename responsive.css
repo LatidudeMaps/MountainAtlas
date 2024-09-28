@@ -1,0 +1,141 @@
+/* Responsive styles for Web Map Application */
+
+/* Base styles for all screen sizes */
+body, html {
+    overflow: hidden;
+}
+
+/* Small screens (mobile phones) */
+@media screen and (max-width: 600px) {
+    .unified-control {
+        width: 100%;
+        max-width: none;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        border-radius: 0;
+    }
+
+    .highest-peaks-panel,
+    #wikipedia-panel {
+        width: 100%;
+        max-width: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 50vh;
+        max-height: none;
+    }
+
+    #wikipedia-panel {
+        display: none;
+    }
+
+    .leaflet-right {
+        width: 100%;
+    }
+
+    #info-button {
+        bottom: auto;
+        top: 10px;
+        right: 10px;
+    }
+}
+
+/* Medium screens (tablets) */
+@media screen and (min-width: 601px) and (max-width: 1024px) {
+    .unified-control,
+    .highest-peaks-panel,
+    #wikipedia-panel {
+        width: 250px;
+    }
+
+    #wikipedia-panel {
+        height: 50vh;
+    }
+}
+
+/* Large screens (desktops) */
+@media screen and (min-width: 1025px) {
+    .unified-control,
+    .highest-peaks-panel,
+    #wikipedia-panel {
+        width: 300px;
+    }
+
+    #wikipedia-panel {
+        height: 70vh;
+    }
+}
+
+/* Adjustments for all screen sizes */
+@media screen and (max-width: 1024px) {
+    .leaflet-right {
+        max-height: 100vh;
+        overflow-y: auto;
+    }
+
+    .control-section,
+    .highest-peaks-panel,
+    #wikipedia-panel {
+        margin-bottom: 10px;
+    }
+
+    .opacity-slider-container {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-left: 10px;
+    }
+
+    .opacity-slider {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+}
+
+/* Ensure touch-friendly sizing for buttons and inputs */
+@media (pointer: coarse) {
+    .custom-button,
+    .custom-select,
+    #search-input,
+    .suggestions-list li {
+        min-height: 44px;
+        line-height: 44px;
+    }
+
+    .custom-slider::-webkit-slider-thumb {
+        width: 28px;
+        height: 28px;
+    }
+
+    .custom-slider::-moz-range-thumb {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+/* Landscape orientation adjustments for mobile devices */
+@media screen and (max-width: 900px) and (orientation: landscape) {
+    .unified-control {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .highest-peaks-panel,
+    #wikipedia-panel {
+        height: 60vh;
+    }
+}
+
+/* High-resolution screens */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .leaflet-control,
+    .unified-control,
+    .highest-peaks-panel,
+    #wikipedia-panel {
+        font-size: 14px;
+    }
+}
