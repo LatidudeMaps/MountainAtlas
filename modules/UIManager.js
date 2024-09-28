@@ -26,9 +26,6 @@ export class UIManager {
         this.setupEventListeners();
         this.setupWikipediaPanel();
         this.setupHighestPeaksPanel();
-        
-        // Add window resize listener
-        window.addEventListener('resize', this.debouncedResize);
     }
 
     initializeUIComponents() {
@@ -42,15 +39,24 @@ export class UIManager {
     }
 
     handleResize() {
-        console.log('Window resized, reinitializing components');
-        this.initializeUIComponents();
-        this.setupEventListeners();
+        console.log('UIManager handling resize');
         this.updateHighestPeaksPanel();
         this.updateSearchSuggestions();
         
-        // Notify other managers about the resize
-        this.mapManager.handleResize();
-        this.layerManager.handleResize();
+        // Re-position panels if necessary
+        this.repositionPanels();
+    }
+
+    repositionPanels() {
+        // Adjust panel positions based on new window size
+        const isMobile = window.innerWidth <= 768;
+        if (this.wikipediaPanel) {
+            this.wikipediaPanel.style.maxHeight = isMobile ? '50vh' : '70vh';
+        }
+        if (this.highestPeaksPanel) {
+            const panelContainer = this.highestPeaksPanel.getContainer();
+            panelContainer.style.maxHeight = isMobile ? '30vh' : '15.625rem';
+        }
     }
 
     logComponentInitialization() {

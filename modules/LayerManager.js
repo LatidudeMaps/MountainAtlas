@@ -268,19 +268,26 @@ export class LayerManager {
     }
 
     handleResize() {
-        console.log('Handling layer resize');
+        console.log('LayerManager handling resize');
         this.updateLayerVisibility();
-        this.refreshMarkers();
+        if (this.markers) {
+            this.markers.refreshClusters();
+        }
     }
 
     updateLayerVisibility() {
-        // Update layer visibility based on current map bounds
+        if (!this.map || !this.mountainAreasLayer) return;
+        
         const bounds = this.map.getBounds();
         this.mountainAreasLayer.eachLayer(layer => {
-            if (layer.getBounds().intersects(bounds)) {
-                layer.addTo(this.map);
+            if (layer.getBounds && layer.getBounds().intersects(bounds)) {
+                if (!this.map.hasLayer(layer)) {
+                    this.map.addLayer(layer);
+                }
             } else {
-                this.map.removeLayer(layer);
+                if (this.map.hasLayer(layer)) {
+                    this.map.removeLayer(layer);
+                }
             }
         });
     }

@@ -3,6 +3,7 @@ import { LayerManager } from './modules/LayerManager.js';
 import { ControlManager } from './modules/ControlManager.js';
 import { DataLoader } from './modules/DataLoader.js';
 import { UIManager } from './modules/UIManager.js';
+import { debounce } from './utils/helpers.js';
 
 class App {
     constructor() {
@@ -16,6 +17,9 @@ class App {
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
         this.mapInitialized = false;
         this.setupInfoButton();
+        
+        // Debounce the resize handler
+        this.debouncedResize = debounce(this.handleResize.bind(this), 250);
     }
 
     async init() {
@@ -36,7 +40,7 @@ class App {
             }, 500); // 500ms delay, adjust if needed
 
             // Add window resize event listener
-            window.addEventListener('resize', this.handleResize.bind(this));
+            window.addEventListener('resize', this.debouncedResize);
 
             console.log('App initialization complete');
         } catch (error) {
@@ -47,10 +51,10 @@ class App {
 
     handleResize() {
         console.log('Window resized, updating components');
-        this.mapManager.handleResize();
-        this.layerManager.handleResize();
-        this.uiManager.handleResize();
-        this.controlManager.handleResize();
+        if (this.mapManager) this.mapManager.handleResize();
+        if (this.layerManager) this.layerManager.handleResize();
+        if (this.uiManager) this.uiManager.handleResize();
+        // Remove the call to controlManager.handleResize()
     }
 
     initializeUI() {
