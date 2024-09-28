@@ -471,6 +471,7 @@ body, html {
 
 .highest-peaks-panel h3 {
     margin-top: 0;
+    margin-bottom: 0;
     font-size: var(--font-size-small);
     color: var(--color-text);
     border-bottom: 2px solid var(--color-secondary);
