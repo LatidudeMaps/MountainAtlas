@@ -72,6 +72,12 @@ export class UIManager {
             console.log('Map bounds not yet valid, skipping update');
             return;
         }
+        
+        if (!this.layerManager.allOsmPeaks) {
+            console.log('OSM peaks data not yet loaded, skipping update');
+            return;
+        }
+
         const highestPeaks = this.layerManager.getHighestPeaks(5);
         const content = document.getElementById('highest-peaks-content');
         
@@ -95,6 +101,8 @@ export class UIManager {
                 html += '</table>';
                 content.innerHTML = html;
             }
+        } else {
+            console.log('Highest peaks content element not found');
         }
     }
 

@@ -15,7 +15,6 @@ class App {
         this.loadingIndicator = document.getElementById('loading-indicator');
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
         this.mapInitialized = false;
-        this.setupInfoButton();
     }
 
     async init() {
@@ -28,8 +27,13 @@ class App {
             this.initializeMap();
             this.applyInitialFilter();
             this.setupMapEventListeners();
-            this.uiManager.updateHighestPeaksPanel();
-            this.hideLoading();
+            
+            // Add a short delay before updating the highest peaks panel
+            setTimeout(() => {
+                this.uiManager.updateHighestPeaksPanel();
+                this.hideLoading();
+            }, 500); // 500ms delay, adjust if needed
+
             console.log('App initialization complete');
         } catch (error) {
             console.error('Error initializing app:', error);
@@ -172,6 +176,13 @@ class App {
 
     setupMapEventListeners() {
         this.mapManager.map.on('moveend', () => {
+            if (this.mapInitialized) {
+                this.uiManager.updateHighestPeaksPanel();
+            }
+        });
+
+        // Add this new event listener
+        this.mapManager.map.on('layeradd', () => {
             if (this.mapInitialized) {
                 this.uiManager.updateHighestPeaksPanel();
             }
