@@ -58,7 +58,6 @@ body, html {
     overflow-y: visible;
     pointer-events: none;
     box-sizing: border-box;
-    padding-top: var(--spacing-medium); /* Add top padding to the container */
 }
 
 .leaflet-right > * {
@@ -111,7 +110,7 @@ body, html {
     order: 1;
     z-index: calc(var(--z-index-controls)+ 1);
     margin-right: 0.625rem; /* Add consistent right margin */
-    margin-bottom: var(--spacing-medium); /* Add consistent bottom margin */
+    margin-bottom: var(--spacing-unit); /* Add consistent bottom margin */
 }
 
 .control-section {
@@ -451,7 +450,7 @@ body, html {
     max-height: 15.625rem;
     overflow-y: auto;
     order: 2;
-    margin-bottom: var(--spacing-medium); /* Consistent bottom margin */
+    margin-bottom: var(--spacing-unit); /* Consistent bottom margin */
     margin-right: 0.625rem; /* Add consistent right margin */
     z-index: var(--z-index-controls);
 }
