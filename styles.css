@@ -492,7 +492,7 @@ body, html {
 #highest-peaks-table td {
     padding: 0.5rem var(--spacing-small);
     font-size: var(--font-size-small);
-    line-height: 1.2;
+    line-height: 1.0;
 }
 
 #highest-peaks-table td:first-child {
