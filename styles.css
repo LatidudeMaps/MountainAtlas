@@ -505,12 +505,14 @@ body, html {
 
 #highest-peaks-table td:first-child {
     font-weight: 500;
+    max-width: 70%;
 }
 
 #highest-peaks-table td:last-child {
     text-align: right;
     font-weight: 600;
     color: #4a4a4a;
+    width: 30%;
 }
 
 #highest-peaks-table .highest-peak {
