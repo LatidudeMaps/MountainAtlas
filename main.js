@@ -15,6 +15,7 @@ class App {
         this.loadingIndicator = document.getElementById('loading-indicator');
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
         this.mapInitialized = false;
+        this.setupInfoButton();
     }
 
     async init() {
@@ -202,19 +203,23 @@ class App {
         const infoPopup = document.getElementById('info-popup');
         const closeInfoPopup = document.getElementById('close-info-popup');
 
-        infoButton.addEventListener('click', () => {
-            infoPopup.style.display = 'block';
-        });
+        if (infoButton && infoPopup && closeInfoPopup) {
+            infoButton.addEventListener('click', () => {
+                infoPopup.style.display = 'block';
+            });
 
-        closeInfoPopup.addEventListener('click', () => {
-            infoPopup.style.display = 'none';
-        });
-
-        infoPopup.addEventListener('click', (event) => {
-            if (event.target === infoPopup) {
+            closeInfoPopup.addEventListener('click', () => {
                 infoPopup.style.display = 'none';
-            }
-        });
+            });
+
+            infoPopup.addEventListener('click', (event) => {
+                if (event.target === infoPopup) {
+                    infoPopup.style.display = 'none';
+                }
+            });
+        } else {
+            console.error('Info button, popup, or close button not found in the DOM');
+        }
     }
 
     setupUI() {
