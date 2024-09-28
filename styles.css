@@ -69,7 +69,6 @@ body, html {
 }
 
 /* Overriding Leaflet's default control margins for our panels */
-.leaflet-right .leaflet-control.unified-control,
 .leaflet-right .leaflet-control.highest-peaks-panel,
 .leaflet-right .leaflet-control#wikipedia-panel {
     margin-top: 0;
