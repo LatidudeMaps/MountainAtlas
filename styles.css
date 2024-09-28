@@ -544,6 +544,7 @@ body, html {
     border-radius: 5px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     font-family: 'Montserrat', Arial, sans-serif;
+    font-size: 12px;
 }
 
 .popup-content h2 {
@@ -562,6 +563,7 @@ body, html {
     width: auto;
     font-size: 12px;
     transition: background-color 0.3s;
+    font-family: 'Montserrat', Arial, sans-serif;
 }
 
 #accept-disclaimer:hover {
