@@ -474,7 +474,6 @@ body, html {
     font-size: var(--font-size-small);
     color: var(--color-text);
     border-bottom: 2px solid var(--color-secondary);
-    padding-bottom: 0.125rem;
 }
 
 #highest-peaks-table {
