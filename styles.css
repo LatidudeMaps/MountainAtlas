@@ -74,10 +74,12 @@ body, html {
     box-sizing: border-box;
     overflow: visible;
     order: 1;
+    z-index: 1002;
 }
 
 .control-section {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
+    line-height: 1.0;
 }
 
 .control-section h3 {
@@ -422,6 +424,7 @@ body, html {
     overflow-y: auto;
     order: 2;
     margin-bottom: 10px;
+    z-index: 1001;
 }
 
 .highest-peaks-panel:hover {
