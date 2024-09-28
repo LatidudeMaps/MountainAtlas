@@ -55,6 +55,12 @@ export class UIManager {
         this.highestPeaksPanel.onAdd = () => {
             const container = L.DomUtil.create('div', 'highest-peaks-panel');
             container.innerHTML = '<h3>Top 5 peaks in map view</h3><div id="highest-peaks-content"></div>';
+            
+            // Prevent click propagation
+            L.DomEvent.disableClickPropagation(container);
+            // Optionally, prevent scroll propagation as well
+            L.DomEvent.disableScrollPropagation(container);
+            
             return container;
         };
         
