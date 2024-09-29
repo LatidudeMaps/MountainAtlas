@@ -197,16 +197,17 @@ export class MapManager {
     }
 
     handleResize() {
-        // Trigger a custom event that other components can listen to
-        const resizeEvent = new CustomEvent('app-resize');
-        window.dispatchEvent(resizeEvent);
-
         // Update the map size
         this.map.invalidateSize();
 
         // Re-center the map if needed
         if (this.initialBounds) {
             this.map.fitBounds(this.initialBounds);
+        }
+
+        // Trigger resize handlers in other components
+        if (this.uiManager) {
+            this.uiManager.handleResize();
         }
     }
 }

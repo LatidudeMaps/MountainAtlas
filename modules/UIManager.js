@@ -583,24 +583,35 @@ export class UIManager {
     }
 
     setupResizeHandler() {
-        window.addEventListener('app-resize', this.handleResize.bind(this));
+        window.addEventListener('resize', this.handleResize.bind(this));
     }
 
     handleResize() {
         // Update the hierarchy level slider
-        const uniqueHierLevels = this.layerManager.getUniqueHierLevels();
-        if (uniqueHierLevels.length > 0) {
-            this.updateHierLevelSlider(
-                Math.min(...uniqueHierLevels),
-                Math.max(...uniqueHierLevels),
-                this.hierLvlSlider.value
-            );
-        }
+        this.updateHierLevelSlider(
+            Math.min(...this.layerManager.getUniqueHierLevels()),
+            Math.max(...this.layerManager.getUniqueHierLevels()),
+            this.hierLvlSlider ? this.hierLvlSlider.value : 4 // Default to 4 if slider not initialized
+        );
 
         // Update the search suggestions
         this.updateSearchSuggestions();
 
         // Update the highest peaks panel
         this.updateHighestPeaksPanel();
+
+        // Adjust the layout of control elements if needed
+        this.adjustControlLayout();
+    }
+
+    adjustControlLayout() {
+        const isMobile = window.innerWidth <= 768;
+        // Add any specific layout adjustments for mobile/desktop here
+        // For example, you might want to adjust the width of certain elements
+        if (isMobile) {
+            // Mobile-specific adjustments
+        } else {
+            // Desktop-specific adjustments
+        }
     }
 }
