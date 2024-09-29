@@ -155,8 +155,8 @@ class App {
             this.handleNoMatchingLayers(searchValue);
         }
 
-        this.updateWikipediaPanel(searchValue);
-        this.updateHighestPeaksPanel(); // Update the highest peaks panel after search
+        this.uiManager.updateWikipediaPanel(searchValue); // Use this.uiManager here
+        this.uiManager.updateHighestPeaksPanel(); // Update the highest peaks panel after search
     }
 
     handleMatchingLayers(matchingLayers, searchValue) {
