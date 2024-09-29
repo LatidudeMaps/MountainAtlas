@@ -16,7 +16,6 @@ class App {
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
         this.mapInitialized = false;
         this.setupInfoButton();
-        this.handleResize = this.handleResize.bind(this);
     }
 
     async init() {
@@ -36,27 +35,10 @@ class App {
                 this.hideLoading();
             });
 
-            this.setupResizeHandler();
             console.log('App initialization complete');
         } catch (error) {
             console.error('Error initializing app:', error);
             this.handleInitializationError(error);
-        }
-    }
-
-    setupResizeHandler() {
-        window.addEventListener('resize', this.handleResize);
-    }
-
-    handleResize() {
-        if (this.mapManager && this.mapManager.map) {
-            this.mapManager.map.invalidateSize();
-        }
-        if (this.uiManager) {
-            this.uiManager.handleResize();
-        }
-        if (this.controlManager) {
-            this.controlManager.handleResponsiveControls();
         }
     }
 

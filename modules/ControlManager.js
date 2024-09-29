@@ -184,25 +184,9 @@ export class ControlManager {
         const handleResize = () => {
             const isMobile = window.innerWidth <= 768;
             this.unifiedControl.setPosition(isMobile ? 'topleft' : 'topright');
-            
-            // Update other controls if needed
-            if (this.uiManager.wikipediaPanel) {
-                const wikipediaControl = L.control({ position: isMobile ? 'bottomleft' : 'topright' });
-                wikipediaControl.addTo(this.mapManager.map);
-                wikipediaControl.getContainer().appendChild(this.uiManager.wikipediaPanel);
-            }
-            
-            if (this.uiManager.highestPeaksPanel) {
-                const highestPeaksControl = L.control({ position: isMobile ? 'bottomleft' : 'topright' });
-                highestPeaksControl.addTo(this.mapManager.map);
-                highestPeaksControl.getContainer().appendChild(this.uiManager.highestPeaksPanel);
-            }
-            
-            // Force a redraw of the map to ensure all elements are properly positioned
-            this.mapManager.map.invalidateSize();
         };
 
         window.addEventListener('resize', handleResize);
-        handleResize(); // Call once to set initial state
+        handleResize();
     }
 }

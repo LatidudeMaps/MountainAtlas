@@ -9,7 +9,6 @@ export class LayerManager {
         this.currentHierLevel = null;
         this.visiblePeaksCache = new Map();
         this.currentOpacity = 1;
-        this.uiManager = null; // We'll set this later
     }
 
     initMountainAreasLayer() {
@@ -87,6 +86,20 @@ export class LayerManager {
         };
     }
 
+    filterMountainAreas(selectedValue) {
+        console.log('Filtering mountain areas with value:', selectedValue);
+        this.currentHierLevel = selectedValue;
+        this.mountainAreasLayer.clearLayers();
+        this.filteredMountainAreas = this.allMountainAreas.features.filter(feature => 
+            String(feature.properties.Hier_lvl).trim() === selectedValue
+        );
+        
+        this.mountainAreasLayer.addData({
+            type: "FeatureCollection",
+            features: this.filteredMountainAreas
+        });
+        console.log('Filtered mountain areas:', this.filteredMountainAreas.length);
+    }
 
     getMatchingLayers(searchValue) {
         if (!searchValue) return [];
@@ -121,8 +134,10 @@ export class LayerManager {
         });
     }
 
-    setUIManager(uiManager) {
-        this.uiManager = uiManager;
+    getCurrentHierLevelMountainAreaNames() {
+        return this.filteredMountainAreas
+            .map(feature => feature.properties.MapName_it || feature.properties.MapName)
+            .filter(name => name); // Remove any undefined names
     }
 
     filterAndDisplayPeaks(hierLvl, mapName = null) {
@@ -131,9 +146,6 @@ export class LayerManager {
         let filteredPeaks = this.filterPeaks(hierLvl, mapName);
         this.addPeaksToMarkers(filteredPeaks);
         this.visiblePeaksCache.clear(); // Clear the cache when filtering
-        if (this.uiManager) {
-            this.uiManager.updateHighestPeaksPanel();
-        }
     }
 
     addPeaksToMarkers(filteredPeaks) {
@@ -217,32 +229,24 @@ export class LayerManager {
     }
 
     getVisiblePeaks() {
-        const mapBounds = this.map.getBounds();
-        if (!mapBounds.isValid()) {
-            console.log('Map bounds not valid, returning all peaks');
-            return this.removeDuplicatePeaks(this.allOsmPeaks);
-        }
-
-        const cacheKey = mapBounds.toBBoxString() + '-' + this.map.getZoom();
+        const cacheKey = this.map.getBounds().toBBoxString() + '-' + this.map.getZoom();
         if (this.visiblePeaksCache.has(cacheKey)) {
             return this.visiblePeaksCache.get(cacheKey);
         }
 
-        const visiblePeaks = this.markers.getLayers()
-            .filter(marker => mapBounds.contains(marker.getLatLng()))
-            .map(marker => marker.feature);
+        const visiblePeaks = [];
+        this.markers.eachLayer(layer => {
+            if (this.map.getBounds().contains(layer.getLatLng())) {
+                visiblePeaks.push(layer.feature);
+            }
+        });
 
-        const uniqueVisiblePeaks = this.removeDuplicatePeaks(visiblePeaks);
-        this.visiblePeaksCache.set(cacheKey, uniqueVisiblePeaks);
-        return uniqueVisiblePeaks;
+        this.visiblePeaksCache.set(cacheKey, visiblePeaks);
+        return visiblePeaks;
     }
 
     getHighestPeaks(n = 5) {
         const visiblePeaks = this.getVisiblePeaks();
-        if (visiblePeaks.length === 0) {
-            console.log('No visible peaks, returning null');
-            return null;
-        }
         return visiblePeaks
             .sort((a, b) => b.properties.elevation - a.properties.elevation)
             .slice(0, n);
@@ -257,42 +261,5 @@ export class LayerManager {
             }
         });
         return Array.from(uniquePeaks.values());
-    }
-
-    getAllHierarchyLevels() {
-        if (!this.allMountainAreas || !this.allMountainAreas.features) {
-            console.warn('Mountain areas data not loaded or invalid');
-            return [];
-        }
-        const hierLevels = this.allMountainAreas.features
-            .map(feature => feature.properties?.Hier_lvl)
-            .filter(level => level !== undefined && level !== null);
-        return [...new Set(hierLevels)].sort((a, b) => a - b);
-    }
-
-    getCurrentHierLevelMountainAreaNames() {
-        if (!this.allMountainAreas || !this.allMountainAreas.features) {
-            console.warn('Mountain areas data not loaded or invalid');
-            return [];
-        }
-        return this.allMountainAreas.features
-            .filter(feature => String(feature.properties.Hier_lvl).trim() === String(this.currentHierLevel).trim())
-            .map(feature => feature.properties.MapName_it || feature.properties.MapName)
-            .filter(name => name);
-    }
-
-    filterMountainAreas(selectedValue) {
-        console.log('Filtering mountain areas with value:', selectedValue);
-        this.currentHierLevel = selectedValue;
-        this.mountainAreasLayer.clearLayers();
-        const filteredAreas = this.allMountainAreas.features.filter(feature => 
-            String(feature.properties.Hier_lvl).trim() === String(selectedValue).trim()
-        );
-        
-        this.mountainAreasLayer.addData({
-            type: "FeatureCollection",
-            features: filteredAreas
-        });
-        console.log('Filtered mountain areas:', filteredAreas.length);
     }
 }
