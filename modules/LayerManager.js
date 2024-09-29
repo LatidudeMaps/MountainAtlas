@@ -278,4 +278,14 @@ export class LayerManager {
         });
         return Array.from(uniquePeaks.values());
     }
+
+    getUniqueHierLevels() {
+        if (!this.allMountainAreas) {
+            return [];
+        }
+        const hierLevels = this.allMountainAreas.features
+            .map(feature => feature.properties?.Hier_lvl)
+            .filter(level => level !== undefined && level !== null);
+        return [...new Set(hierLevels)].sort((a, b) => a - b);
+    }
 }

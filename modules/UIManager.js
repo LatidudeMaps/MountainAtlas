@@ -16,6 +16,7 @@ export class UIManager {
         this.currentLanguage = 'it';
         this.highestPeaksPanel = null;
         this.disclaimerAccepted = false;
+        this.setupResizeHandler();
     }
 
     initializeElements(filterControl) {
@@ -579,5 +580,27 @@ export class UIManager {
             isDragging = false;
             this.filterHandler(this.hierLvlSlider.value);
         });
+    }
+
+    setupResizeHandler() {
+        window.addEventListener('app-resize', this.handleResize.bind(this));
+    }
+
+    handleResize() {
+        // Update the hierarchy level slider
+        const uniqueHierLevels = this.layerManager.getUniqueHierLevels();
+        if (uniqueHierLevels.length > 0) {
+            this.updateHierLevelSlider(
+                Math.min(...uniqueHierLevels),
+                Math.max(...uniqueHierLevels),
+                this.hierLvlSlider.value
+            );
+        }
+
+        // Update the search suggestions
+        this.updateSearchSuggestions();
+
+        // Update the highest peaks panel
+        this.updateHighestPeaksPanel();
     }
 }

@@ -10,13 +10,12 @@ class App {
         this.mapManager = new MapManager('map');
         this.layerManager = new LayerManager(this.mapManager.map);
         this.dataLoader = new DataLoader();
-        this.uiManager = null;
+        this.uiManager = null; // We'll initialize this in initializeUI
         this.controlManager = null;
         this.loadingIndicator = document.getElementById('loading-indicator');
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
         this.mapInitialized = false;
         this.setupInfoButton();
-        this.handleResize = this.handleResize.bind(this);
     }
 
     async init() {
@@ -62,6 +61,9 @@ class App {
         
         // Connect UIManager to LayerManager
         this.layerManager.setUIManager(this.uiManager);
+        
+        // Ensure LayerManager is properly connected to UIManager
+        this.uiManager.layerManager = this.layerManager;
         
         console.log('UI initialization complete');
     }

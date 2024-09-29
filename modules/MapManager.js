@@ -7,6 +7,7 @@ export class MapManager {
         this.activeBaseMap = "Dark Positron";
         this.uiManager = null; // We'll set this later
         this.setupMapEventListeners();
+        this.setupResizeHandler();
     }
 
     initMap(mapId) {
@@ -189,5 +190,23 @@ export class MapManager {
 
     getBounds() {
         return this.map.getBounds();
+    }
+
+    setupResizeHandler() {
+        window.addEventListener('resize', this.handleResize.bind(this));
+    }
+
+    handleResize() {
+        // Trigger a custom event that other components can listen to
+        const resizeEvent = new CustomEvent('app-resize');
+        window.dispatchEvent(resizeEvent);
+
+        // Update the map size
+        this.map.invalidateSize();
+
+        // Re-center the map if needed
+        if (this.initialBounds) {
+            this.map.fitBounds(this.initialBounds);
+        }
     }
 }
