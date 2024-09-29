@@ -16,6 +16,7 @@ class App {
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
         this.mapInitialized = false;
         this.setupInfoButton();
+        this.handleResize = this.handleResize.bind(this);
     }
 
     async init() {
@@ -31,16 +32,31 @@ class App {
             
             // Wait for the map to be fully initialized before updating the highest peaks panel
             this.mapManager.map.once('moveend', () => {
-                if (this.uiManager) {
-                    this.uiManager.updateHighestPeaksPanel();
-                }
+                this.uiManager.updateHighestPeaksPanel();
                 this.hideLoading();
             });
 
+            this.setupResizeHandler();
             console.log('App initialization complete');
         } catch (error) {
             console.error('Error initializing app:', error);
             this.handleInitializationError(error);
+        }
+    }
+
+    setupResizeHandler() {
+        window.addEventListener('resize', this.handleResize);
+    }
+
+    handleResize() {
+        if (this.mapManager && this.mapManager.map) {
+            this.mapManager.map.invalidateSize();
+        }
+        if (this.uiManager) {
+            this.uiManager.handleResize();
+        }
+        if (this.controlManager) {
+            this.controlManager.handleResponsiveControls();
         }
     }
 
@@ -61,9 +77,8 @@ class App {
         // Connect UIManager to MapManager
         this.mapManager.setUIManager(this.uiManager);
         
-        // Ensure LayerManager is properly connected to UIManager
+        // Connect UIManager to LayerManager
         this.layerManager.setUIManager(this.uiManager);
-        this.uiManager.layerManager = this.layerManager;
         
         console.log('UI initialization complete');
     }

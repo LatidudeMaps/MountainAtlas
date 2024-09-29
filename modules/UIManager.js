@@ -16,7 +16,6 @@ export class UIManager {
         this.currentLanguage = 'it';
         this.highestPeaksPanel = null;
         this.disclaimerAccepted = false;
-        this.setupResizeHandler();
     }
 
     initializeElements(filterControl) {
@@ -29,11 +28,6 @@ export class UIManager {
     }
 
     initializeUIComponents() {
-        if (!this.filterControl) {
-            console.error('Filter control not initialized');
-            return;
-        }
-
         const container = this.filterControl.getContainer();
         this.searchInput = container.querySelector('#search-input');
         this.searchSuggestions = container.querySelector('#search-suggestions');
@@ -70,12 +64,14 @@ export class UIManager {
         
         this.highestPeaksPanel.addTo(this.mapManager.map);
         
-        // Don't update the panel here, we'll do it after the map is initialized
+        // Initial update of the highest peaks panel
+        this.updateHighestPeaksPanel();
     }
 
     updateHighestPeaksPanel() {
-        if (!this.mapManager.map.getCenter()) {
-            console.log('Map not yet initialized, skipping update');
+        if (!this.mapManager.map.getBounds().isValid()) {
+            console.log('Map bounds not yet valid, retrying in 100ms');
+            setTimeout(() => this.updateHighestPeaksPanel(), 100);
             return;
         }
 
@@ -83,7 +79,7 @@ export class UIManager {
         const content = document.getElementById('highest-peaks-content');
         
         if (content) {
-            if (!highestPeaks || highestPeaks.length === 0) {
+            if (highestPeaks.length === 0) {
                 content.innerHTML = '<p class="no-peaks">No peaks in current view</p>';
             } else {
                 let html = '<table id="highest-peaks-table">';
@@ -219,26 +215,17 @@ export class UIManager {
         this.hierLvlValue.textContent = value;
     }
 
-    updateHierLevelSlider() {
+    updateHierLevelSlider(min, max, value) {
+        console.log('Updating hierarchy level slider:', { min, max, value });
         if (!this.hierLvlSlider || !this.hierLvlValue) {
-            console.warn('Hierarchy level elements not found');
+            console.error('Hierarchy level elements not found, cannot update slider');
             return;
         }
-
-        const hierLevels = this.layerManager.getAllHierarchyLevels();
-        if (hierLevels.length === 0) {
-            console.warn('No hierarchy levels found');
-            return;
-        }
-
-        const min = Math.min(...hierLevels);
-        const max = Math.max(...hierLevels);
-        const currentValue = this.hierLvlSlider.value || min;
 
         this.hierLvlSlider.min = min;
         this.hierLvlSlider.max = max;
-        this.hierLvlSlider.value = currentValue;
-        this.hierLvlValue.textContent = currentValue;
+        this.hierLvlSlider.value = value;
+        this.hierLvlValue.textContent = value;
     }
 
     clearSearch() {
@@ -594,25 +581,5 @@ export class UIManager {
             isDragging = false;
             this.filterHandler(this.hierLvlSlider.value);
         });
-    }
-
-    setupResizeHandler() {
-        window.addEventListener('resize', this.handleResize.bind(this));
-    }
-
-    handleResize() {
-        this.updateHierLevelSlider();
-        this.updateSearchSuggestions();
-    }
-
-    adjustControlLayout() {
-        const isMobile = window.innerWidth <= 768;
-        // Add any specific layout adjustments for mobile/desktop here
-        // For example, you might want to adjust the width of certain elements
-        if (isMobile) {
-            // Mobile-specific adjustments
-        } else {
-            // Desktop-specific adjustments
-        }
     }
 }

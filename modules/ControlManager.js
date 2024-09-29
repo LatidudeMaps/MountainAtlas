@@ -4,43 +4,29 @@ export class ControlManager {
         this.layerManager = layerManager;
         this.uiManager = uiManager;
         this.unifiedControl = null;
-        this.defaultOpacity = 1;
+        this.defaultOpacity = 1; // Add this line to store the default opacity
     }
 
     initControls() {
         console.log('Initializing controls');
-        this.unifiedControl = this.createUnifiedControl();
-        if (this.unifiedControl) {
-            this.addUnifiedControlToMap();
-            this.handleResponsiveControls();
-        } else {
-            console.error('Failed to create unified control');
-        }
+        this.unifiedControl = this.addUnifiedControl();
+        this.handleResponsiveControls();
         window.uiManager = this.uiManager;
         return this.unifiedControl;
     }
 
-    createUnifiedControl() {
-        console.log('Creating unified control');
+    addUnifiedControl() {
+        console.log('Adding unified control');
         const unifiedControl = L.control({ position: 'topright' });
         
-        unifiedControl.onAdd = (map) => {
+        unifiedControl.onAdd = () => {
             const container = this.createControlContainer();
             this.addLayerControl(container);
             this.addFilterControl(container);
             return container;
         };
         
-        return unifiedControl;
-    }
-
-    addUnifiedControlToMap() {
-        if (this.unifiedControl && this.mapManager && this.mapManager.map) {
-            console.log('Adding unified control to map');
-            this.unifiedControl.addTo(this.mapManager.map);
-        } else {
-            console.error('Unable to add unified control to map');
-        }
+        return unifiedControl.addTo(this.mapManager.map);
     }
 
     createControlContainer() {
@@ -197,9 +183,23 @@ export class ControlManager {
     handleResponsiveControls() {
         const handleResize = () => {
             const isMobile = window.innerWidth <= 768;
-            if (this.unifiedControl) {
-                this.unifiedControl.setPosition(isMobile ? 'topleft' : 'topright');
+            this.unifiedControl.setPosition(isMobile ? 'topleft' : 'topright');
+            
+            // Update other controls if needed
+            if (this.uiManager.wikipediaPanel) {
+                const wikipediaControl = L.control({ position: isMobile ? 'bottomleft' : 'topright' });
+                wikipediaControl.addTo(this.mapManager.map);
+                wikipediaControl.getContainer().appendChild(this.uiManager.wikipediaPanel);
             }
+            
+            if (this.uiManager.highestPeaksPanel) {
+                const highestPeaksControl = L.control({ position: isMobile ? 'bottomleft' : 'topright' });
+                highestPeaksControl.addTo(this.mapManager.map);
+                highestPeaksControl.getContainer().appendChild(this.uiManager.highestPeaksPanel);
+            }
+            
+            // Force a redraw of the map to ensure all elements are properly positioned
+            this.mapManager.map.invalidateSize();
         };
 
         window.addEventListener('resize', handleResize);
