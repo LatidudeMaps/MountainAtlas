@@ -9,6 +9,7 @@ export class LayerManager {
         this.currentHierLevel = null;
         this.visiblePeaksCache = new Map();
         this.currentOpacity = 1;
+        this.uiManager = null; // We'll set this later
     }
 
     initMountainAreasLayer() {
@@ -140,12 +141,19 @@ export class LayerManager {
             .filter(name => name); // Remove any undefined names
     }
 
+    setUIManager(uiManager) {
+        this.uiManager = uiManager;
+    }
+
     filterAndDisplayPeaks(hierLvl, mapName = null) {
         console.log('Filtering and displaying peaks:', hierLvl, mapName);
         this.markers.clearLayers();
         let filteredPeaks = this.filterPeaks(hierLvl, mapName);
         this.addPeaksToMarkers(filteredPeaks);
         this.visiblePeaksCache.clear(); // Clear the cache when filtering
+        if (this.uiManager) {
+            this.uiManager.updateHighestPeaksPanel();
+        }
     }
 
     addPeaksToMarkers(filteredPeaks) {
@@ -229,24 +237,32 @@ export class LayerManager {
     }
 
     getVisiblePeaks() {
-        const cacheKey = this.map.getBounds().toBBoxString() + '-' + this.map.getZoom();
+        const mapBounds = this.map.getBounds();
+        if (!mapBounds.isValid()) {
+            console.log('Map bounds not valid, returning all peaks');
+            return this.removeDuplicatePeaks(this.allOsmPeaks);
+        }
+
+        const cacheKey = mapBounds.toBBoxString() + '-' + this.map.getZoom();
         if (this.visiblePeaksCache.has(cacheKey)) {
             return this.visiblePeaksCache.get(cacheKey);
         }
 
-        const visiblePeaks = [];
-        this.markers.eachLayer(layer => {
-            if (this.map.getBounds().contains(layer.getLatLng())) {
-                visiblePeaks.push(layer.feature);
-            }
-        });
+        const visiblePeaks = this.markers.getLayers()
+            .filter(marker => mapBounds.contains(marker.getLatLng()))
+            .map(marker => marker.feature);
 
-        this.visiblePeaksCache.set(cacheKey, visiblePeaks);
-        return visiblePeaks;
+        const uniqueVisiblePeaks = this.removeDuplicatePeaks(visiblePeaks);
+        this.visiblePeaksCache.set(cacheKey, uniqueVisiblePeaks);
+        return uniqueVisiblePeaks;
     }
 
     getHighestPeaks(n = 5) {
         const visiblePeaks = this.getVisiblePeaks();
+        if (visiblePeaks.length === 0) {
+            console.log('No visible peaks, returning null');
+            return null;
+        }
         return visiblePeaks
             .sort((a, b) => b.properties.elevation - a.properties.elevation)
             .slice(0, n);
