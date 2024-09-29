@@ -23,7 +23,7 @@ class App {
             console.log('App initialization started');
             this.showLoading();
             await this.loadData();
-            this.initializeComponents();
+            this.initializeUI();
             await this.showDisclaimer();
             this.initializeMap();
             this.applyInitialFilter();
@@ -44,8 +44,8 @@ class App {
         }
     }
 
-    initializeComponents() {
-        console.log('Initializing components');
+    initializeUI() {
+        console.log('Initializing UI...');
         this.uiManager = new UIManager(
             this.handleSearch.bind(this),
             this.handleFilterChange.bind(this),
@@ -56,16 +56,16 @@ class App {
         this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
         const unifiedControl = this.controlManager.initControls();
         
-        if (unifiedControl) {
-            this.uiManager.initializeElements(unifiedControl);
-        } else {
-            console.error('Failed to initialize unified control');
-        }
+        this.uiManager.initializeElements(unifiedControl);
         
+        // Connect UIManager to MapManager
         this.mapManager.setUIManager(this.uiManager);
-        this.layerManager.setUIManager(this.uiManager);
         
-        console.log('Components initialization complete');
+        // Ensure LayerManager is properly connected to UIManager
+        this.layerManager.setUIManager(this.uiManager);
+        this.uiManager.layerManager = this.layerManager;
+        
+        console.log('UI initialization complete');
     }
 
     initializeMap() {

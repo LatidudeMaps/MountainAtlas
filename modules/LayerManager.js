@@ -87,20 +87,6 @@ export class LayerManager {
         };
     }
 
-    filterMountainAreas(selectedValue) {
-        console.log('Filtering mountain areas with value:', selectedValue);
-        this.currentHierLevel = selectedValue;
-        this.mountainAreasLayer.clearLayers();
-        this.filteredMountainAreas = this.allMountainAreas.features.filter(feature => 
-            String(feature.properties.Hier_lvl).trim() === selectedValue
-        );
-        
-        this.mountainAreasLayer.addData({
-            type: "FeatureCollection",
-            features: this.filteredMountainAreas
-        });
-        console.log('Filtered mountain areas:', this.filteredMountainAreas.length);
-    }
 
     getMatchingLayers(searchValue) {
         if (!searchValue) return [];
@@ -133,12 +119,6 @@ export class LayerManager {
                                  mapName.trim().toLowerCase() === searchValue.toLowerCase();
             layer.setStyle(isExactMatch ? this.highlightStyle() : this.defaultPolygonStyle());
         });
-    }
-
-    getCurrentHierLevelMountainAreaNames() {
-        return this.filteredMountainAreas
-            .map(feature => feature.properties.MapName_it || feature.properties.MapName)
-            .filter(name => name); // Remove any undefined names
     }
 
     setUIManager(uiManager) {
@@ -279,13 +259,40 @@ export class LayerManager {
         return Array.from(uniquePeaks.values());
     }
 
-    getUniqueHierLevels() {
-        if (!this.allMountainAreas) {
+    getAllHierarchyLevels() {
+        if (!this.allMountainAreas || !this.allMountainAreas.features) {
+            console.warn('Mountain areas data not loaded or invalid');
             return [];
         }
         const hierLevels = this.allMountainAreas.features
             .map(feature => feature.properties?.Hier_lvl)
             .filter(level => level !== undefined && level !== null);
         return [...new Set(hierLevels)].sort((a, b) => a - b);
+    }
+
+    getCurrentHierLevelMountainAreaNames() {
+        if (!this.allMountainAreas || !this.allMountainAreas.features) {
+            console.warn('Mountain areas data not loaded or invalid');
+            return [];
+        }
+        return this.allMountainAreas.features
+            .filter(feature => String(feature.properties.Hier_lvl).trim() === String(this.currentHierLevel).trim())
+            .map(feature => feature.properties.MapName_it || feature.properties.MapName)
+            .filter(name => name);
+    }
+
+    filterMountainAreas(selectedValue) {
+        console.log('Filtering mountain areas with value:', selectedValue);
+        this.currentHierLevel = selectedValue;
+        this.mountainAreasLayer.clearLayers();
+        const filteredAreas = this.allMountainAreas.features.filter(feature => 
+            String(feature.properties.Hier_lvl).trim() === String(selectedValue).trim()
+        );
+        
+        this.mountainAreasLayer.addData({
+            type: "FeatureCollection",
+            features: filteredAreas
+        });
+        console.log('Filtered mountain areas:', filteredAreas.length);
     }
 }

@@ -219,17 +219,26 @@ export class UIManager {
         this.hierLvlValue.textContent = value;
     }
 
-    updateHierLevelSlider(min, max, value) {
-        console.log('Updating hierarchy level slider:', { min, max, value });
+    updateHierLevelSlider() {
         if (!this.hierLvlSlider || !this.hierLvlValue) {
-            console.error('Hierarchy level elements not found, cannot update slider');
+            console.warn('Hierarchy level elements not found');
             return;
         }
 
+        const hierLevels = this.layerManager.getAllHierarchyLevels();
+        if (hierLevels.length === 0) {
+            console.warn('No hierarchy levels found');
+            return;
+        }
+
+        const min = Math.min(...hierLevels);
+        const max = Math.max(...hierLevels);
+        const currentValue = this.hierLvlSlider.value || min;
+
         this.hierLvlSlider.min = min;
         this.hierLvlSlider.max = max;
-        this.hierLvlSlider.value = value;
-        this.hierLvlValue.textContent = value;
+        this.hierLvlSlider.value = currentValue;
+        this.hierLvlValue.textContent = currentValue;
     }
 
     clearSearch() {
@@ -592,28 +601,8 @@ export class UIManager {
     }
 
     handleResize() {
-        // Safely update the hierarchy level slider
-        if (this.hierLvlSlider && this.hierLvlValue) {
-            const uniqueHierLevels = this.layerManager.getUniqueHierLevels();
-            if (uniqueHierLevels.length > 0) {
-                this.updateHierLevelSlider(
-                    Math.min(...uniqueHierLevels),
-                    Math.max(...uniqueHierLevels),
-                    this.hierLvlSlider.value
-                );
-            }
-        }
-
-        // Safely update the search suggestions
-        if (this.searchInput && this.searchSuggestions) {
-            this.updateSearchSuggestions();
-        }
-
-        // Safely update the highest peaks panel
-        this.updateHighestPeaksPanel();
-
-        // Adjust the layout of control elements if needed
-        this.adjustControlLayout();
+        this.updateHierLevelSlider();
+        this.updateSearchSuggestions();
     }
 
     adjustControlLayout() {
