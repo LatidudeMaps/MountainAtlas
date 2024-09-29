@@ -29,11 +29,11 @@ class App {
             this.applyInitialFilter();
             this.setupMapEventListeners();
             
-            // Update the highest peaks panel after a short delay
-            setTimeout(() => {
+            // Wait for the map to be fully initialized before updating the highest peaks panel
+            this.mapManager.map.once('moveend', () => {
                 this.uiManager.updateHighestPeaksPanel();
                 this.hideLoading();
-            }, 500);
+            });
 
             console.log('App initialization complete');
         } catch (error) {

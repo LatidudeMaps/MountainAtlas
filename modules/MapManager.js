@@ -89,12 +89,12 @@ export class MapManager {
         
         console.log('Initial extent and max bounds set');
 
-        // Trigger an update of the highest peaks panel
-        if (this.uiManager) {
-            setTimeout(() => {
+        // Trigger an update of the highest peaks panel after the map is initialized
+        this.map.once('moveend', () => {
+            if (this.uiManager) {
                 this.uiManager.updateHighestPeaksPanel();
-            }, 100);
-        }
+            }
+        });
     }
 
     addResetViewControl(map) {

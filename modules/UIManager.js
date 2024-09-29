@@ -64,14 +64,12 @@ export class UIManager {
         
         this.highestPeaksPanel.addTo(this.mapManager.map);
         
-        // Initial update of the highest peaks panel
-        this.updateHighestPeaksPanel();
+        // Don't update the panel here, we'll do it after the map is initialized
     }
 
     updateHighestPeaksPanel() {
-        if (!this.mapManager.map.getBounds().isValid()) {
-            console.log('Map bounds not yet valid, retrying in 100ms');
-            setTimeout(() => this.updateHighestPeaksPanel(), 100);
+        if (!this.mapManager.map.getCenter()) {
+            console.log('Map not yet initialized, skipping update');
             return;
         }
 
