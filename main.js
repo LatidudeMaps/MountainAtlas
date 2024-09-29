@@ -59,6 +59,9 @@ class App {
         // Connect UIManager to MapManager
         this.mapManager.setUIManager(this.uiManager);
         
+        // Connect UIManager to LayerManager
+        this.layerManager.setUIManager(this.uiManager);
+        
         console.log('UI initialization complete');
     }
 

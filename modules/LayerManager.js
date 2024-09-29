@@ -9,6 +9,7 @@ export class LayerManager {
         this.currentHierLevel = null;
         this.visiblePeaksCache = new Map();
         this.currentOpacity = 1;
+        this.uiManager = null; // We'll set this later
     }
 
     initMountainAreasLayer() {
@@ -138,6 +139,10 @@ export class LayerManager {
         return this.filteredMountainAreas
             .map(feature => feature.properties.MapName_it || feature.properties.MapName)
             .filter(name => name); // Remove any undefined names
+    }
+
+    setUIManager(uiManager) {
+        this.uiManager = uiManager;
     }
 
     filterAndDisplayPeaks(hierLvl, mapName = null) {
