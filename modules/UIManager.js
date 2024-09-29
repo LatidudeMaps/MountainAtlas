@@ -29,6 +29,11 @@ export class UIManager {
     }
 
     initializeUIComponents() {
+        if (!this.filterControl) {
+            console.error('Filter control not initialized');
+            return;
+        }
+
         const container = this.filterControl.getContainer();
         this.searchInput = container.querySelector('#search-input');
         this.searchSuggestions = container.querySelector('#search-suggestions');
@@ -587,17 +592,24 @@ export class UIManager {
     }
 
     handleResize() {
-        // Update the hierarchy level slider
-        this.updateHierLevelSlider(
-            Math.min(...this.layerManager.getUniqueHierLevels()),
-            Math.max(...this.layerManager.getUniqueHierLevels()),
-            this.hierLvlSlider ? this.hierLvlSlider.value : 4 // Default to 4 if slider not initialized
-        );
+        // Safely update the hierarchy level slider
+        if (this.hierLvlSlider && this.hierLvlValue) {
+            const uniqueHierLevels = this.layerManager.getUniqueHierLevels();
+            if (uniqueHierLevels.length > 0) {
+                this.updateHierLevelSlider(
+                    Math.min(...uniqueHierLevels),
+                    Math.max(...uniqueHierLevels),
+                    this.hierLvlSlider.value
+                );
+            }
+        }
 
-        // Update the search suggestions
-        this.updateSearchSuggestions();
+        // Safely update the search suggestions
+        if (this.searchInput && this.searchSuggestions) {
+            this.updateSearchSuggestions();
+        }
 
-        // Update the highest peaks panel
+        // Safely update the highest peaks panel
         this.updateHighestPeaksPanel();
 
         // Adjust the layout of control elements if needed

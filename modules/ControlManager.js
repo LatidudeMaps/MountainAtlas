@@ -9,24 +9,38 @@ export class ControlManager {
 
     initControls() {
         console.log('Initializing controls');
-        this.unifiedControl = this.addUnifiedControl();
-        this.handleResponsiveControls();
+        this.unifiedControl = this.createUnifiedControl();
+        if (this.unifiedControl) {
+            this.addUnifiedControlToMap();
+            this.handleResponsiveControls();
+        } else {
+            console.error('Failed to create unified control');
+        }
         window.uiManager = this.uiManager;
         return this.unifiedControl;
     }
 
-    addUnifiedControl() {
-        console.log('Adding unified control');
+    createUnifiedControl() {
+        console.log('Creating unified control');
         const unifiedControl = L.control({ position: 'topright' });
         
-        unifiedControl.onAdd = () => {
+        unifiedControl.onAdd = (map) => {
             const container = this.createControlContainer();
             this.addLayerControl(container);
             this.addFilterControl(container);
             return container;
         };
         
-        return unifiedControl.addTo(this.mapManager.map);
+        return unifiedControl;
+    }
+
+    addUnifiedControlToMap() {
+        if (this.unifiedControl && this.mapManager && this.mapManager.map) {
+            console.log('Adding unified control to map');
+            this.unifiedControl.addTo(this.mapManager.map);
+        } else {
+            console.error('Unable to add unified control to map');
+        }
     }
 
     createControlContainer() {

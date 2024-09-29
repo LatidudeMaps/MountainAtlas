@@ -10,7 +10,7 @@ class App {
         this.mapManager = new MapManager('map');
         this.layerManager = new LayerManager(this.mapManager.map);
         this.dataLoader = new DataLoader();
-        this.uiManager = null; // We'll initialize this in initializeUI
+        this.uiManager = null;
         this.controlManager = null;
         this.loadingIndicator = document.getElementById('loading-indicator');
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
@@ -23,7 +23,7 @@ class App {
             console.log('App initialization started');
             this.showLoading();
             await this.loadData();
-            this.initializeUI();
+            this.initializeComponents();
             await this.showDisclaimer();
             this.initializeMap();
             this.applyInitialFilter();
@@ -31,7 +31,9 @@ class App {
             
             // Wait for the map to be fully initialized before updating the highest peaks panel
             this.mapManager.map.once('moveend', () => {
-                this.uiManager.updateHighestPeaksPanel();
+                if (this.uiManager) {
+                    this.uiManager.updateHighestPeaksPanel();
+                }
                 this.hideLoading();
             });
 
@@ -42,8 +44,8 @@ class App {
         }
     }
 
-    initializeUI() {
-        console.log('Initializing UI...');
+    initializeComponents() {
+        console.log('Initializing components');
         this.uiManager = new UIManager(
             this.handleSearch.bind(this),
             this.handleFilterChange.bind(this),
@@ -51,22 +53,19 @@ class App {
             this.mapManager
         );
     
-        this.mapManager.uiManager = this.uiManager; // Add this line
         this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
         const unifiedControl = this.controlManager.initControls();
         
-        this.uiManager.initializeElements(unifiedControl);
+        if (unifiedControl) {
+            this.uiManager.initializeElements(unifiedControl);
+        } else {
+            console.error('Failed to initialize unified control');
+        }
         
-        // Connect UIManager to MapManager
         this.mapManager.setUIManager(this.uiManager);
-        
-        // Connect UIManager to LayerManager
         this.layerManager.setUIManager(this.uiManager);
         
-        // Ensure LayerManager is properly connected to UIManager
-        this.uiManager.layerManager = this.layerManager;
-        
-        console.log('UI initialization complete');
+        console.log('Components initialization complete');
     }
 
     initializeMap() {
