@@ -79,8 +79,8 @@ export class MapManager {
             return;
         }
         
-        // Set initial bounds with some padding
-        this.initialBounds = bounds.pad(0.1);
+        // Set initial bounds without padding
+        this.initialBounds = bounds;
         
         // Set the view to fit these bounds
         this.map.fitBounds(this.initialBounds);
