@@ -79,16 +79,16 @@ export class MapManager {
             return;
         }
         
-        // Set initial bounds without padding
+        // Set initial bounds to the exact bounds of the mountain areas layer
         this.initialBounds = bounds;
         
-        // Set the view to fit these bounds
+        // Set the view to fit these bounds exactly
         this.map.fitBounds(this.initialBounds);
         
         // Set max bounds to be the same as initial bounds
         this.map.setMaxBounds(this.initialBounds);
         
-        console.log('Initial extent and max bounds set');
+        console.log('Initial extent and max bounds set to exact mountain areas bounds');
 
         // Update the highest peaks panel after a short delay to ensure the map is fully initialized
         setTimeout(() => {
