@@ -78,14 +78,15 @@ export class MapManager {
             console.error('Invalid bounds for mountain areas layer');
             return;
         }
-        const center = bounds.getCenter();
         
-        this.map.setView(center, 6, { animate: false });
-        this.initialBounds = this.map.getBounds();
+        // Set initial bounds with some padding
+        this.initialBounds = bounds.pad(0.1);
         
-        // Set max bounds with some padding
-        this.maxBounds = this.initialBounds.pad(0.1);
-        this.map.setMaxBounds(this.maxBounds);
+        // Set the view to fit these bounds
+        this.map.fitBounds(this.initialBounds);
+        
+        // Set max bounds to be the same as initial bounds
+        this.map.setMaxBounds(this.initialBounds);
         
         console.log('Initial extent and max bounds set');
 
