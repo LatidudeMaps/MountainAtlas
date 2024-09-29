@@ -29,11 +29,11 @@ class App {
             this.applyInitialFilter();
             this.setupMapEventListeners();
             
-            // Add a short delay before updating the highest peaks panel
+            // Update the highest peaks panel after a short delay
             setTimeout(() => {
                 this.uiManager.updateHighestPeaksPanel();
                 this.hideLoading();
-            }, 500); // 500ms delay, adjust if needed
+            }, 500);
 
             console.log('App initialization complete');
         } catch (error) {
@@ -56,7 +56,17 @@ class App {
         
         this.uiManager.initializeElements(unifiedControl);
         
+        // Connect UIManager to MapManager
+        this.mapManager.setUIManager(this.uiManager);
+        
         console.log('UI initialization complete');
+    }
+
+    initializeMap() {
+        console.log('Initializing map');
+        this.mapManager.setInitialExtent(this.layerManager.mountainAreasLayer);
+        this.mapInitialized = true;
+        console.log('Map initialized');
     }
 
     showDisclaimer() {
@@ -81,13 +91,6 @@ class App {
         if (this.disclaimerPopup) {
             this.disclaimerPopup.style.display = 'none';
         }
-    }
-
-    initializeMap() {
-        console.log('Initializing map');
-        this.mapManager.setInitialExtent(this.layerManager.mountainAreasLayer);
-        this.mapInitialized = true;
-        console.log('Map initialized');
     }
 
     applyInitialFilter() {

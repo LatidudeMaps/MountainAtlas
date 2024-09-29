@@ -56,22 +56,25 @@ export class UIManager {
             const container = L.DomUtil.create('div', 'highest-peaks-panel');
             container.innerHTML = '<h3>Top 5 peaks in map view</h3><div id="highest-peaks-content"></div>';
             
-            // Prevent click propagation
             L.DomEvent.disableClickPropagation(container);
-            // Optionally, prevent scroll propagation as well
             L.DomEvent.disableScrollPropagation(container);
             
             return container;
         };
         
         this.highestPeaksPanel.addTo(this.mapManager.map);
+        
+        // Initial update of the highest peaks panel
+        this.updateHighestPeaksPanel();
     }
 
     updateHighestPeaksPanel() {
         if (!this.mapManager.map.getBounds().isValid()) {
-            console.log('Map bounds not yet valid, skipping update');
+            console.log('Map bounds not yet valid, retrying in 100ms');
+            setTimeout(() => this.updateHighestPeaksPanel(), 100);
             return;
         }
+
         const highestPeaks = this.layerManager.getHighestPeaks(5);
         const content = document.getElementById('highest-peaks-content');
         
