@@ -152,8 +152,8 @@ class App {
             this.handleNoMatchingLayers(searchValue);
         }
 
-        // Ensure the Wikipedia panel is updated
-        this.uiManager.updateWikipediaPanel(searchValue);
+        this.updateWikipediaPanel(searchValue);
+        this.updateHighestPeaksPanel(); // Update the highest peaks panel after search
     }
 
     handleMatchingLayers(matchingLayers, searchValue) {
@@ -166,10 +166,7 @@ class App {
         this.mapManager.flyTo(center, zoom);
 
         this.layerManager.filterAndDisplayPeaks(null, matchingLayers[0].properties.MapName);
-        this.uiManager.updateHighestPeaksPanel();
-        
-        // Move this line to handleSearch method
-        // this.uiManager.updateWikipediaPanel(searchValue);
+        // The updateHighestPeaksPanel is now called in filterAndDisplayPeaks
     }
 
     resetSearch() {

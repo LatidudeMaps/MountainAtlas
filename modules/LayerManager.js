@@ -146,6 +146,9 @@ export class LayerManager {
         let filteredPeaks = this.filterPeaks(hierLvl, mapName);
         this.addPeaksToMarkers(filteredPeaks);
         this.visiblePeaksCache.clear(); // Clear the cache when filtering
+        if (this.uiManager) {
+            this.uiManager.updateHighestPeaksPanel();
+        }
     }
 
     addPeaksToMarkers(filteredPeaks) {
@@ -240,10 +243,9 @@ export class LayerManager {
             return this.visiblePeaksCache.get(cacheKey);
         }
 
-        const visiblePeaks = this.allOsmPeaks.filter(peak => {
-            const latlng = L.latLng(peak.geometry.coordinates[1], peak.geometry.coordinates[0]);
-            return mapBounds.contains(latlng);
-        });
+        const visiblePeaks = this.markers.getLayers()
+            .filter(marker => mapBounds.contains(marker.getLatLng()))
+            .map(marker => marker.feature);
 
         const uniqueVisiblePeaks = this.removeDuplicatePeaks(visiblePeaks);
         this.visiblePeaksCache.set(cacheKey, uniqueVisiblePeaks);

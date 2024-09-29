@@ -95,6 +95,13 @@ export class MapManager {
                 this.uiManager.updateHighestPeaksPanel();
             }
         }, 100);
+
+        // Also update on subsequent moveend events
+        this.map.on('moveend', () => {
+            if (this.uiManager) {
+                this.uiManager.updateHighestPeaksPanel();
+            }
+        });
     }
 
     addResetViewControl(map) {
