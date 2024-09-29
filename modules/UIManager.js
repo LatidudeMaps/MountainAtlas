@@ -77,7 +77,7 @@ export class UIManager {
         const content = document.getElementById('highest-peaks-content');
         
         if (content) {
-            if (highestPeaks.length === 0) {
+            if (!highestPeaks || highestPeaks.length === 0) {
                 content.innerHTML = '<p class="no-peaks">No peaks in current view</p>';
             } else {
                 let html = '<table id="highest-peaks-table">';

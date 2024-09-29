@@ -229,16 +229,20 @@ export class LayerManager {
     }
 
     getVisiblePeaks() {
-        const cacheKey = this.map.getBounds().toBBoxString() + '-' + this.map.getZoom();
+        const mapBounds = this.map.getBounds();
+        if (!mapBounds.isValid()) {
+            console.log('Map bounds not valid, returning all peaks');
+            return this.allOsmPeaks;
+        }
+
+        const cacheKey = mapBounds.toBBoxString() + '-' + this.map.getZoom();
         if (this.visiblePeaksCache.has(cacheKey)) {
             return this.visiblePeaksCache.get(cacheKey);
         }
 
-        const visiblePeaks = [];
-        this.markers.eachLayer(layer => {
-            if (this.map.getBounds().contains(layer.getLatLng())) {
-                visiblePeaks.push(layer.feature);
-            }
+        const visiblePeaks = this.allOsmPeaks.filter(peak => {
+            const latlng = L.latLng(peak.geometry.coordinates[1], peak.geometry.coordinates[0]);
+            return mapBounds.contains(latlng);
         });
 
         this.visiblePeaksCache.set(cacheKey, visiblePeaks);
@@ -247,6 +251,10 @@ export class LayerManager {
 
     getHighestPeaks(n = 5) {
         const visiblePeaks = this.getVisiblePeaks();
+        if (visiblePeaks.length === 0) {
+            console.log('No visible peaks, returning null');
+            return null;
+        }
         return visiblePeaks
             .sort((a, b) => b.properties.elevation - a.properties.elevation)
             .slice(0, n);

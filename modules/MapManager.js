@@ -89,7 +89,12 @@ export class MapManager {
         
         console.log('Initial extent and max bounds set');
 
-        // Trigger an update of the highest peaks panel after the map is initialized
+        // Update the highest peaks panel immediately after setting the view
+        if (this.uiManager) {
+            this.uiManager.updateHighestPeaksPanel();
+        }
+
+        // Also update on the next 'moveend' event, in case the initial update was too early
         this.map.once('moveend', () => {
             if (this.uiManager) {
                 this.uiManager.updateHighestPeaksPanel();
