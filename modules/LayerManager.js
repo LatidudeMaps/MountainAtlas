@@ -106,7 +106,6 @@ export class LayerManager {
 
         console.log('Getting matching layers for:', searchValue, 'Current Hier Level:', this.currentHierLevel);
         const matchingLayers = [];
-        const exactMatches = [];
 
         this.mountainAreasLayer.eachLayer(layer => {
             const mapName = layer.feature?.properties?.MapName_it || layer.feature?.properties?.MapName;
@@ -114,16 +113,13 @@ export class LayerManager {
             
             if (mapName && layerHierLevel === this.currentHierLevel) {
                 if (mapName.trim().toLowerCase() === searchValue.toLowerCase()) {
-                    exactMatches.push({ layer, properties: layer.feature.properties });
-                } else if (mapName.trim().toLowerCase().includes(searchValue.toLowerCase())) {
                     matchingLayers.push({ layer, properties: layer.feature.properties });
                 }
             }
         });
 
-        const results = exactMatches.length > 0 ? exactMatches : matchingLayers;
-        console.log('Matching layers found:', results.length, 'Exact matches:', exactMatches.length);
-        return results;
+        console.log('Matching layers found:', matchingLayers.length);
+        return matchingLayers;
     }
 
     highlightSearchedAreas(searchValue) {
@@ -131,10 +127,10 @@ export class LayerManager {
         this.mountainAreasLayer.eachLayer(layer => {
             const mapName = layer.feature?.properties?.MapName_it || layer.feature?.properties?.MapName;
             const layerHierLevel = String(layer.feature?.properties?.Hier_lvl).trim();
-            const isMatch = mapName && 
-                            layerHierLevel === this.currentHierLevel &&
-                            mapName.trim().toLowerCase().includes(searchValue.toLowerCase());
-            layer.setStyle(isMatch ? this.highlightStyle() : this.defaultPolygonStyle());
+            const isExactMatch = mapName && 
+                                 layerHierLevel === this.currentHierLevel &&
+                                 mapName.trim().toLowerCase() === searchValue.toLowerCase();
+            layer.setStyle(isExactMatch ? this.highlightStyle() : this.defaultPolygonStyle());
         });
     }
 
