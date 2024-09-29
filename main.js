@@ -26,6 +26,7 @@ class App {
             this.initializeUI();
             await this.showDisclaimer();
             this.initializeMap();
+            this.layerManager.initializeInitialPeaks(); // Add this line
             this.applyInitialFilter();
             this.setupMapEventListeners();
             
