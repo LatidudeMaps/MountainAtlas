@@ -80,7 +80,7 @@ export class MapManager {
         }
         const center = bounds.getCenter();
         
-        this.map.setView(center, 6);
+        this.map.setView(center, 6, { animate: false });
         this.initialBounds = this.map.getBounds();
         
         // Set max bounds with some padding
@@ -89,17 +89,12 @@ export class MapManager {
         
         console.log('Initial extent and max bounds set');
 
-        // Update the highest peaks panel immediately after setting the view
-        if (this.uiManager) {
-            this.uiManager.updateHighestPeaksPanel();
-        }
-
-        // Also update on the next 'moveend' event, in case the initial update was too early
-        this.map.once('moveend', () => {
+        // Update the highest peaks panel after a short delay to ensure the map is fully initialized
+        setTimeout(() => {
             if (this.uiManager) {
                 this.uiManager.updateHighestPeaksPanel();
             }
-        });
+        }, 100);
     }
 
     addResetViewControl(map) {

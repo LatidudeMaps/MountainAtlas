@@ -232,7 +232,7 @@ export class LayerManager {
         const mapBounds = this.map.getBounds();
         if (!mapBounds.isValid()) {
             console.log('Map bounds not valid, returning all peaks');
-            return this.allOsmPeaks;
+            return this.removeDuplicatePeaks(this.allOsmPeaks);
         }
 
         const cacheKey = mapBounds.toBBoxString() + '-' + this.map.getZoom();
@@ -245,8 +245,9 @@ export class LayerManager {
             return mapBounds.contains(latlng);
         });
 
-        this.visiblePeaksCache.set(cacheKey, visiblePeaks);
-        return visiblePeaks;
+        const uniqueVisiblePeaks = this.removeDuplicatePeaks(visiblePeaks);
+        this.visiblePeaksCache.set(cacheKey, uniqueVisiblePeaks);
+        return uniqueVisiblePeaks;
     }
 
     getHighestPeaks(n = 5) {
