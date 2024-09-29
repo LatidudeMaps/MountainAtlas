@@ -9,8 +9,7 @@ export class LayerManager {
         this.currentHierLevel = null;
         this.visiblePeaksCache = new Map();
         this.currentOpacity = 1;
-        this.uiManager = null;
-        this.initialPeaksLoaded = false;
+        this.uiManager = null; // We'll set this later
     }
 
     initMountainAreasLayer() {
@@ -55,18 +54,6 @@ export class LayerManager {
     setOsmPeaksData(data) {
         console.log('Setting OSM peaks data');
         this.allOsmPeaks = data;
-        this.initialPeaksLoaded = true;
-    }
-
-    initializeInitialPeaks() {
-        if (!this.initialPeaksLoaded || !this.allOsmPeaks) {
-            console.error('OSM peaks data not loaded');
-            return;
-        }
-        console.log('Initializing initial peaks');
-        const initialPeaks = this.removeDuplicatePeaks(this.allOsmPeaks);
-        this.addPeaksToMarkers(initialPeaks);
-        this.visiblePeaksCache.clear();
     }
 
     getAllMountainAreaNames() {
@@ -250,11 +237,6 @@ export class LayerManager {
     }
 
     getVisiblePeaks() {
-        if (!this.initialPeaksLoaded) {
-            console.log('Initial peaks not loaded, returning empty array');
-            return [];
-        }
-
         const mapBounds = this.map.getBounds();
         if (!mapBounds.isValid()) {
             console.log('Map bounds not valid, returning all peaks');

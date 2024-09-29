@@ -89,12 +89,12 @@ export class MapManager {
         
         console.log('Initial extent and max bounds set');
 
-        // Update the highest peaks panel after the map is fully loaded
-        this.map.once('load', () => {
+        // Update the highest peaks panel after a short delay to ensure the map is fully initialized
+        setTimeout(() => {
             if (this.uiManager) {
                 this.uiManager.updateHighestPeaksPanel();
             }
-        });
+        }, 100);
 
         // Also update on subsequent moveend events
         this.map.on('moveend', () => {
