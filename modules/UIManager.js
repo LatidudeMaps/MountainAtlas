@@ -17,6 +17,7 @@ export class UIManager {
         this.highestPeaksPanel = null;
         this.disclaimerAccepted = false;
         this.handleResize = debounce(this.reinitializeUI.bind(this), 250);
+        this.currentHierLevel = null; // Add this line to store the current hierarchy level
     }
 
     initializeElements(filterControl) {
@@ -37,8 +38,14 @@ export class UIManager {
         this.setupEventListeners();
         
         // Reapply the current filter
-        if (this.hierLvlSlider) {
-            this.filterHandler(this.hierLvlSlider.value);
+        if (this.currentHierLevel) {
+            console.log('Reapplying filter with value:', this.currentHierLevel);
+            this.updateHierLevelSlider(
+                Math.min(...this.layerManager.dataLoader.getUniqueHierLevels()),
+                Math.max(...this.layerManager.dataLoader.getUniqueHierLevels()),
+                parseInt(this.currentHierLevel)
+            );
+            this.filterHandler(this.currentHierLevel);
         }
         
         // Update search suggestions if there's a current search
@@ -247,6 +254,7 @@ export class UIManager {
         this.hierLvlSlider.max = max;
         this.hierLvlSlider.value = value;
         this.hierLvlValue.textContent = value;
+        this.currentHierLevel = value; // Update current level when slider is updated
     }
 
     clearSearch() {
@@ -574,10 +582,12 @@ export class UIManager {
 
         this.hierLvlSlider.addEventListener('input', () => {
             this.hierLvlValue.textContent = this.hierLvlSlider.value;
+            this.currentHierLevel = this.hierLvlSlider.value; // Update current level on input
         });
 
         this.hierLvlSlider.addEventListener('change', () => {
             console.log('Slider value changed to:', this.hierLvlSlider.value);
+            this.currentHierLevel = this.hierLvlSlider.value; // Update current level on change
             this.filterHandler(this.hierLvlSlider.value);
         });
 

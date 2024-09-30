@@ -54,7 +54,10 @@ class App {
         this.mapManager.resetView();
         this.layerManager.resetLayers();
         this.controlManager.reinitializeControls();
-        this.applyInitialFilter();
+        
+        // Use the current hierarchy level from UIManager
+        const currentHierLevel = this.uiManager.currentHierLevel || "4"; // Default to "4" if not set
+        this.handleFilterChange(currentHierLevel);
     }
 
     initializeUI() {
