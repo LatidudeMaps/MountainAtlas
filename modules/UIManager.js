@@ -581,32 +581,12 @@ export class UIManager {
 
     handleResize() {
         console.log('Window resized, reinitializing UI elements');
-        this.removeExistingPanels();
+        const currentSliderValue = this.hierLvlSlider ? this.hierLvlSlider.value : "4";
         this.initializeUIComponents();
         this.setupEventListeners();
-        
-        if (this.dataLoader.isDataLoaded()) {
-            const currentValue = this.hierLvlSlider ? this.hierLvlSlider.value : "4";
-            this.updateHierLevelSlider(
-                Math.min(...this.dataLoader.getUniqueHierLevels()),
-                Math.max(...this.dataLoader.getUniqueHierLevels()),
-                currentValue
-            );
-        }
-        
-        this.setupHighestPeaksPanel();
-        this.setupWikipediaPanel();
-        this.updateHighestPeaksPanel();
-    }
-
-    removeExistingPanels() {
-        if (this.highestPeaksPanel) {
-            this.mapManager.map.removeControl(this.highestPeaksPanel);
-            this.highestPeaksPanel = null;
-        }
-        if (this.wikipediaPanel) {
-            this.wikipediaPanel.remove();
-            this.wikipediaPanel = null;
+        if (this.hierLvlSlider) {
+            this.hierLvlSlider.value = currentSliderValue;
+            this.hierLvlValue.textContent = currentSliderValue;
         }
     }
 }

@@ -173,8 +173,5 @@ export class MapManager {
     handleResize() {
         console.log('Window resized, updating map size');
         this.map.invalidateSize();
-        if (this.initialBounds) {
-            this.map.fitBounds(this.initialBounds);
-        }
     }
 }

@@ -16,7 +16,7 @@ class App {
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
         this.mapInitialized = false;
         this.setupInfoButton();
-        this.handleResize = debounce(this.handleResize.bind(this), 250);
+        this.handleResize = this.handleResize.bind(this);
         window.addEventListener('resize', this.handleResize);
     }
 
@@ -247,13 +247,12 @@ class App {
     }
 
     handleResize() {
-        console.log('Window resized, reinitializing app components');
-        if (this.mapInitialized && this.dataLoader.isDataLoaded()) {
+        console.log('Window resized, updating app components');
+        if (this.mapInitialized) {
             this.mapManager.handleResize();
-            this.controlManager.handleResize();
-            this.uiManager.handleResize();
-            this.applyInitialFilter();
-            this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
+            if (this.uiManager) {
+                this.uiManager.handleResize();
+            }
         }
     }
 }
