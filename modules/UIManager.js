@@ -1,12 +1,11 @@
 import { debounce } from '../utils/helpers.js';
 
 export class UIManager {
-    constructor(searchHandler, filterHandler, layerManager, mapManager, dataLoader) {
+    constructor(searchHandler, filterHandler, layerManager, mapManager) {
         this.searchHandler = searchHandler;
         this.filterHandler = filterHandler;
         this.layerManager = layerManager;
         this.mapManager = mapManager;
-        this.dataLoader = dataLoader
         this.filterControl = null;
         this.searchInput = null;
         this.searchSuggestions = null;
@@ -17,8 +16,6 @@ export class UIManager {
         this.currentLanguage = 'it';
         this.highestPeaksPanel = null;
         this.disclaimerAccepted = false;
-        this.handleResize = this.handleResize.bind(this);
-        window.addEventListener('resize', this.handleResize);
     }
 
     initializeElements(filterControl) {
@@ -66,6 +63,8 @@ export class UIManager {
         };
         
         this.highestPeaksPanel.addTo(this.mapManager.map);
+        
+        // Don't update the panel here, we'll do it after the map is initialized
     }
 
     updateHighestPeaksPanel() {
@@ -101,12 +100,15 @@ export class UIManager {
     }
 
     setupWikipediaPanel() {
+        console.log('Setting up Wikipedia panel');
         this.wikipediaPanel = document.createElement('div');
         this.wikipediaPanel.id = 'wikipedia-panel';
         this.wikipediaPanel.style.display = 'none';
     
+        // Find the .leaflet-right container
         const leafletRightContainer = document.querySelector('.leaflet-right');
         if (leafletRightContainer) {
+            // Append the Wikipedia panel to the end of .leaflet-right
             leafletRightContainer.appendChild(this.wikipediaPanel);
             console.log('Wikipedia panel appended to .leaflet-right');
         } else {
@@ -577,16 +579,5 @@ export class UIManager {
             isDragging = false;
             this.filterHandler(this.hierLvlSlider.value);
         });
-    }
-
-    handleResize() {
-        console.log('Window resized, reinitializing UI elements');
-        const currentSliderValue = this.hierLvlSlider ? this.hierLvlSlider.value : "4";
-        this.initializeUIComponents();
-        this.setupEventListeners();
-        if (this.hierLvlSlider) {
-            this.hierLvlSlider.value = currentSliderValue;
-            this.hierLvlValue.textContent = currentSliderValue;
-        }
     }
 }

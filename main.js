@@ -8,16 +8,14 @@ class App {
     constructor() {
         console.log('App constructor called');
         this.mapManager = new MapManager('map');
-        this.dataLoader = new DataLoader();
         this.layerManager = new LayerManager(this.mapManager.map);
+        this.dataLoader = new DataLoader();
         this.uiManager = null;
         this.controlManager = null;
         this.loadingIndicator = document.getElementById('loading-indicator');
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
         this.mapInitialized = false;
         this.setupInfoButton();
-        this.handleResize = this.handleResize.bind(this);
-        window.addEventListener('resize', this.handleResize);
     }
 
     async init() {
@@ -50,8 +48,7 @@ class App {
             this.handleSearch.bind(this),
             this.handleFilterChange.bind(this),
             this.layerManager,
-            this.mapManager,
-            this.dataLoader
+            this.mapManager
         );
     
         this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
@@ -244,16 +241,6 @@ class App {
         console.log('No matching polygons found for:', searchValue);
         alert('No matching polygons found.');
         this.uiManager.updateWikipediaPanel(null);
-    }
-
-    handleResize() {
-        console.log('Window resized, updating app components');
-        if (this.mapInitialized) {
-            this.mapManager.handleResize();
-            if (this.uiManager) {
-                this.uiManager.handleResize();
-            }
-        }
     }
 }
 
