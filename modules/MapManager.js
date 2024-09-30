@@ -156,29 +156,6 @@ export class MapManager {
         }
     }
 
-    addResponsiveZoomControl() {
-        const zoomControl = L.control.zoom({ position: 'topright' });
-        zoomControl.addTo(this.map);
-
-        const handleResize = () => {
-            const isMobile = window.innerWidth <= 768;
-            zoomControl.setPosition(isMobile ? 'bottomright' : 'topright');
-        };
-
-        window.addEventListener('resize', handleResize);
-        handleResize(); // Call once to set initial state
-    }
-
-    changeBaseMap(newBaseMapName) {
-        if (this.baseMaps[newBaseMapName]) {
-            this.map.removeLayer(this.baseMaps[this.activeBaseMap]);
-            this.map.addLayer(this.baseMaps[newBaseMapName]);
-            this.activeBaseMap = newBaseMapName;
-        } else {
-            console.warn(`Base map "${newBaseMapName}" not found`);
-        }
-    }
-
     getCenter() {
         return this.map.getCenter();
     }

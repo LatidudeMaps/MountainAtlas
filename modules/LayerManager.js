@@ -187,17 +187,6 @@ export class LayerManager {
         console.log('Filtered peaks added to markers');
     }
 
-    getVisibleMountainAreaNames() {
-        const visibleNames = [];
-        const mapBounds = this.map.getBounds();
-        this.mountainAreasLayer.eachLayer(layer => {
-            if (mapBounds.intersects(layer.getBounds())) {
-                visibleNames.push(layer.feature.properties.MapName);
-            }
-        });
-        return visibleNames;
-    }
-
     createMarker(feature, latlng) {
         const marker = L.marker(latlng);
         const name = feature.properties.name || "Unnamed Peak";

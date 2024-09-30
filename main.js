@@ -237,21 +237,6 @@ class App {
         }
     }
 
-    setupUI() {
-        const uniqueHierLevels = this.dataLoader.getUniqueHierLevels();
-        console.log('Unique hierarchy levels:', uniqueHierLevels);
-        
-        if (uniqueHierLevels.length > 0) {
-            this.uiManager.updateHierLevelSlider(
-                Math.min(...uniqueHierLevels),
-                Math.max(...uniqueHierLevels),
-                4  // Default value
-            );
-        } else {
-            console.warn('No hierarchy levels found');
-        }
-    }
-
     handleNoMatchingLayers(searchValue) {
         console.log('No matching polygons found for:', searchValue);
         alert('No matching polygons found.');
