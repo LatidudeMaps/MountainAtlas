@@ -1,11 +1,12 @@
 import { debounce } from '../utils/helpers.js';
 
 export class UIManager {
-    constructor(searchHandler, filterHandler, layerManager, mapManager) {
+    constructor(searchHandler, filterHandler, layerManager, mapManager, dataLoader) {
         this.searchHandler = searchHandler;
         this.filterHandler = filterHandler;
         this.layerManager = layerManager;
         this.mapManager = mapManager;
+        this.dataLoader = dataLoader
         this.filterControl = null;
         this.searchInput = null;
         this.searchSuggestions = null;
@@ -587,11 +588,16 @@ export class UIManager {
         console.log('Window resized, reinitializing UI elements');
         this.initializeUIComponents();
         this.setupEventListeners();
-        this.updateHierLevelSlider(
-            Math.min(...this.layerManager.dataLoader.getUniqueHierLevels()),
-            Math.max(...this.layerManager.dataLoader.getUniqueHierLevels()),
-            this.hierLvlSlider ? this.hierLvlSlider.value : "4"
-        );
+        
+        if (this.dataLoader.isDataLoaded()) {
+            const currentValue = this.hierLvlSlider ? this.hierLvlSlider.value : "4";
+            this.updateHierLevelSlider(
+                Math.min(...this.dataLoader.getUniqueHierLevels()),
+                Math.max(...this.dataLoader.getUniqueHierLevels()),
+                currentValue
+            );
+        }
+        
         this.updateHighestPeaksPanel();
     }
 }
