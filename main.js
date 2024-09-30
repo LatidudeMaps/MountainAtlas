@@ -16,6 +16,8 @@ class App {
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
         this.mapInitialized = false;
         this.setupInfoButton();
+        this.handleResize = this.handleResize.bind(this);
+        window.addEventListener('resize', this.handleResize);
     }
 
     async init() {
@@ -241,6 +243,19 @@ class App {
         console.log('No matching polygons found for:', searchValue);
         alert('No matching polygons found.');
         this.uiManager.updateWikipediaPanel(null);
+    }
+
+    handleResize() {
+        console.log('Window resized, updating app components');
+        if (this.mapInitialized) {
+            this.mapManager.handleResize();
+            if (this.uiManager) {
+                this.uiManager.handleResize();
+            }
+            if (this.controlManager) {
+                this.controlManager.handleResponsiveControls();
+            }
+        }
     }
 }
 
