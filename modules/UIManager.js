@@ -16,6 +16,8 @@ export class UIManager {
         this.currentLanguage = 'it';
         this.highestPeaksPanel = null;
         this.disclaimerAccepted = false;
+        this.handleResize = this.handleResize.bind(this);
+        window.addEventListener('resize', this.handleResize);
     }
 
     initializeElements(filterControl) {
@@ -579,5 +581,17 @@ export class UIManager {
             isDragging = false;
             this.filterHandler(this.hierLvlSlider.value);
         });
+    }
+
+    handleResize() {
+        console.log('Window resized, reinitializing UI elements');
+        this.initializeUIComponents();
+        this.setupEventListeners();
+        this.updateHierLevelSlider(
+            Math.min(...this.layerManager.dataLoader.getUniqueHierLevels()),
+            Math.max(...this.layerManager.dataLoader.getUniqueHierLevels()),
+            this.hierLvlSlider ? this.hierLvlSlider.value : "4"
+        );
+        this.updateHighestPeaksPanel();
     }
 }

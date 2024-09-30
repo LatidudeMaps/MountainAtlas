@@ -5,6 +5,8 @@ export class ControlManager {
         this.uiManager = uiManager;
         this.unifiedControl = null;
         this.defaultOpacity = 1; // Add this line to store the default opacity
+        this.handleResize = this.handleResize.bind(this);
+        window.addEventListener('resize', this.handleResize);
     }
 
     initControls() {
@@ -188,5 +190,15 @@ export class ControlManager {
 
         window.addEventListener('resize', handleResize);
         handleResize();
+    }
+
+    handleResize() {
+        console.log('Window resized, reinitializing controls');
+        if (this.unifiedControl) {
+            this.mapManager.map.removeControl(this.unifiedControl);
+        }
+        this.unifiedControl = this.addUnifiedControl();
+        this.handleResponsiveControls();
+        this.uiManager.initializeElements(this.unifiedControl);
     }
 }
