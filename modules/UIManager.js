@@ -7,7 +7,7 @@ export class UIManager {
         this.layerManager = layerManager;
         this.mapManager = mapManager;
         this.filterControl = null;
-        this.searchInput = null;
+        this.searchInput = document.querySelector('#search-input');
         this.searchSuggestions = null;
         this.hierLvlSlider = null;
         this.hierLvlValue = null;
