@@ -8,7 +8,6 @@ export class DataLoader {
     }
 
     async loadMountainAreas() {
-        console.log('Loading mountain areas...');
         try {
             const response = await this.fetchData("https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson");
             this.mountainAreasData = await response.json();
@@ -17,7 +16,7 @@ export class DataLoader {
             console.log('Mountain areas loaded successfully');
             return this.mountainAreasData;
         } catch (error) {
-            console.error('Detailed error loading Mountain Areas:', error);
+            console.error('Error loading Mountain Areas:', error);
             this.mountainAreasLoaded = false;
             throw new Error('Failed to load Mountain Areas: ' + error.message);
         }
@@ -68,7 +67,7 @@ export class DataLoader {
     }
 
     isDataLoaded() {
-        return this.mountainAreasLoaded && this.osmPeaksLoaded;
+        return this.mountainAreasData !== null && this.allOsmPeaks !== null;
     }
 
     getMountainAreasCount() {
