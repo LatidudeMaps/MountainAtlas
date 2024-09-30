@@ -16,7 +16,7 @@ class App {
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
         this.mapInitialized = false;
         this.setupInfoButton();
-        this.handleResize = this.handleResize.bind(this);
+        this.handleResize = debounce(this.handleResize.bind(this), 250);
         window.addEventListener('resize', this.handleResize);
     }
 
@@ -253,6 +253,7 @@ class App {
             this.controlManager.handleResize();
             this.uiManager.handleResize();
             this.applyInitialFilter();
+            this.mapManager.fitMapToBounds(this.layerManager.mountainAreasLayer, this.layerManager.markers);
         }
     }
 }

@@ -66,8 +66,6 @@ export class UIManager {
         };
         
         this.highestPeaksPanel.addTo(this.mapManager.map);
-        
-        // Don't update the panel here, we'll do it after the map is initialized
     }
 
     updateHighestPeaksPanel() {
@@ -103,15 +101,12 @@ export class UIManager {
     }
 
     setupWikipediaPanel() {
-        console.log('Setting up Wikipedia panel');
         this.wikipediaPanel = document.createElement('div');
         this.wikipediaPanel.id = 'wikipedia-panel';
         this.wikipediaPanel.style.display = 'none';
     
-        // Find the .leaflet-right container
         const leafletRightContainer = document.querySelector('.leaflet-right');
         if (leafletRightContainer) {
-            // Append the Wikipedia panel to the end of .leaflet-right
             leafletRightContainer.appendChild(this.wikipediaPanel);
             console.log('Wikipedia panel appended to .leaflet-right');
         } else {
@@ -586,6 +581,7 @@ export class UIManager {
 
     handleResize() {
         console.log('Window resized, reinitializing UI elements');
+        this.removeExistingPanels();
         this.initializeUIComponents();
         this.setupEventListeners();
         
@@ -598,6 +594,19 @@ export class UIManager {
             );
         }
         
+        this.setupHighestPeaksPanel();
+        this.setupWikipediaPanel();
         this.updateHighestPeaksPanel();
+    }
+
+    removeExistingPanels() {
+        if (this.highestPeaksPanel) {
+            this.mapManager.map.removeControl(this.highestPeaksPanel);
+            this.highestPeaksPanel = null;
+        }
+        if (this.wikipediaPanel) {
+            this.wikipediaPanel.remove();
+            this.wikipediaPanel = null;
+        }
     }
 }
