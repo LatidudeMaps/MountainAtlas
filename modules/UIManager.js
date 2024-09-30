@@ -316,47 +316,6 @@ export class UIManager {
         }
     }
 
-    toggleLanguage(lang) {
-        if (lang === 'it' || lang === 'en') {
-            this.currentLanguage = lang;
-            const currentSearchValue = this.searchInput.value.trim();
-            if (currentSearchValue) {
-                this.updateWikipediaPanel(currentSearchValue);
-            }
-        }
-    }
-
-    updateWikipediaPanel(name) {
-        if (!name) {
-            this.wikipediaPanel.style.display = 'none';
-            return;
-        }
-    
-        this.wikipediaPanel.style.display = 'block';
-        this.wikipediaPanel.innerHTML = this.createLanguageToggle();
-    
-        const matchingLayers = this.layerManager.getMatchingLayers(name);
-        if (matchingLayers.length > 0) {
-            const properties = matchingLayers[0].properties;
-            const wikiUrl = this.currentLanguage === 'it' ? properties.wiki_url_it : properties.wiki_url_en;
-            
-            if (wikiUrl) {
-                this.fetchWikipediaContent(wikiUrl);
-            } else {
-                const message = this.currentLanguage === 'it' 
-                    ? '<p>Info non disponibili</p>'
-                    : '<p>Information not available in English</p>';
-                this.wikipediaPanel.innerHTML += message;
-            }
-        } else {
-            this.wikipediaPanel.innerHTML += '<p>No matching content found</p>';
-        }
-
-        // Remove any inline positioning styles
-        this.wikipediaPanel.style.top = '';
-        this.wikipediaPanel.style.bottom = '';
-    }
-
     handleWikiPanelWheel(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -423,17 +382,80 @@ export class UIManager {
         this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `<p>${errorMessage}</p>`;
     }
 
+    updateWikipediaPanel(name) {
+        if (!name) {
+            this.wikipediaPanel.style.display = 'none';
+            return;
+        }
+    
+        this.wikipediaPanel.style.display = 'block';
+        this.wikipediaPanel.innerHTML = this.createLanguageToggle();
+
+        // Add this new line to set up event listeners
+        this.setupLanguageToggleListeners();
+    
+        const matchingLayers = this.layerManager.getMatchingLayers(name);
+        if (matchingLayers.length > 0) {
+            const properties = matchingLayers[0].properties;
+            const wikiUrl = this.currentLanguage === 'it' ? properties.wiki_url_it : properties.wiki_url_en;
+            
+            if (wikiUrl) {
+                this.fetchWikipediaContent(wikiUrl);
+            } else {
+                const message = this.currentLanguage === 'it' 
+                    ? '<p>Info non disponibili</p>'
+                    : '<p>Information not available in English</p>';
+                this.wikipediaPanel.innerHTML += message;
+            }
+        } else {
+            this.wikipediaPanel.innerHTML += '<p>No matching content found</p>';
+        }
+
+        // Remove any inline positioning styles
+        this.wikipediaPanel.style.top = '';
+        this.wikipediaPanel.style.bottom = '';
+    }
+
     createLanguageToggle() {
         return `
-            <div class="language-toggle">
-                <button class="${this.currentLanguage === 'it' ? 'active' : ''}" onclick="uiManager.toggleLanguage('it')">
-                    <span class="fi fi-it"></span> IT
+            <div class="language-toggle" role="group" aria-label="Language selection">
+                <button class="${this.currentLanguage === 'it' ? 'active' : ''}" data-lang="it" aria-pressed="${this.currentLanguage === 'it'}">
+                    <span class="fi fi-it" aria-hidden="true"></span> IT
                 </button>
-                <button class="${this.currentLanguage === 'en' ? 'active' : ''}" onclick="uiManager.toggleLanguage('en')">
-                    <span class="fi fi-gb"></span> EN
+                <button class="${this.currentLanguage === 'en' ? 'active' : ''}" data-lang="en" aria-pressed="${this.currentLanguage === 'en'}">
+                    <span class="fi fi-gb" aria-hidden="true"></span> EN
                 </button>
             </div>
         `;
+    }
+
+    setupLanguageToggleListeners() {
+        const langButtons = this.wikipediaPanel.querySelectorAll('.language-toggle button');
+        langButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const lang = button.getAttribute('data-lang');
+                this.toggleLanguage(lang);
+                
+                // Update button states
+                langButtons.forEach(btn => {
+                    btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+                    btn.setAttribute('aria-pressed', btn.getAttribute('data-lang') === lang);
+                });
+
+                // Refresh Wikipedia content
+                const currentSearchValue = this.searchInput.value.trim();
+                if (currentSearchValue) {
+                    this.updateWikipediaPanel(currentSearchValue);
+                }
+            });
+        });
+    }
+
+    toggleLanguage(lang) {
+        if (lang === 'it' || lang === 'en') {
+            this.currentLanguage = lang;
+            // The content refresh is now handled in the click event listener
+        }
     }
 
     cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections) {
