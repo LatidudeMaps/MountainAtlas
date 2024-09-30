@@ -389,9 +389,11 @@ export class UIManager {
         }
     
         this.wikipediaPanel.style.display = 'block';
+        
+        // Clear existing content and add language toggle
         this.wikipediaPanel.innerHTML = this.createLanguageToggle();
-
-        // Add this new line to set up event listeners
+        
+        // Set up event listeners for language toggle
         this.setupLanguageToggleListeners();
     
         const matchingLayers = this.layerManager.getMatchingLayers(name);
@@ -432,21 +434,10 @@ export class UIManager {
     setupLanguageToggleListeners() {
         const langButtons = this.wikipediaPanel.querySelectorAll('.language-toggle button');
         langButtons.forEach(button => {
-            button.addEventListener('click', () => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault(); // Prevent default button behavior
                 const lang = button.getAttribute('data-lang');
                 this.toggleLanguage(lang);
-                
-                // Update button states
-                langButtons.forEach(btn => {
-                    btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
-                    btn.setAttribute('aria-pressed', btn.getAttribute('data-lang') === lang);
-                });
-
-                // Refresh Wikipedia content
-                const currentSearchValue = this.searchInput.value.trim();
-                if (currentSearchValue) {
-                    this.updateWikipediaPanel(currentSearchValue);
-                }
             });
         });
     }
@@ -454,7 +445,20 @@ export class UIManager {
     toggleLanguage(lang) {
         if (lang === 'it' || lang === 'en') {
             this.currentLanguage = lang;
-            // The content refresh is now handled in the click event listener
+            
+            // Update button states
+            const langButtons = this.wikipediaPanel.querySelectorAll('.language-toggle button');
+            langButtons.forEach(btn => {
+                const isActive = btn.getAttribute('data-lang') === lang;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-pressed', isActive);
+            });
+
+            // Refresh Wikipedia content
+            const currentSearchValue = this.searchInput.value.trim();
+            if (currentSearchValue) {
+                this.updateWikipediaPanel(currentSearchValue);
+            }
         }
     }
 
