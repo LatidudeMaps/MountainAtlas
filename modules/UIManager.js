@@ -7,15 +7,18 @@ export class UIManager {
         this.layerManager = layerManager;
         this.mapManager = mapManager;
         this.filterControl = null;
-        this.searchInput = document.querySelector('#search-input');
         this.searchSuggestions = null;
         this.hierLvlSlider = null;
         this.hierLvlValue = null;
-        this.wikipediaPanel = null;
+        this.wikipediaPanel = document.getElementById('wikipedia-panel');
+        this.searchInput = document.getElementById('search-input');
         this.isDraggingWikiPanel = false;
         this.currentLanguage = 'it';
         this.highestPeaksPanel = null;
         this.disclaimerAccepted = false;
+
+        // Add this line to set up the event listener once
+        this.setupLanguageToggleListener();
     }
 
     initializeElements(filterControl) {
@@ -392,9 +395,6 @@ export class UIManager {
         
         // Clear existing content and add language toggle
         this.wikipediaPanel.innerHTML = this.createLanguageToggle();
-        
-        // Set up event listeners for language toggle
-        this.setupLanguageToggleListeners();
     
         const matchingLayers = this.layerManager.getMatchingLayers(name);
         if (matchingLayers.length > 0) {
@@ -431,14 +431,13 @@ export class UIManager {
         `;
     }
 
-    setupLanguageToggleListeners() {
-        const langButtons = this.wikipediaPanel.querySelectorAll('.language-toggle button');
-        langButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault(); // Prevent default button behavior
+    setupLanguageToggleListener() {
+        this.wikipediaPanel.addEventListener('click', (e) => {
+            if (e.target.closest('.language-toggle button')) {
+                const button = e.target.closest('.language-toggle button');
                 const lang = button.getAttribute('data-lang');
                 this.toggleLanguage(lang);
-            });
+            }
         });
     }
 
