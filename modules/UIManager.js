@@ -16,8 +16,6 @@ export class UIManager {
         this.currentLanguage = 'it';
         this.highestPeaksPanel = null;
         this.disclaimerAccepted = false;
-        this.handleResize = this.handleResize.bind(this);
-        window.addEventListener('resize', this.handleResize);
     }
 
     initializeElements(filterControl) {
@@ -581,25 +579,5 @@ export class UIManager {
             isDragging = false;
             this.filterHandler(this.hierLvlSlider.value);
         });
-    }
-
-    handleResize() {
-        console.log('Window resized, reinitializing UI elements');
-        const currentSliderValue = this.hierLvlSlider ? this.hierLvlSlider.value : "4";
-        const currentSearchValue = this.searchInput ? this.searchInput.value : "";
-
-        this.initializeUIComponents();
-        this.setupEventListeners();
-
-        if (this.hierLvlSlider && this.hierLvlValue) {
-            this.hierLvlSlider.value = currentSliderValue;
-            this.hierLvlValue.textContent = currentSliderValue;
-        }
-
-        if (this.searchInput) {
-            this.searchInput.value = currentSearchValue;
-        }
-
-        this.updateHighestPeaksPanel();
     }
 }

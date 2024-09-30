@@ -184,9 +184,6 @@ export class ControlManager {
         const handleResize = () => {
             const isMobile = window.innerWidth <= 768;
             this.unifiedControl.setPosition(isMobile ? 'topleft' : 'topright');
-            if (this.uiManager) {
-                this.uiManager.handleResize();
-            }
         };
 
         window.addEventListener('resize', handleResize);
