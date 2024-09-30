@@ -7,18 +7,15 @@ export class UIManager {
         this.layerManager = layerManager;
         this.mapManager = mapManager;
         this.filterControl = null;
+        this.searchInput = null;
         this.searchSuggestions = null;
         this.hierLvlSlider = null;
         this.hierLvlValue = null;
-        this.wikipediaPanel = document.getElementById('wikipedia-panel');
-        this.searchInput = document.getElementById('search-input');
+        this.wikipediaPanel = null;
         this.isDraggingWikiPanel = false;
         this.currentLanguage = 'it';
         this.highestPeaksPanel = null;
         this.disclaimerAccepted = false;
-
-        // Add this line to set up the event listener once
-        this.setupLanguageToggleListener();
     }
 
     initializeElements(filterControl) {
@@ -319,6 +316,47 @@ export class UIManager {
         }
     }
 
+    toggleLanguage(lang) {
+        if (lang === 'it' || lang === 'en') {
+            this.currentLanguage = lang;
+            const currentSearchValue = this.searchInput.value.trim();
+            if (currentSearchValue) {
+                this.updateWikipediaPanel(currentSearchValue);
+            }
+        }
+    }
+
+    updateWikipediaPanel(name) {
+        if (!name) {
+            this.wikipediaPanel.style.display = 'none';
+            return;
+        }
+    
+        this.wikipediaPanel.style.display = 'block';
+        this.wikipediaPanel.innerHTML = this.createLanguageToggle();
+    
+        const matchingLayers = this.layerManager.getMatchingLayers(name);
+        if (matchingLayers.length > 0) {
+            const properties = matchingLayers[0].properties;
+            const wikiUrl = this.currentLanguage === 'it' ? properties.wiki_url_it : properties.wiki_url_en;
+            
+            if (wikiUrl) {
+                this.fetchWikipediaContent(wikiUrl);
+            } else {
+                const message = this.currentLanguage === 'it' 
+                    ? '<p>Info non disponibili</p>'
+                    : '<p>Information not available in English</p>';
+                this.wikipediaPanel.innerHTML += message;
+            }
+        } else {
+            this.wikipediaPanel.innerHTML += '<p>No matching content found</p>';
+        }
+
+        // Remove any inline positioning styles
+        this.wikipediaPanel.style.top = '';
+        this.wikipediaPanel.style.bottom = '';
+    }
+
     handleWikiPanelWheel(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -385,80 +423,17 @@ export class UIManager {
         this.wikipediaPanel.innerHTML = this.createLanguageToggle() + `<p>${errorMessage}</p>`;
     }
 
-    updateWikipediaPanel(name) {
-        if (!name) {
-            this.wikipediaPanel.style.display = 'none';
-            return;
-        }
-    
-        this.wikipediaPanel.style.display = 'block';
-        
-        // Clear existing content and add language toggle
-        this.wikipediaPanel.innerHTML = this.createLanguageToggle();
-    
-        const matchingLayers = this.layerManager.getMatchingLayers(name);
-        if (matchingLayers.length > 0) {
-            const properties = matchingLayers[0].properties;
-            const wikiUrl = this.currentLanguage === 'it' ? properties.wiki_url_it : properties.wiki_url_en;
-            
-            if (wikiUrl) {
-                this.fetchWikipediaContent(wikiUrl);
-            } else {
-                const message = this.currentLanguage === 'it' 
-                    ? '<p>Info non disponibili</p>'
-                    : '<p>Information not available in English</p>';
-                this.wikipediaPanel.innerHTML += message;
-            }
-        } else {
-            this.wikipediaPanel.innerHTML += '<p>No matching content found</p>';
-        }
-
-        // Remove any inline positioning styles
-        this.wikipediaPanel.style.top = '';
-        this.wikipediaPanel.style.bottom = '';
-    }
-
     createLanguageToggle() {
         return `
-            <div class="language-toggle" role="group" aria-label="Language selection">
-                <button class="${this.currentLanguage === 'it' ? 'active' : ''}" data-lang="it" aria-pressed="${this.currentLanguage === 'it'}">
-                    <span class="fi fi-it" aria-hidden="true"></span> IT
+            <div class="language-toggle">
+                <button class="${this.currentLanguage === 'it' ? 'active' : ''}" onclick="uiManager.toggleLanguage('it')">
+                    <span class="fi fi-it"></span> IT
                 </button>
-                <button class="${this.currentLanguage === 'en' ? 'active' : ''}" data-lang="en" aria-pressed="${this.currentLanguage === 'en'}">
-                    <span class="fi fi-gb" aria-hidden="true"></span> EN
+                <button class="${this.currentLanguage === 'en' ? 'active' : ''}" onclick="uiManager.toggleLanguage('en')">
+                    <span class="fi fi-gb"></span> EN
                 </button>
             </div>
         `;
-    }
-
-    setupLanguageToggleListener() {
-        this.wikipediaPanel.addEventListener('click', (e) => {
-            if (e.target.closest('.language-toggle button')) {
-                const button = e.target.closest('.language-toggle button');
-                const lang = button.getAttribute('data-lang');
-                this.toggleLanguage(lang);
-            }
-        });
-    }
-
-    toggleLanguage(lang) {
-        if (lang === 'it' || lang === 'en') {
-            this.currentLanguage = lang;
-            
-            // Update button states
-            const langButtons = this.wikipediaPanel.querySelectorAll('.language-toggle button');
-            langButtons.forEach(btn => {
-                const isActive = btn.getAttribute('data-lang') === lang;
-                btn.classList.toggle('active', isActive);
-                btn.setAttribute('aria-pressed', isActive);
-            });
-
-            // Refresh Wikipedia content
-            const currentSearchValue = this.searchInput.value.trim();
-            if (currentSearchValue) {
-                this.updateWikipediaPanel(currentSearchValue);
-            }
-        }
     }
 
     cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections) {
