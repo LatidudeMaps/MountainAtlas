@@ -10,6 +10,10 @@ export class LayerManager {
         this.visiblePeaksCache = new Map();
         this.currentOpacity = 1;
         this.uiManager = null; // We'll set this later
+        this.overlayLayers = {
+            "Mountain Areas": this.mountainAreasLayer,
+            "OSM Peaks": this.markers
+        };
     }
 
     initMountainAreasLayer() {
@@ -269,10 +273,40 @@ export class LayerManager {
     }
 
     resetLayers() {
+        const visibleOverlays = this.getVisibleOverlays();
+        
         this.mountainAreasLayer.clearLayers();
         this.markers.clearLayers();
+        
         if (this.allMountainAreas) {
             this.mountainAreasLayer.addData(this.allMountainAreas);
         }
+        
+        this.restoreVisibleOverlays(visibleOverlays);
+    }
+
+    getVisibleOverlays() {
+        return Object.entries(this.overlayLayers)
+            .filter(([name, layer]) => this.map.hasLayer(layer))
+            .map(([name]) => name);
+    }
+
+    restoreVisibleOverlays(visibleOverlays) {
+        visibleOverlays.forEach(name => {
+            if (this.overlayLayers[name]) {
+                this.map.addLayer(this.overlayLayers[name]);
+            }
+        });
+    }
+
+    getUniqueHierLevels() {
+        if (!this.allMountainAreas || !this.allMountainAreas.features) {
+            console.warn('Mountain areas data not loaded or invalid');
+            return [];
+        }
+        const hierLevels = this.allMountainAreas.features
+            .map(feature => feature.properties?.Hier_lvl)
+            .filter(level => level !== undefined && level !== null);
+        return [...new Set(hierLevels)].sort((a, b) => a - b);
     }
 }

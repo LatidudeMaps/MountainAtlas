@@ -18,6 +18,8 @@ export class UIManager {
         this.disclaimerAccepted = false;
         this.handleResize = debounce(this.reinitializeUI.bind(this), 250);
         this.currentHierLevel = null; // Add this line to store the current hierarchy level
+        this.minHierLevel = null;
+        this.maxHierLevel = null;
     }
 
     initializeElements(filterControl) {
@@ -27,6 +29,11 @@ export class UIManager {
         this.setupEventListeners();
         this.setupWikipediaPanel();
         this.setupHighestPeaksPanel();
+        
+        // Set initial min and max hier levels
+        const hierLevels = this.layerManager.getUniqueHierLevels();
+        this.minHierLevel = Math.min(...hierLevels);
+        this.maxHierLevel = Math.max(...hierLevels);
         
         // Add resize event listener
         window.addEventListener('resize', this.handleResize);
@@ -41,8 +48,8 @@ export class UIManager {
         if (this.currentHierLevel) {
             console.log('Reapplying filter with value:', this.currentHierLevel);
             this.updateHierLevelSlider(
-                Math.min(...this.layerManager.dataLoader.getUniqueHierLevels()),
-                Math.max(...this.layerManager.dataLoader.getUniqueHierLevels()),
+                this.minHierLevel,
+                this.maxHierLevel,
                 parseInt(this.currentHierLevel)
             );
             this.filterHandler(this.currentHierLevel);

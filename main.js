@@ -51,9 +51,14 @@ class App {
 
     reinitializeApp() {
         console.log('Reinitializing app after resize');
+        const visibleOverlays = this.layerManager.getVisibleOverlays();
+        
         this.mapManager.resetView();
         this.layerManager.resetLayers();
         this.controlManager.reinitializeControls();
+        
+        // Restore visible overlays
+        this.layerManager.restoreVisibleOverlays(visibleOverlays);
         
         // Use the current hierarchy level from UIManager
         const currentHierLevel = this.uiManager.currentHierLevel || "4"; // Default to "4" if not set
