@@ -3,7 +3,6 @@ import { LayerManager } from './modules/LayerManager.js';
 import { ControlManager } from './modules/ControlManager.js';
 import { DataLoader } from './modules/DataLoader.js';
 import { UIManager } from './modules/UIManager.js';
-import { debounce } from './utils/helpers.js';
 
 class App {
     constructor() {
@@ -17,7 +16,6 @@ class App {
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
         this.mapInitialized = false;
         this.setupInfoButton();
-        this.handleResize = debounce(this.reinitializeApp.bind(this), 250);
     }
 
     async init() {
@@ -37,32 +35,11 @@ class App {
                 this.hideLoading();
             });
 
-            this.setupResizeHandler();
             console.log('App initialization complete');
         } catch (error) {
             console.error('Error initializing app:', error);
             this.handleInitializationError(error);
         }
-    }
-
-    setupResizeHandler() {
-        window.addEventListener('resize', this.handleResize);
-    }
-
-    reinitializeApp() {
-        console.log('Reinitializing app after resize');
-        const visibleOverlays = this.layerManager.getVisibleOverlays();
-        
-        this.mapManager.resetView();
-        this.layerManager.resetLayers();
-        this.controlManager.reinitializeControls();
-        
-        // Restore visible overlays
-        this.layerManager.restoreVisibleOverlays(visibleOverlays);
-        
-        // Use the current hierarchy level from UIManager
-        const currentHierLevel = this.uiManager.currentHierLevel || "4"; // Default to "4" if not set
-        this.handleFilterChange(currentHierLevel);
     }
 
     initializeUI() {

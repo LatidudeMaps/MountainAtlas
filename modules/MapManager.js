@@ -130,8 +130,9 @@ export class MapManager {
 
     resetView() {
         if (this.initialBounds) {
-            this.map.invalidateSize();
             this.map.fitBounds(this.initialBounds);
+        } else {
+            console.warn('Unable to reset view: initialBounds is not set');
         }
     }
 

@@ -16,10 +16,6 @@ export class UIManager {
         this.currentLanguage = 'it';
         this.highestPeaksPanel = null;
         this.disclaimerAccepted = false;
-        this.handleResize = debounce(this.reinitializeUI.bind(this), 250);
-        this.currentHierLevel = null; // Add this line to store the current hierarchy level
-        this.minHierLevel = null;
-        this.maxHierLevel = null;
     }
 
     initializeElements(filterControl) {
@@ -29,39 +25,6 @@ export class UIManager {
         this.setupEventListeners();
         this.setupWikipediaPanel();
         this.setupHighestPeaksPanel();
-        
-        // Set initial min and max hier levels
-        const hierLevels = this.layerManager.getUniqueHierLevels();
-        this.minHierLevel = Math.min(...hierLevels);
-        this.maxHierLevel = Math.max(...hierLevels);
-        
-        // Add resize event listener
-        window.addEventListener('resize', this.handleResize);
-    }
-
-    reinitializeUI() {
-        console.log('Reinitializing UI after resize');
-        this.initializeUIComponents();
-        this.setupEventListeners();
-        
-        // Reapply the current filter
-        if (this.currentHierLevel) {
-            console.log('Reapplying filter with value:', this.currentHierLevel);
-            this.updateHierLevelSlider(
-                this.minHierLevel,
-                this.maxHierLevel,
-                parseInt(this.currentHierLevel)
-            );
-            this.filterHandler(this.currentHierLevel);
-        }
-        
-        // Update search suggestions if there's a current search
-        if (this.searchInput && this.searchInput.value) {
-            this.updateSearchSuggestions();
-        }
-        
-        // Update highest peaks panel
-        this.updateHighestPeaksPanel();
     }
 
     initializeUIComponents() {
@@ -261,7 +224,6 @@ export class UIManager {
         this.hierLvlSlider.max = max;
         this.hierLvlSlider.value = value;
         this.hierLvlValue.textContent = value;
-        this.currentHierLevel = value; // Update current level when slider is updated
     }
 
     clearSearch() {
@@ -589,12 +551,10 @@ export class UIManager {
 
         this.hierLvlSlider.addEventListener('input', () => {
             this.hierLvlValue.textContent = this.hierLvlSlider.value;
-            this.currentHierLevel = this.hierLvlSlider.value; // Update current level on input
         });
 
         this.hierLvlSlider.addEventListener('change', () => {
             console.log('Slider value changed to:', this.hierLvlSlider.value);
-            this.currentHierLevel = this.hierLvlSlider.value; // Update current level on change
             this.filterHandler(this.hierLvlSlider.value);
         });
 
