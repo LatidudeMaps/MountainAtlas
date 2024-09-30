@@ -16,6 +16,7 @@ export class UIManager {
         this.currentLanguage = 'it';
         this.highestPeaksPanel = null;
         this.disclaimerAccepted = false;
+        this.handleResize = debounce(this.reinitializeUI.bind(this), 250);
     }
 
     initializeElements(filterControl) {
@@ -25,6 +26,28 @@ export class UIManager {
         this.setupEventListeners();
         this.setupWikipediaPanel();
         this.setupHighestPeaksPanel();
+        
+        // Add resize event listener
+        window.addEventListener('resize', this.handleResize);
+    }
+
+    reinitializeUI() {
+        console.log('Reinitializing UI after resize');
+        this.initializeUIComponents();
+        this.setupEventListeners();
+        
+        // Reapply the current filter
+        if (this.hierLvlSlider) {
+            this.filterHandler(this.hierLvlSlider.value);
+        }
+        
+        // Update search suggestions if there's a current search
+        if (this.searchInput && this.searchInput.value) {
+            this.updateSearchSuggestions();
+        }
+        
+        // Update highest peaks panel
+        this.updateHighestPeaksPanel();
     }
 
     initializeUIComponents() {

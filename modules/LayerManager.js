@@ -267,4 +267,12 @@ export class LayerManager {
         });
         return Array.from(uniquePeaks.values());
     }
+
+    resetLayers() {
+        this.mountainAreasLayer.clearLayers();
+        this.markers.clearLayers();
+        if (this.allMountainAreas) {
+            this.mountainAreasLayer.addData(this.allMountainAreas);
+        }
+    }
 }

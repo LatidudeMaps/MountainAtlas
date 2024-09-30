@@ -189,4 +189,12 @@ export class ControlManager {
         window.addEventListener('resize', handleResize);
         handleResize();
     }
+
+    reinitializeControls() {
+        if (this.unifiedControl) {
+            this.mapManager.map.removeControl(this.unifiedControl);
+        }
+        this.unifiedControl = this.addUnifiedControl();
+        this.handleResponsiveControls();
+    }
 }

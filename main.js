@@ -3,6 +3,7 @@ import { LayerManager } from './modules/LayerManager.js';
 import { ControlManager } from './modules/ControlManager.js';
 import { DataLoader } from './modules/DataLoader.js';
 import { UIManager } from './modules/UIManager.js';
+import { debounce } from './utils/helpers.js';
 
 class App {
     constructor() {
@@ -16,6 +17,7 @@ class App {
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
         this.mapInitialized = false;
         this.setupInfoButton();
+        this.handleResize = debounce(this.reinitializeApp.bind(this), 250);
     }
 
     async init() {
@@ -35,11 +37,24 @@ class App {
                 this.hideLoading();
             });
 
+            this.setupResizeHandler();
             console.log('App initialization complete');
         } catch (error) {
             console.error('Error initializing app:', error);
             this.handleInitializationError(error);
         }
+    }
+
+    setupResizeHandler() {
+        window.addEventListener('resize', this.handleResize);
+    }
+
+    reinitializeApp() {
+        console.log('Reinitializing app after resize');
+        this.mapManager.resetView();
+        this.layerManager.resetLayers();
+        this.controlManager.reinitializeControls();
+        this.applyInitialFilter();
     }
 
     initializeUI() {
