@@ -268,6 +268,7 @@ class App {
         }
         if (this.uiManager) {
             this.uiManager.updateHighestPeaksPanel();
+            this.uiManager.updateSearchSuggestions(true);
         }
     }
 }
