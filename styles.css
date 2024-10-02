@@ -599,6 +599,7 @@ body, html {
 .popup-content h2 {
     margin-top: 0;
     color: var(--color-text);
+    text-align: center;
 }
 
 #accept-disclaimer {
@@ -613,6 +614,7 @@ body, html {
     font-size: var(--font-size-small);
     transition: background-color 0.3s;
     font-family: var(--font-family);
+    text-align: center;
 }
 
 #accept-disclaimer:hover {
