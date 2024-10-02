@@ -135,12 +135,6 @@ export class LayerManager {
         });
     }
 
-    getCurrentHierLevelMountainAreaNames() {
-        return this.filteredMountainAreas
-            .map(feature => feature.properties.MapName_it || feature.properties.MapName)
-            .filter(name => name); // Remove any undefined names
-    }
-
     setUIManager(uiManager) {
         this.uiManager = uiManager;
     }
@@ -269,10 +263,16 @@ export class LayerManager {
     }
 
     getUniqueHierLevels() {
-        if (!this.allMountainAreas || !this.allMountainAreas.features) return [];
+        if (!this.allMountainAreas) return [];
         const hierLevels = this.allMountainAreas.features
             .map(feature => feature.properties.Hier_lvl)
             .filter(level => level !== undefined && level !== null);
         return [...new Set(hierLevels)].sort((a, b) => a - b);
+    }
+    
+    getCurrentHierLevelMountainAreaNames() {
+        return this.filteredMountainAreas
+            .map(feature => feature.properties.MapName_it || feature.properties.MapName)
+            .filter(name => name); // Remove any undefined names
     }
 }
