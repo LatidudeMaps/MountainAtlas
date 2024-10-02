@@ -183,13 +183,11 @@ export class ControlManager {
     }
 
     handleResponsiveControls() {
-        const handleResize = () => {
-            this.isMobile = window.innerWidth <= 768;
-            this.updateControlPosition();
-        };
-
-        window.addEventListener('resize', handleResize);
-        handleResize(); // Call once to set initial state
+        const isMobile = window.innerWidth <= 768;
+        if (this.unifiedControl) {
+            this.unifiedControl.setPosition(isMobile ? 'topleft' : 'topright');
+        }
+        // Reinitialize other controls if needed
     }
 
     updateControlPosition() {

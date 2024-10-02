@@ -184,4 +184,10 @@ export class MapManager {
         window.addEventListener('resize', handleResize);
         handleResize(); // Call once to set initial state
     }
+
+    invalidateMapSize() {
+        if (this.map) {
+            this.map.invalidateSize();
+        }
+    }
 }

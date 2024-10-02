@@ -596,6 +596,19 @@ export class UIManager {
             this.restorePanelsForDesktop();
         }
         this.updateControlSizes();
+        
+        // Reinitialize the hierarchy level slider
+        const uniqueHierLevels = this.layerManager.getUniqueHierLevels();
+        if (uniqueHierLevels.length > 0) {
+            this.updateHierLevelSlider(
+                Math.min(...uniqueHierLevels),
+                Math.max(...uniqueHierLevels),
+                this.hierLvlSlider.value || Math.min(...uniqueHierLevels)
+            );
+        }
+        
+        // Update search suggestions
+        this.updateSearchSuggestions(true);
     }
 
     movePanelsForMobile() {

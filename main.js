@@ -245,21 +245,19 @@ class App {
     }
 
     setupResponsiveHandling() {
-        window.addEventListener('resize', this.handleResize.bind(this));
-        this.handleResize();
+        window.addEventListener('resize', debounce(() => {
+            this.handleResize();
+        }, 250));
     }
 
     handleResize() {
-        const isMobile = window.innerWidth <= 768;
-        document.body.classList.toggle('mobile-view', isMobile);
-        
-        if (this.uiManager) {
-            this.uiManager.updateLayoutForScreenSize();
-        }
-        
-        if (this.mapManager && this.mapManager.map) {
-            this.mapManager.map.invalidateSize();
-        }
+        console.log('Handling resize event');
+        this.mapManager.map.invalidateSize();
+        this.uiManager.updateLayoutForScreenSize();
+        this.controlManager.handleResponsiveControls();
+        this.layerManager.resetHighlight();
+        this.uiManager.updateHighestPeaksPanel();
+        this.uiManager.updateSearchSuggestions(true);
     }
 }
 
