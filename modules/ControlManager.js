@@ -1,10 +1,11 @@
 export class ControlManager {
-    constructor(mapManager, layerManager, uiManager) {
+    constructor(mapManager, layerManager, uiManager, dataLoader) {
         this.mapManager = mapManager;
         this.layerManager = layerManager;
         this.uiManager = uiManager;
+        this.dataLoader = dataLoader;
         this.unifiedControl = null;
-        this.defaultOpacity = 1; // Add this line to store the default opacity
+        this.defaultOpacity = 1;
     }
 
     initControls() {
@@ -156,7 +157,7 @@ export class ControlManager {
         const slider = filterSection.querySelector('#hier-lvl-slider');
         const sliderValue = filterSection.querySelector('#hier-lvl-value');
         if (slider && sliderValue) {
-            const uniqueHierLevels = this.layerManager.dataLoader.getUniqueHierLevels();
+            const uniqueHierLevels = this.dataLoader.getUniqueHierLevels();
             if (uniqueHierLevels.length > 0) {
                 const min = Math.min(...uniqueHierLevels);
                 const max = Math.max(...uniqueHierLevels);

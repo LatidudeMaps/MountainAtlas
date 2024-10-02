@@ -9,7 +9,7 @@ class App {
         console.log('App constructor called');
         this.mapManager = new MapManager('map');
         this.dataLoader = new DataLoader();
-        this.layerManager = new LayerManager(this.mapManager.map);
+        this.layerManager = new LayerManager(this.mapManager.map, this.dataLoader);
         this.uiManager = null;
         this.controlManager = null;
         this.loadingIndicator = document.getElementById('loading-indicator');
@@ -29,7 +29,6 @@ class App {
             this.applyInitialFilter();
             this.setupMapEventListeners();
             
-            // Wait for the map to be fully initialized before updating the highest peaks panel
             this.mapManager.map.once('moveend', () => {
                 this.uiManager.updateHighestPeaksPanel();
                 this.hideLoading();
@@ -42,6 +41,13 @@ class App {
         }
     }
 
+    async loadData() {
+        await this.dataLoader.loadMountainAreas();
+        await this.dataLoader.loadOsmPeaks();
+        this.layerManager.setMountainAreasData(this.dataLoader.mountainAreasData);
+        this.layerManager.setOsmPeaksData(this.dataLoader.allOsmPeaks);
+    }
+
     initializeUI() {
         console.log('Initializing UI...');
         this.uiManager = new UIManager(
@@ -51,15 +57,12 @@ class App {
             this.mapManager
         );
     
-        this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
+        this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager, this.dataLoader);
         const unifiedControl = this.controlManager.initControls();
         
         this.uiManager.initializeElements(unifiedControl);
         
-        // Connect UIManager to MapManager
         this.mapManager.setUIManager(this.uiManager);
-        
-        // Connect UIManager to LayerManager
         this.layerManager.setUIManager(this.uiManager);
         
         console.log('UI initialization complete');
@@ -105,24 +108,6 @@ class App {
             Math.max(...this.dataLoader.getUniqueHierLevels()),
             parseInt(initialHierLevel)
         );
-    }
-
-    async loadData() {
-        console.log('Loading data...');
-        try {
-            const [mountainAreasData, osmPeaksData] = await Promise.all([
-                this.dataLoader.loadMountainAreas(),
-                this.dataLoader.loadOsmPeaks()
-            ]);
-            
-            this.layerManager.setMountainAreasData(mountainAreasData);
-            this.layerManager.setOsmPeaksData(osmPeaksData);
-            
-            console.log('Data loaded and set in LayerManager');
-        } catch (error) {
-            console.error('Error loading data:', error);
-            throw new Error('Failed to load necessary data');
-        }
     }
 
     handleFilterChange(selectedValue) {
