@@ -269,7 +269,7 @@ export class LayerManager {
     }
 
     getUniqueHierLevels() {
-        if (!this.allMountainAreas) return [];
+        if (!this.allMountainAreas || !this.allMountainAreas.features) return [];
         const hierLevels = this.allMountainAreas.features
             .map(feature => feature.properties.Hier_lvl)
             .filter(level => level !== undefined && level !== null);

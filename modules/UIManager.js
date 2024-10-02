@@ -18,6 +18,7 @@ export class UIManager {
         this.disclaimerAccepted = false;
         this.isMobile = window.innerWidth <= 768;
         this.setupResponsiveLayout();
+        this.initialized = false;
     }
 
     initializeElements(filterControl) {
@@ -27,6 +28,8 @@ export class UIManager {
         this.setupEventListeners();
         this.setupWikipediaPanel();
         this.setupHighestPeaksPanel();
+        this.setupResponsiveLayout();
+        this.initialized = true;
     }
 
     initializeUIComponents() {
@@ -582,7 +585,9 @@ export class UIManager {
     setupResponsiveLayout() {
         const handleResize = () => {
             this.isMobile = window.innerWidth <= 768;
-            this.updateLayoutForScreenSize();
+            if (this.initialized) {
+                this.updateLayoutForScreenSize();
+            }
         };
 
         window.addEventListener('resize', debounce(handleResize, 250));
@@ -590,25 +595,33 @@ export class UIManager {
     }
 
     updateLayoutForScreenSize() {
+        if (!this.initialized) return;
+
+        const unifiedControl = document.querySelector('.unified-control');
+        const highestPeaksPanel = document.querySelector('.highest-peaks-panel');
+        const wikipediaPanel = document.getElementById('wikipedia-panel');
+
         if (this.isMobile) {
             this.movePanelsForMobile();
         } else {
             this.restorePanelsForDesktop();
         }
-        this.updateControlSizes();
-        
-        // Reinitialize the hierarchy level slider
-        const uniqueHierLevels = this.layerManager.getUniqueHierLevels();
-        if (uniqueHierLevels.length > 0) {
-            this.updateHierLevelSlider(
-                Math.min(...uniqueHierLevels),
-                Math.max(...uniqueHierLevels),
-                this.hierLvlSlider.value || Math.min(...uniqueHierLevels)
-            );
+
+        if (unifiedControl) unifiedControl.style.width = this.isMobile ? 'calc(100% - 2rem)' : '18.75rem';
+        if (highestPeaksPanel) highestPeaksPanel.style.width = this.isMobile ? 'calc(100% - 2rem)' : '18.75rem';
+        if (wikipediaPanel) wikipediaPanel.style.width = this.isMobile ? 'calc(100% - 2rem)' : '18.75rem';
+
+        // Only update slider if it exists
+        if (this.hierLvlSlider && this.layerManager) {
+            const uniqueHierLevels = this.layerManager.getUniqueHierLevels();
+            if (uniqueHierLevels.length > 0) {
+                this.updateHierLevelSlider(
+                    Math.min(...uniqueHierLevels),
+                    Math.max(...uniqueHierLevels),
+                    this.hierLvlSlider.value
+                );
+            }
         }
-        
-        // Update search suggestions
-        this.updateSearchSuggestions(true);
     }
 
     movePanelsForMobile() {

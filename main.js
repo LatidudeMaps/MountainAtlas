@@ -30,6 +30,7 @@ class App {
             this.initializeMap();
             this.applyInitialFilter();
             this.setupMapEventListeners();
+            this.setupResponsiveHandling();
             
             // Wait for the map to be fully initialized before updating the highest peaks panel
             this.mapManager.map.once('moveend', () => {
@@ -253,12 +254,22 @@ class App {
 
     handleResize() {
         console.log('Handling resize event');
-        this.mapManager.map.invalidateSize();
-        this.uiManager.updateLayoutForScreenSize();
-        this.controlManager.handleResponsiveControls();
-        this.layerManager.resetHighlight();
-        this.uiManager.updateHighestPeaksPanel();
-        this.uiManager.updateSearchSuggestions(true);
+        if (this.mapManager && this.mapManager.map) {
+            this.mapManager.map.invalidateSize();
+        }
+        if (this.uiManager) {
+            this.uiManager.updateLayoutForScreenSize();
+        }
+        if (this.controlManager) {
+            this.controlManager.handleResponsiveControls();
+        }
+        if (this.layerManager) {
+            this.layerManager.resetHighlight();
+        }
+        if (this.uiManager) {
+            this.uiManager.updateHighestPeaksPanel();
+            this.uiManager.updateSearchSuggestions(true);
+        }
     }
 }
 
