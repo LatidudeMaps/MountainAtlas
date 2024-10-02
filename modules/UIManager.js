@@ -231,6 +231,7 @@ export class UIManager {
         const value = Math.round(pos * (this.hierLvlSlider.max - this.hierLvlSlider.min) + parseFloat(this.hierLvlSlider.min));
         this.hierLvlSlider.value = value;
         this.hierLvlValue.textContent = value;
+        this.filterHandler(value);
     }
 
     updateHierLevelSlider(min, max, value) {
@@ -571,14 +572,11 @@ export class UIManager {
         }
 
         this.hierLvlSlider.addEventListener('input', () => {
-            this.hierLvlValue.textContent = this.hierLvlSlider.value;
-            this.currentHierLevel = this.hierLvlSlider.value;
-        });
-
-        this.hierLvlSlider.addEventListener('change', () => {
-            console.log('Slider value changed to:', this.hierLvlSlider.value);
-            this.currentHierLevel = this.hierLvlSlider.value;
-            this.filterHandler(this.hierLvlSlider.value);
+            const value = this.hierLvlSlider.value;
+            this.hierLvlValue.textContent = value;
+            this.currentHierLevel = value;
+            // Update the map immediately on slider change
+            this.filterHandler(value);
         });
 
         this.setupTouchEvents();
