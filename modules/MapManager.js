@@ -5,8 +5,9 @@ export class MapManager {
         this.baseMaps = this.initBaseMaps();
         this.initialBounds = null;
         this.activeBaseMap = "Dark Positron";
-        this.uiManager = null; // We'll set this later
+        this.uiManager = null;
         this.setupMapEventListeners();
+        this.setupResponsiveControls();
     }
 
     initMap(mapId) {
@@ -166,5 +167,21 @@ export class MapManager {
 
     getBounds() {
         return this.map.getBounds();
+    }
+
+    setupResponsiveControls() {
+        const handleResize = () => {
+            const isMobile = window.innerWidth <= 768;
+            if (this.map) {
+                if (isMobile) {
+                    this.map.removeControl(this.map.zoomControl);
+                } else {
+                    this.map.addControl(this.map.zoomControl);
+                }
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Call once to set initial state
     }
 }

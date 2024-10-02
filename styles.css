@@ -13,9 +13,9 @@
 
     /* Typography */
     --font-family: 'Montserrat', Arial, sans-serif;
-    --font-size-base: 1rem;
-    --font-size-small: 0.75rem;
-    --font-size-large: 1rem;
+    --font-size-base: 16px;
+    --font-size-small: 0.875rem;
+    --font-size-large: 1.125rem;
     --line-height-base: 1.5;
 
     /* Spacing */
@@ -26,7 +26,7 @@
 
     /* Component Sizes */
     --control-panel-width: 18.75rem;
-    --input-height: 1.875rem;
+    --input-height: 2.5rem;
 
     /* Z-index levels */
     --z-index-base: 1;
@@ -35,13 +35,32 @@
 }
 
 /* Global Styles */
-body, html {
+html {
+    font-size: var(--font-size-base);
+}
+
+body {
     font-family: var(--font-family);
-    height: 100%;
+    font-size: 1rem;
+    line-height: var(--line-height-base);
     margin: 0;
     padding: 0;
-    font-size: var(--font-size-base);
-    line-height: var(--line-height-base);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* Responsive typography */
+@media (max-width: 768px) {
+    html {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    html {
+        font-size: 12px;
+    }
 }
 
 /* Map Container */
@@ -673,18 +692,78 @@ body, html {
 /* Responsive adjustments */
 @media (max-width: 768px) {
     :root {
-        --control-panel-width: calc(100% - 1.25rem);
+        --control-panel-width: calc(100% - 2rem);
     }
 
     .unified-control,
     .highest-peaks-panel,
     #wikipedia-panel {
         width: var(--control-panel-width);
-        margin-right: 0.625rem;
-        margin-left: 0.625rem;
+        margin-right: 1rem;
+        margin-left: 1rem;
     }
 
     #wikipedia-panel {
         height: 50vh;
+        max-height: none;
+    }
+
+    .leaflet-right {
+        width: 100%;
+    }
+
+    .leaflet-right .leaflet-control {
+        margin-right: 0;
+    }
+
+    .highest-peaks-panel,
+    #wikipedia-panel {
+        order: 0;
+    }
+
+    .unified-control {
+        order: 1;
+    }
+}
+
+@media (max-width: 480px) {
+    .unified-control,
+    .highest-peaks-panel,
+    #wikipedia-panel {
+        margin-right: 0.5rem;
+        margin-left: 0.5rem;
+    }
+
+    .control-group label {
+        font-size: var(--font-size-small);
+    }
+
+    #highest-peaks-table td {
+        font-size: 0.75rem;
+    }
+
+    .language-toggle button {
+        padding: 0.25rem;
+        font-size: 0.7rem;
+    }
+}
+
+/* Touch-friendly styles */
+@media (hover: none) and (pointer: coarse) {
+    .custom-button,
+    .select-arrow-container,
+    .suggestions-list li,
+    #highest-peaks-table tr {
+        min-height: 44px;
+    }
+
+    .custom-slider::-webkit-slider-thumb {
+        width: 28px;
+        height: 28px;
+    }
+
+    .custom-slider::-moz-range-thumb {
+        width: 28px;
+        height: 28px;
     }
 }

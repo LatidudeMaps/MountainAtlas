@@ -4,7 +4,8 @@ export class ControlManager {
         this.layerManager = layerManager;
         this.uiManager = uiManager;
         this.unifiedControl = null;
-        this.defaultOpacity = 1; // Add this line to store the default opacity
+        this.defaultOpacity = 1;
+        this.isMobile = window.innerWidth <= 768;
     }
 
     initControls() {
@@ -151,6 +152,7 @@ export class ControlManager {
         `;
         
         this.preventPropagation(filterSection);
+        this.setupTouchFriendlyControls(filterSection);
     }
 
     preventPropagation(element) {
@@ -182,11 +184,47 @@ export class ControlManager {
 
     handleResponsiveControls() {
         const handleResize = () => {
-            const isMobile = window.innerWidth <= 768;
-            this.unifiedControl.setPosition(isMobile ? 'topleft' : 'topright');
+            this.isMobile = window.innerWidth <= 768;
+            this.updateControlPosition();
         };
 
         window.addEventListener('resize', handleResize);
-        handleResize();
+        handleResize(); // Call once to set initial state
+    }
+
+    updateControlPosition() {
+        if (this.unifiedControl) {
+            this.unifiedControl.setPosition(this.isMobile ? 'topleft' : 'topright');
+        }
+    }
+
+    setupTouchFriendlyControls(filterSection) {
+        const slider = filterSection.querySelector('#hier-lvl-slider');
+        const searchInput = filterSection.querySelector('#search-input');
+
+        if (slider) {
+            slider.addEventListener('touchstart', this.handleSliderTouch.bind(this));
+            slider.addEventListener('touchmove', this.handleSliderTouch.bind(this));
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('focus', () => {
+                if (this.isMobile) {
+                    searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        }
+    }
+
+    handleSliderTouch(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const slider = e.target;
+        const rect = slider.getBoundingClientRect();
+        const pos = (touch.clientX - rect.left) / rect.width;
+        const newValue = Math.round(pos * (slider.max - slider.min) + parseInt(slider.min));
+        slider.value = newValue;
+        document.getElementById('hier-lvl-value').textContent = newValue;
+        this.uiManager.filterHandler(newValue);
     }
 }

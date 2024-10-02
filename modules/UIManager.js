@@ -16,6 +16,8 @@ export class UIManager {
         this.currentLanguage = 'it';
         this.highestPeaksPanel = null;
         this.disclaimerAccepted = false;
+        this.isMobile = window.innerWidth <= 768;
+        this.setupResponsiveLayout();
     }
 
     initializeElements(filterControl) {
@@ -50,7 +52,7 @@ export class UIManager {
     }
 
     setupHighestPeaksPanel() {
-        this.highestPeaksPanel = L.control({ position: 'topright' });
+        this.highestPeaksPanel = L.control({ position: this.isMobile ? 'topleft' : 'topright' });
         
         this.highestPeaksPanel.onAdd = () => {
             const container = L.DomUtil.create('div', 'highest-peaks-panel');
@@ -63,8 +65,6 @@ export class UIManager {
         };
         
         this.highestPeaksPanel.addTo(this.mapManager.map);
-        
-        // Don't update the panel here, we'll do it after the map is initialized
     }
 
     updateHighestPeaksPanel() {
@@ -105,14 +105,12 @@ export class UIManager {
         this.wikipediaPanel.id = 'wikipedia-panel';
         this.wikipediaPanel.style.display = 'none';
     
-        // Find the .leaflet-right container
-        const leafletRightContainer = document.querySelector('.leaflet-right');
-        if (leafletRightContainer) {
-            // Append the Wikipedia panel to the end of .leaflet-right
-            leafletRightContainer.appendChild(this.wikipediaPanel);
-            console.log('Wikipedia panel appended to .leaflet-right');
+        const container = this.isMobile ? document.body : document.querySelector('.leaflet-right');
+        if (container) {
+            container.appendChild(this.wikipediaPanel);
+            console.log('Wikipedia panel appended to container');
         } else {
-            console.error('Could not find .leaflet-right container');
+            console.error('Could not find container for Wikipedia panel');
         }
     
         this.setupWikiPanelEventListeners();
@@ -579,5 +577,70 @@ export class UIManager {
             isDragging = false;
             this.filterHandler(this.hierLvlSlider.value);
         });
+    }
+
+    setupResponsiveLayout() {
+        const handleResize = () => {
+            this.isMobile = window.innerWidth <= 768;
+            this.updateLayoutForScreenSize();
+        };
+
+        window.addEventListener('resize', debounce(handleResize, 250));
+        handleResize(); // Call once to set initial state
+    }
+
+    updateLayoutForScreenSize() {
+        if (this.isMobile) {
+            this.movePanelsForMobile();
+        } else {
+            this.restorePanelsForDesktop();
+        }
+        this.updateControlSizes();
+    }
+
+    movePanelsForMobile() {
+        const mapContainer = document.getElementById('map');
+        const highestPeaksPanel = document.querySelector('.highest-peaks-panel');
+        const wikipediaPanel = document.getElementById('wikipedia-panel');
+
+        if (highestPeaksPanel) {
+            mapContainer.parentNode.insertBefore(highestPeaksPanel, mapContainer);
+        }
+        if (wikipediaPanel) {
+            mapContainer.parentNode.insertBefore(wikipediaPanel, mapContainer.nextSibling);
+        }
+    }
+
+    restorePanelsForDesktop() {
+        const leafletRight = document.querySelector('.leaflet-right');
+        const highestPeaksPanel = document.querySelector('.highest-peaks-panel');
+        const wikipediaPanel = document.getElementById('wikipedia-panel');
+
+        if (leafletRight) {
+            if (highestPeaksPanel) {
+                leafletRight.appendChild(highestPeaksPanel);
+            }
+            if (wikipediaPanel) {
+                leafletRight.appendChild(wikipediaPanel);
+            }
+        }
+    }
+
+    updateControlSizes() {
+        const unifiedControl = document.querySelector('.unified-control');
+        const highestPeaksPanel = document.querySelector('.highest-peaks-panel');
+        const wikipediaPanel = document.getElementById('wikipedia-panel');
+
+        if (this.isMobile) {
+            const width = `calc(100% - 2rem)`;
+            if (unifiedControl) unifiedControl.style.width = width;
+            if (highestPeaksPanel) highestPeaksPanel.style.width = width;
+            if (wikipediaPanel) wikipediaPanel.style.width = width;
+        } else {
+            const width = `18.75rem`;
+            if (unifiedControl) unifiedControl.style.width = width;
+            if (highestPeaksPanel) highestPeaksPanel.style.width = width;
+            if (wikipediaPanel) wikipediaPanel.style.width = width;
+        }
     }
 }

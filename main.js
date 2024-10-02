@@ -16,6 +16,7 @@ class App {
         this.disclaimerPopup = document.getElementById('disclaimer-popup');
         this.mapInitialized = false;
         this.setupInfoButton();
+        this.setupResponsiveHandling();
     }
 
     async init() {
@@ -241,6 +242,24 @@ class App {
         console.log('No matching polygons found for:', searchValue);
         alert('No matching polygons found.');
         this.uiManager.updateWikipediaPanel(null);
+    }
+
+    setupResponsiveHandling() {
+        window.addEventListener('resize', this.handleResize.bind(this));
+        this.handleResize();
+    }
+
+    handleResize() {
+        const isMobile = window.innerWidth <= 768;
+        document.body.classList.toggle('mobile-view', isMobile);
+        
+        if (this.uiManager) {
+            this.uiManager.updateLayoutForScreenSize();
+        }
+        
+        if (this.mapManager && this.mapManager.map) {
+            this.mapManager.map.invalidateSize();
+        }
     }
 }
 
