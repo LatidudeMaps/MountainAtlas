@@ -15,6 +15,20 @@ export class ControlManager {
         return this.unifiedControl;
     }
 
+    addUnifiedControl() {
+        console.log('Adding unified control');
+        const unifiedControl = L.control({ position: 'topright' });
+        
+        unifiedControl.onAdd = () => {
+            const container = this.createControlContainer();
+            this.addLayerControl(container);
+            this.addFilterControl(container);
+            return container;
+        };
+        
+        return unifiedControl.addTo(this.mapManager.map);
+    }
+
     createControlContainer() {
         const container = L.DomUtil.create('div', 'unified-control');
         L.DomEvent.disableClickPropagation(container);
@@ -119,7 +133,7 @@ export class ControlManager {
         filterSection.innerHTML = `
             <div class="control-group">
                 <label for="hier-lvl-slider">GMBA Hierarchy Level: <span id="hier-lvl-value"></span></label>
-                <input type="range" id="hier-lvl-slider" class="custom-slider" min="1" max="10" step="1">
+                <input type="range" id="hier-lvl-slider" class="custom-slider">
             </div>
             <div class="control-group">
                 <label for="search-input">Search by GMBA MapName:</label>
@@ -137,21 +151,6 @@ export class ControlManager {
         `;
         
         this.preventPropagation(filterSection);
-
-        // Initialize the slider with default values
-        const slider = filterSection.querySelector('#hier-lvl-slider');
-        const sliderValue = filterSection.querySelector('#hier-lvl-value');
-        if (slider && sliderValue) {
-            const uniqueHierLevels = this.layerManager.dataLoader.getUniqueHierLevels();
-            if (uniqueHierLevels.length > 0) {
-                const min = Math.min(...uniqueHierLevels);
-                const max = Math.max(...uniqueHierLevels);
-                slider.min = min;
-                slider.max = max;
-                slider.value = min;
-                sliderValue.textContent = min;
-            }
-        }
     }
 
     preventPropagation(element) {

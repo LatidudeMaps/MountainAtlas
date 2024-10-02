@@ -1,7 +1,6 @@
 export class LayerManager {
-    constructor(map, dataLoader) {
+    constructor(map) {
         this.map = map;
-        this.dataLoader = dataLoader;
         this.mountainAreasLayer = this.initMountainAreasLayer();
         this.markers = this.initMarkers();
         this.allMountainAreas = null;
@@ -10,7 +9,7 @@ export class LayerManager {
         this.currentHierLevel = null;
         this.visiblePeaksCache = new Map();
         this.currentOpacity = 1;
-        this.uiManager = null;
+        this.uiManager = null; // We'll set this later
     }
 
     initMountainAreasLayer() {
