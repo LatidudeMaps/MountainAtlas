@@ -179,16 +179,25 @@ body, html {
     outline: none;
     opacity: 0.7;
     transition: opacity 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .custom-slider:hover {
     opacity: 1;
 }
 
-.custom-slider::-webkit-slider-thumb,
-.custom-slider::-moz-range-thumb {
+.custom-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    background: var(--color-primary);
+    cursor: pointer;
+}
+
+.custom-slider::-moz-range-thumb {
     width: 1.25rem;
     height: 1.25rem;
     border-radius: 50%;

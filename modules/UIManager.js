@@ -16,6 +16,7 @@ export class UIManager {
         this.currentLanguage = 'it';
         this.highestPeaksPanel = null;
         this.disclaimerAccepted = false;
+        this.currentHierLevel = null;
     }
 
     initializeElements(filterControl) {
@@ -25,6 +26,25 @@ export class UIManager {
         this.setupEventListeners();
         this.setupWikipediaPanel();
         this.setupHighestPeaksPanel();
+        this.setupWindowResizeHandler();
+    }
+
+    setupWindowResizeHandler() {
+        window.addEventListener('resize', debounce(() => {
+            this.reinitializeSlider();
+        }, 250));
+    }
+
+    reinitializeSlider() {
+        if (this.hierLvlSlider && this.layerManager) {
+            const uniqueHierLevels = this.layerManager.dataLoader.getUniqueHierLevels();
+            if (uniqueHierLevels.length > 0) {
+                const min = Math.min(...uniqueHierLevels);
+                const max = Math.max(...uniqueHierLevels);
+                const value = this.currentHierLevel || min;
+                this.updateHierLevelSlider(min, max, value);
+            }
+        }
     }
 
     initializeUIComponents() {
@@ -224,6 +244,7 @@ export class UIManager {
         this.hierLvlSlider.max = max;
         this.hierLvlSlider.value = value;
         this.hierLvlValue.textContent = value;
+        this.currentHierLevel = value;
     }
 
     clearSearch() {
@@ -551,10 +572,12 @@ export class UIManager {
 
         this.hierLvlSlider.addEventListener('input', () => {
             this.hierLvlValue.textContent = this.hierLvlSlider.value;
+            this.currentHierLevel = this.hierLvlSlider.value;
         });
 
         this.hierLvlSlider.addEventListener('change', () => {
             console.log('Slider value changed to:', this.hierLvlSlider.value);
+            this.currentHierLevel = this.hierLvlSlider.value;
             this.filterHandler(this.hierLvlSlider.value);
         });
 
