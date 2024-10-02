@@ -599,4 +599,9 @@ export class UIManager {
             this.filterHandler(this.hierLvlSlider.value);
         });
     }
+
+    handleResize() {
+        // Refresh search suggestions based on current filter
+        this.updateSearchSuggestions(true);
+    }
 }

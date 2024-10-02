@@ -8,6 +8,7 @@ export class ControlManager {
         this.defaultOpacity = 1;
         this.hierLvlSlider = null;
         this.hierLvlValue = null;
+        this.currentHierLevel = null;
     }
 
     initControls() {
@@ -68,12 +69,16 @@ export class ControlManager {
                 const max = Math.max(...uniqueHierLevels);
                 this.hierLvlSlider.min = min;
                 this.hierLvlSlider.max = max;
-                this.hierLvlSlider.value = min;
-                this.hierLvlValue.textContent = min;
+                
+                // Use the current value if it exists, otherwise use min
+                const value = this.currentHierLevel || min;
+                this.hierLvlSlider.value = value;
+                this.hierLvlValue.textContent = value;
 
                 this.hierLvlSlider.addEventListener('input', (e) => {
                     const value = e.target.value;
                     this.hierLvlValue.textContent = value;
+                    this.currentHierLevel = value;
                     this.uiManager.filterHandler(value);
                 });
             }
@@ -210,7 +215,12 @@ export class ControlManager {
         const handleResize = () => {
             const isMobile = window.innerWidth <= 768;
             this.unifiedControl.setPosition(isMobile ? 'topleft' : 'topright');
-            this.initializeSlider(); // Reinitialize slider on resize
+            // Don't reinitialize the slider, just ensure the current value is displayed correctly
+            if (this.hierLvlValue && this.currentHierLevel) {
+                this.hierLvlValue.textContent = this.currentHierLevel;
+            }
+            // Notify UIManager about the resize
+            this.uiManager.handleResize();
         };
 
         window.addEventListener('resize', handleResize);
