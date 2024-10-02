@@ -8,8 +8,8 @@ class App {
     constructor() {
         console.log('App constructor called');
         this.mapManager = new MapManager('map');
-        this.layerManager = new LayerManager(this.mapManager.map);
         this.dataLoader = new DataLoader();
+        this.layerManager = new LayerManager(this.mapManager.map);
         this.uiManager = null;
         this.controlManager = null;
         this.loadingIndicator = document.getElementById('loading-indicator');

@@ -15,6 +15,20 @@ export class ControlManager {
         return this.unifiedControl;
     }
 
+    addUnifiedControl() {
+        console.log('Adding unified control');
+        const unifiedControl = L.control({ position: 'topright' });
+        
+        unifiedControl.onAdd = () => {
+            const container = this.createControlContainer();
+            this.addLayerControl(container);
+            this.addFilterControl(container);
+            return container;
+        };
+        
+        return unifiedControl.addTo(this.mapManager.map);
+    }
+
     createControlContainer() {
         const container = L.DomUtil.create('div', 'unified-control');
         L.DomEvent.disableClickPropagation(container);
