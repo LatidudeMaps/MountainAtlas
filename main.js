@@ -68,6 +68,19 @@ class App {
         console.log('UI initialization complete');
     }
 
+    handleFilterChange(selectedValue) {
+        console.log('Filter change initiated with value:', selectedValue);
+        if (!this.dataLoader.isDataLoaded()) {
+            console.log('Data not fully loaded, skipping filter change');
+            return;
+        }
+
+        this.layerManager.filterMountainAreas(selectedValue);
+        this.layerManager.filterAndDisplayPeaks(selectedValue);
+        this.uiManager.updateSearchSuggestions();
+        this.uiManager.updateHighestPeaksPanel();
+    }
+
     initializeMap() {
         console.log('Initializing map');
         this.mapManager.setInitialExtent(this.layerManager.mountainAreasLayer);
@@ -108,19 +121,6 @@ class App {
             Math.max(...this.dataLoader.getUniqueHierLevels()),
             parseInt(initialHierLevel)
         );
-    }
-
-    handleFilterChange(selectedValue) {
-        console.log('Filter change initiated with value:', selectedValue);
-        if (!this.dataLoader.isDataLoaded()) {
-            console.log('Data not fully loaded, skipping filter change');
-            return;
-        }
-
-        this.layerManager.filterMountainAreas(selectedValue);
-        this.layerManager.filterAndDisplayPeaks(selectedValue);
-        this.uiManager.updateSearchSuggestions();
-        this.uiManager.updateHighestPeaksPanel();
     }
 
     handleSearch(searchValue) {

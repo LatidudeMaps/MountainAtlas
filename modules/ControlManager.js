@@ -6,13 +6,14 @@ export class ControlManager {
         this.dataLoader = dataLoader;
         this.unifiedControl = null;
         this.defaultOpacity = 1;
+        this.hierLvlSlider = null;
+        this.hierLvlValue = null;
     }
 
     initControls() {
         console.log('Initializing controls');
         this.unifiedControl = this.addUnifiedControl();
         this.handleResponsiveControls();
-        window.uiManager = this.uiManager;
         return this.unifiedControl;
     }
 
@@ -20,7 +21,7 @@ export class ControlManager {
         console.log('Adding unified control');
         const unifiedControl = L.control({ position: 'topright' });
         
-        unifiedControl.onAdd = () => {
+        unifiedControl.onAdd = (map) => {
             const container = this.createControlContainer();
             this.addLayerControl(container);
             this.addFilterControl(container);
@@ -28,6 +29,55 @@ export class ControlManager {
         };
         
         return unifiedControl.addTo(this.mapManager.map);
+    }
+
+    addFilterControl(container) {
+        const filterSection = L.DomUtil.create('div', 'control-section filter-control-section', container);
+        filterSection.innerHTML = `
+            <div class="control-group">
+                <label for="hier-lvl-slider">GMBA Hierarchy Level: <span id="hier-lvl-value"></span></label>
+                <input type="range" id="hier-lvl-slider" class="custom-slider" min="1" max="10" step="1">
+            </div>
+            <div class="control-group">
+                <label for="search-input">Search by GMBA MapName:</label>
+                <div class="input-button-group">
+                    <div class="custom-search">
+                        <input type="text" id="search-input" class="custom-select" placeholder="Search...">
+                        <button id="clear-search" class="clear-search-button" aria-label="Clear search">×</button>
+                        <div class="select-arrow-container">
+                            <div class="select-arrow"></div>
+                        </div>
+                        <div id="search-suggestions" class="search-suggestions"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        this.preventPropagation(filterSection);
+
+        this.hierLvlSlider = filterSection.querySelector('#hier-lvl-slider');
+        this.hierLvlValue = filterSection.querySelector('#hier-lvl-value');
+        this.initializeSlider();
+    }
+
+    initializeSlider() {
+        if (this.hierLvlSlider && this.hierLvlValue) {
+            const uniqueHierLevels = this.dataLoader.getUniqueHierLevels();
+            if (uniqueHierLevels.length > 0) {
+                const min = Math.min(...uniqueHierLevels);
+                const max = Math.max(...uniqueHierLevels);
+                this.hierLvlSlider.min = min;
+                this.hierLvlSlider.max = max;
+                this.hierLvlSlider.value = min;
+                this.hierLvlValue.textContent = min;
+
+                this.hierLvlSlider.addEventListener('input', (e) => {
+                    const value = e.target.value;
+                    this.hierLvlValue.textContent = value;
+                    this.uiManager.filterHandler(value);
+                });
+            }
+        }
     }
 
     createControlContainer() {
@@ -129,46 +179,6 @@ export class ControlManager {
         opacityValue.textContent = Math.round(currentOpacity * 100) + '%';
     }
 
-    addFilterControl(container) {
-        const filterSection = L.DomUtil.create('div', 'control-section filter-control-section', container);
-        filterSection.innerHTML = `
-            <div class="control-group">
-                <label for="hier-lvl-slider">GMBA Hierarchy Level: <span id="hier-lvl-value"></span></label>
-                <input type="range" id="hier-lvl-slider" class="custom-slider" min="1" max="10" step="1">
-            </div>
-            <div class="control-group">
-                <label for="search-input">Search by GMBA MapName:</label>
-                <div class="input-button-group">
-                    <div class="custom-search">
-                        <input type="text" id="search-input" class="custom-select" placeholder="Search...">
-                        <button id="clear-search" class="clear-search-button" aria-label="Clear search">×</button>
-                        <div class="select-arrow-container">
-                            <div class="select-arrow"></div>
-                        </div>
-                        <div id="search-suggestions" class="search-suggestions"></div>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        this.preventPropagation(filterSection);
-
-        // Initialize the slider with default values
-        const slider = filterSection.querySelector('#hier-lvl-slider');
-        const sliderValue = filterSection.querySelector('#hier-lvl-value');
-        if (slider && sliderValue) {
-            const uniqueHierLevels = this.dataLoader.getUniqueHierLevels();
-            if (uniqueHierLevels.length > 0) {
-                const min = Math.min(...uniqueHierLevels);
-                const max = Math.max(...uniqueHierLevels);
-                slider.min = min;
-                slider.max = max;
-                slider.value = min;
-                sliderValue.textContent = min;
-            }
-        }
-    }
-
     preventPropagation(element) {
         const stopPropagation = (e) => L.DomEvent.stop(e);
         const elements = {
@@ -200,9 +210,10 @@ export class ControlManager {
         const handleResize = () => {
             const isMobile = window.innerWidth <= 768;
             this.unifiedControl.setPosition(isMobile ? 'topleft' : 'topright');
+            this.initializeSlider(); // Reinitialize slider on resize
         };
 
         window.addEventListener('resize', handleResize);
-        handleResize();
+        handleResize(); // Initial call
     }
 }

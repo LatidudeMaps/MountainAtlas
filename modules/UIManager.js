@@ -26,7 +26,6 @@ export class UIManager {
         this.setupEventListeners();
         this.setupWikipediaPanel();
         this.setupHighestPeaksPanel();
-        this.setupWindowResizeHandler();
     }
 
     setupWindowResizeHandler() {
@@ -66,7 +65,7 @@ export class UIManager {
 
     setupEventListeners() {
         this.setupSearchListeners();
-        this.setupFilterListeners();
+        // Remove setupFilterListeners() from here as it's now handled in ControlManager
     }
 
     setupHighestPeaksPanel() {
@@ -245,7 +244,6 @@ export class UIManager {
         this.hierLvlSlider.max = max;
         this.hierLvlSlider.value = value;
         this.hierLvlValue.textContent = value;
-        this.currentHierLevel = value;
     }
 
     clearSearch() {
