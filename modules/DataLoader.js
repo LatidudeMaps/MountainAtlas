@@ -4,7 +4,7 @@ export class DataLoader {
         this.allOsmPeaks = null;
         this.mountainAreasLoaded = false;
         this.osmPeaksLoaded = false;
-        this.uniqueHierLevels = null;
+        this.uniqueHierLevels = new UniqueHierLevels();
     }
 
     async loadMountainAreas() {
@@ -54,16 +54,12 @@ export class DataLoader {
         const hierLevels = this.mountainAreasData.features
             .map(feature => feature.properties?.Hier_lvl)
             .filter(level => level !== undefined && level !== null);
-        this.uniqueHierLevels = [...new Set(hierLevels)].sort((a, b) => a - b);
-        console.log('Extracted unique hierarchy levels:', this.uniqueHierLevels);
+        this.uniqueHierLevels.setLevels([...new Set(hierLevels)].sort((a, b) => a - b));
+        console.log('Extracted unique hierarchy levels:', this.uniqueHierLevels.getLevels());
     }
 
     getUniqueHierLevels() {
-        if (!this.uniqueHierLevels) {
-            console.warn('Unique hierarchy levels not yet extracted');
-            return [];
-        }
-        return this.uniqueHierLevels;
+        return this.uniqueHierLevels.getLevels();
     }
 
     isDataLoaded() {
@@ -76,5 +72,19 @@ export class DataLoader {
 
     getOsmPeaksCount() {
         return this.allOsmPeaks ? this.allOsmPeaks.length : 0;
+    }
+}
+
+class UniqueHierLevels {
+    constructor() {
+        this.levels = [];
+    }
+
+    setLevels(levels) {
+        this.levels = levels;
+    }
+
+    getLevels() {
+        return this.levels;
     }
 }
