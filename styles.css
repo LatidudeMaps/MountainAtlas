@@ -63,6 +63,20 @@ body {
     }
 }
 
+/* Mobile search focus styles */
+body.search-focused {
+    /* Adjust layout when search is focused on mobile */
+    overflow: hidden;
+}
+
+body.search-focused .leaflet-control-container {
+    display: none;
+}
+
+body.search-focused #map {
+    height: 30vh; /* Adjust as needed */
+}
+
 /* Map Container */
 #map {
     height: 100%;
@@ -723,6 +737,30 @@ body {
 
     .unified-control {
         order: 1;
+    }
+
+    .custom-search {
+        position: static;
+    }
+
+    .search-suggestions {
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: auto;
+        bottom: 0;
+        max-height: 50vh;
+        z-index: var(--z-index-modal);
+    }
+
+    body.search-focused .search-suggestions {
+        display: block;
+    }
+
+    .custom-select,
+    #search-input,
+    .custom-button {
+        font-size: 16px; /* Prevent zoom on iOS */
     }
 }
 

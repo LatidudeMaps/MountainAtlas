@@ -18,6 +18,7 @@ export class UIManager {
         this.disclaimerAccepted = false;
         this.isMobile = window.innerWidth <= 768;
         this.setupResponsiveLayout();
+        this.searchInputFocused = false;
     }
 
     initializeElements(filterControl) {
@@ -176,29 +177,31 @@ export class UIManager {
             return;
         }
 
-        this.searchInput.addEventListener('focus', () => this.showSuggestions());
-        this.searchInput.addEventListener('input', debounce(() => this.updateSearchSuggestions(), 300));
-        this.searchInput.addEventListener('keydown', (e) => this.handleSearchKeydown(e));
-        this.searchInput.addEventListener('showAllSuggestions', () => this.updateSearchSuggestions(true));
+        this.searchInput.addEventListener('focus', () => {
+            this.showSuggestions();
+            this.searchInputFocused = true;
+            if (this.isMobile) {
+                this.handleMobileSearchFocus();
+            }
+        });
 
-        const searchContainer = this.filterControl.getContainer().querySelector('.custom-search');
-        if (searchContainer) {
-            searchContainer.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.showSuggestions();
-            });
-        } else {
-            console.error('Search container not found');
-        }
+        this.searchInput.addEventListener('blur', () => {
+            setTimeout(() => {
+                this.searchInputFocused = false;
+                if (this.isMobile) {
+                    this.handleMobileSearchBlur();
+                }
+            }, 300); // Delay to allow for suggestion selection
+        });
 
-        const clearSearchButton = this.filterControl.getContainer().querySelector('#clear-search');
-        if (clearSearchButton) {
-            clearSearchButton.addEventListener('click', () => this.clearSearch());
-        } else {
-            console.error('Clear search button not found');
-        }
+        // ... (keep other existing event listeners) ...
 
-        document.addEventListener('click', (e) => this.handleDocumentClick(e));
+        // Add a new method to handle touches outside the search area
+        document.addEventListener('touchstart', (e) => {
+            if (this.searchInputFocused && !e.target.closest('.custom-search')) {
+                this.searchInput.blur();
+            }
+        });
     }
 
     handleSliderTouch(e) {
@@ -596,6 +599,23 @@ export class UIManager {
             this.restorePanelsForDesktop();
         }
         this.updateControlSizes();
+        this.adjustSearchBehavior();
+    }
+
+    adjustSearchBehavior() {
+        if (this.isMobile) {
+            this.searchInput.setAttribute('readonly', 'readonly');
+            this.searchInput.addEventListener('touchstart', this.handleMobileSearchTouch);
+        } else {
+            this.searchInput.removeAttribute('readonly');
+            this.searchInput.removeEventListener('touchstart', this.handleMobileSearchTouch);
+        }
+    }
+
+    handleMobileSearchTouch = (e) => {
+        e.preventDefault();
+        this.searchInput.removeAttribute('readonly');
+        this.searchInput.focus();
     }
 
     movePanelsForMobile() {
@@ -642,5 +662,31 @@ export class UIManager {
             if (highestPeaksPanel) highestPeaksPanel.style.width = width;
             if (wikipediaPanel) wikipediaPanel.style.width = width;
         }
+    }
+
+    handleMobileSearchFocus() {
+        // Scroll the search input into view
+        this.searchInput.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // Add a class to the body to adjust layout if needed
+        document.body.classList.add('search-focused');
+        
+        // Optionally, you can add more adjustments here, such as:
+        // - Hiding certain elements
+        // - Adjusting the map size
+        // - Showing a "back" button
+    }
+
+    handleMobileSearchBlur() {
+        // Remove the class from the body
+        document.body.classList.remove('search-focused');
+        
+        // Scroll back to the top of the page
+        window.scrollTo(0, 0);
+        
+        // Optionally, you can add more adjustments here, such as:
+        // - Showing previously hidden elements
+        // - Restoring the map size
+        // - Hiding the "back" button
     }
 }
