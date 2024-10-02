@@ -26,6 +26,7 @@ export class UIManager {
         this.setupEventListeners();
         this.setupWikipediaPanel();
         this.setupHighestPeaksPanel();
+        this.setupWindowResizeHandler();
     }
 
     setupWindowResizeHandler() {
@@ -65,7 +66,7 @@ export class UIManager {
 
     setupEventListeners() {
         this.setupSearchListeners();
-        // Remove setupFilterListeners() from here as it's now handled in ControlManager
+        this.setupFilterListeners();
     }
 
     setupHighestPeaksPanel() {
@@ -230,7 +231,6 @@ export class UIManager {
         const value = Math.round(pos * (this.hierLvlSlider.max - this.hierLvlSlider.min) + parseFloat(this.hierLvlSlider.min));
         this.hierLvlSlider.value = value;
         this.hierLvlValue.textContent = value;
-        this.filterHandler(value);
     }
 
     updateHierLevelSlider(min, max, value) {
@@ -244,6 +244,7 @@ export class UIManager {
         this.hierLvlSlider.max = max;
         this.hierLvlSlider.value = value;
         this.hierLvlValue.textContent = value;
+        this.currentHierLevel = value;
     }
 
     clearSearch() {
@@ -570,11 +571,14 @@ export class UIManager {
         }
 
         this.hierLvlSlider.addEventListener('input', () => {
-            const value = this.hierLvlSlider.value;
-            this.hierLvlValue.textContent = value;
-            this.currentHierLevel = value;
-            // Update the map immediately on slider change
-            this.filterHandler(value);
+            this.hierLvlValue.textContent = this.hierLvlSlider.value;
+            this.currentHierLevel = this.hierLvlSlider.value;
+        });
+
+        this.hierLvlSlider.addEventListener('change', () => {
+            console.log('Slider value changed to:', this.hierLvlSlider.value);
+            this.currentHierLevel = this.hierLvlSlider.value;
+            this.filterHandler(this.hierLvlSlider.value);
         });
 
         this.setupTouchEvents();
@@ -598,10 +602,5 @@ export class UIManager {
             isDragging = false;
             this.filterHandler(this.hierLvlSlider.value);
         });
-    }
-
-    handleResize() {
-        // Refresh search suggestions based on current filter
-        this.updateSearchSuggestions(true);
     }
 }

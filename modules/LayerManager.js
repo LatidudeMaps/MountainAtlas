@@ -58,9 +58,15 @@ export class LayerManager {
     }
 
     getAllMountainAreaNames() {
-        return this.allMountainAreas.features
-            .map(feature => feature.properties.MapName_it || feature.properties.MapName)
-            .filter(name => name);
+        if (!this.allMountainAreas) {
+            console.warn('No mountain areas data available');
+            return [];
+        }
+        const names = this.allMountainAreas.features.map(feature => 
+            feature.properties.MapName_it || feature.properties.MapName
+        ).filter(name => name); // Remove any undefined names
+        console.log('Number of mountain area names:', names.length);
+        return names;
     }
 
     defaultPolygonStyle() {
@@ -131,12 +137,9 @@ export class LayerManager {
     }
 
     getCurrentHierLevelMountainAreaNames() {
-        if (!this.currentHierLevel) {
-            return this.getAllMountainAreaNames();
-        }
         return this.filteredMountainAreas
             .map(feature => feature.properties.MapName_it || feature.properties.MapName)
-            .filter(name => name);
+            .filter(name => name); // Remove any undefined names
     }
 
     setUIManager(uiManager) {
