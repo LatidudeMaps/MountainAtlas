@@ -3,6 +3,7 @@ import { LayerManager } from './modules/LayerManager.js';
 import { ControlManager } from './modules/ControlManager.js';
 import { DataLoader } from './modules/DataLoader.js';
 import { UIManager } from './modules/UIManager.js';
+import { debounce } from './utils/helpers.js';
 
 class App {
     constructor() {
