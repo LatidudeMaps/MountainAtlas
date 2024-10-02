@@ -71,9 +71,9 @@ export class ControlManager {
                 this.hierLvlSlider.max = max;
                 
                 // Use the current value if it exists, otherwise use min
-                const value = this.currentHierLevel || min;
-                this.hierLvlSlider.value = value;
-                this.hierLvlValue.textContent = value;
+                this.currentHierLevel = this.currentHierLevel || min;
+                this.hierLvlSlider.value = this.currentHierLevel;
+                this.hierLvlValue.textContent = this.currentHierLevel;
 
                 this.hierLvlSlider.addEventListener('input', (e) => {
                     const value = e.target.value;
@@ -215,10 +215,13 @@ export class ControlManager {
         const handleResize = () => {
             const isMobile = window.innerWidth <= 768;
             this.unifiedControl.setPosition(isMobile ? 'topleft' : 'topright');
-            // Don't reinitialize the slider, just ensure the current value is displayed correctly
-            if (this.hierLvlValue && this.currentHierLevel) {
+            
+            // Ensure the current hierarchy level is maintained
+            if (this.hierLvlSlider && this.hierLvlValue && this.currentHierLevel) {
+                this.hierLvlSlider.value = this.currentHierLevel;
                 this.hierLvlValue.textContent = this.currentHierLevel;
             }
+            
             // Notify UIManager about the resize
             this.uiManager.handleResize();
         };
