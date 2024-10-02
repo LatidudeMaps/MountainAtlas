@@ -603,14 +603,5 @@ export class UIManager {
     handleResize() {
         // Refresh search suggestions based on current filter
         this.updateSearchSuggestions(true);
-        
-        // Ensure the highest peaks panel is updated
-        this.updateHighestPeaksPanel();
-        
-        // Refresh the Wikipedia panel if it's open
-        const currentSearchValue = this.searchInput.value.trim();
-        if (currentSearchValue) {
-            this.updateWikipediaPanel(currentSearchValue);
-        }
     }
 }

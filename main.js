@@ -34,9 +34,6 @@ class App {
                 this.hideLoading();
             });
 
-            // Expose uiManager globally
-            window.uiManager = this.uiManager;
-
             console.log('App initialization complete');
         } catch (error) {
             console.error('Error initializing app:', error);
