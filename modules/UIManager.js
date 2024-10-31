@@ -607,25 +607,25 @@ export class UIManager {
 
     updateLayoutForScreenSize() {
         if (!this.initialized) return;
-
+    
         const unifiedControl = document.querySelector('.unified-control');
         const highestPeaksPanel = document.querySelector('.highest-peaks-panel');
         const wikipediaPanel = document.getElementById('wikipedia-panel');
-
+    
         if (this.isMobile) {
             this.movePanelsForMobile();
         } else {
             this.restorePanelsForDesktop();
         }
-
+    
         if (unifiedControl) unifiedControl.style.width = this.isMobile ? 'calc(100% - 2rem)' : '18.75rem';
         if (highestPeaksPanel) highestPeaksPanel.style.width = this.isMobile ? 'calc(100% - 2rem)' : '18.75rem';
         if (wikipediaPanel) wikipediaPanel.style.width = this.isMobile ? 'calc(100% - 2rem)' : '18.75rem';
-
-        // Only update slider if it exists
-        if (this.hierLvlSlider && this.layerManager) {
+    
+        // Only update slider if layerManager exists and hierarchy levels are available
+        if (this.layerManager) {
             const uniqueHierLevels = this.layerManager.getUniqueHierLevels();
-            if (uniqueHierLevels.length > 0) {
+            if (uniqueHierLevels.length > 0 && this.hierLvlSlider) {
                 this.updateHierLevelSlider(
                     Math.min(...uniqueHierLevels),
                     Math.max(...uniqueHierLevels),
@@ -633,8 +633,7 @@ export class UIManager {
                 );
             }
         }
-
-        this.updateHierarchyLevelSlider();
+        
         this.updateSearchSuggestions(true);
     }
 
