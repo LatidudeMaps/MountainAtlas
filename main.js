@@ -32,12 +32,12 @@ class App {
             this.setupMapEventListeners();
             this.setupResponsiveHandling();
             
-            // Wait for the map to be fully initialized before updating the highest peaks panel
+            // Just wait for one moveend event after setting the initial extent
             this.mapManager.map.once('moveend', () => {
                 this.uiManager.updateHighestPeaksPanel();
                 this.hideLoading();
             });
-
+    
             console.log('App initialization complete');
         } catch (error) {
             console.error('Error initializing app:', error);
