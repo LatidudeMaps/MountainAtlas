@@ -272,38 +272,22 @@ export class LayerManager {
 
     getVisiblePeaks() {
         const mapBounds = this.map.getBounds();
-        
-        // Add more thorough validation
-        if (!mapBounds || !mapBounds.isValid() || !this.map.getCenter()) {
-            console.log('Map not ready yet, returning filtered peaks');
-            // Return peaks filtered by current hierarchy level instead of all peaks
-            return this.allOsmPeaks ? 
-                this.allOsmPeaks.filter(peak => 
-                    String(peak.properties.Hier_lvl).trim() === this.currentHierLevel
-                ) : [];
+        if (!mapBounds.isValid()) {
+            console.log('Map bounds not valid, returning all peaks');
+            return this.removeDuplicatePeaks(this.allOsmPeaks);
         }
-    
-        const now = Date.now();
+
         const cacheKey = mapBounds.toBBoxString() + '-' + this.map.getZoom();
-        
-        // Use cached result if available and not expired
-        if (this.visiblePeaksCache.has(cacheKey) && 
-            (now - this.lastMapUpdate) < this.cacheTimeout) {
+        if (this.visiblePeaksCache.has(cacheKey)) {
             return this.visiblePeaksCache.get(cacheKey);
         }
-    
-        // Calculate new result if cache miss or expired
-        const markers = this.markers.getLayers();
-        const visiblePeaks = markers
+
+        const visiblePeaks = this.markers.getLayers()
             .filter(marker => mapBounds.contains(marker.getLatLng()))
             .map(marker => marker.feature);
-    
+
         const uniqueVisiblePeaks = this.removeDuplicatePeaks(visiblePeaks);
-        
-        // Update cache
         this.visiblePeaksCache.set(cacheKey, uniqueVisiblePeaks);
-        this.lastMapUpdate = now;
-        
         return uniqueVisiblePeaks;
     }
 
