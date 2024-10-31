@@ -578,19 +578,6 @@ body.search-focused #map {
     padding: var(--spacing-medium) 0;
 }
 
-@keyframes marker-bounce {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-15px);
-    }
-}
-
-.marker-bounce {
-    animation: marker-bounce 0.5s ease-in-out;
-}
-
 /* Loading Indicator Styles */
 .loading {
     position: fixed;
