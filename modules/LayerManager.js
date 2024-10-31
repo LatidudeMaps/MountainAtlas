@@ -40,6 +40,24 @@ export class LayerManager {
             <a href="${feature.properties.wiki_url_it}" target="_blank">Wikipedia (IT)</a><br>
             <a href="${feature.properties.wiki_url_en}" target="_blank">Wikipedia (EN)</a>
         `;
+        
+        // Add click handler for zooming
+        layer.on('click', (e) => {
+            // Stop event propagation to prevent any conflicts
+            L.DomEvent.stopPropagation(e);
+            
+            // Get bounds of the clicked polygon
+            const bounds = layer.getBounds();
+            
+            // Fit the map to these bounds with some padding
+            this.map.fitBounds(bounds, {
+                padding: [50, 50], // Add 50px padding around the bounds
+                maxZoom: 12,      // Limit maximum zoom level
+                animate: true,    // Enable smooth animation
+                duration: 0.5     // Animation duration in seconds
+            });
+        });
+        
         layer.bindPopup(popupContent);
     }
 
