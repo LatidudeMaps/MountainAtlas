@@ -327,12 +327,23 @@ export class UIManager {
         }
     }
 
+    toggleWikipediaPanel(show) {
+        if (this.wikipediaPanel) {
+            if (show === undefined) {
+                this.wikipediaPanel.classList.toggle('hidden');
+            } else {
+                this.wikipediaPanel.classList.toggle('hidden', !show);
+            }
+        }
+    }
+
     updateWikipediaPanel(name) {
         if (!name) {
             this.wikipediaPanel.style.display = 'none';
             return;
         }
-    
+        
+        this.toggleWikipediaPanel(true);
         this.wikipediaPanel.style.display = 'block';
         this.wikipediaPanel.innerHTML = this.createLanguageToggle();
     
