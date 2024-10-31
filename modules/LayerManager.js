@@ -285,21 +285,10 @@ export class LayerManager {
             return this.visiblePeaksCache.get(cacheKey);
         }
     
-        // Performance optimization: Use getBounds() from marker cluster if available
-        let visiblePeaks = [];
-        if (this.markers.getLayers().length > 0) {
-            const clusters = this.markers.getClusters(mapBounds);
-            visiblePeaks = clusters
-                .filter(cluster => mapBounds.contains(cluster.getLatLng()))
-                .flatMap(cluster => {
-                    // If it's a cluster, get all child markers
-                    if (cluster.__parent) {
-                        return cluster.getAllChildMarkers().map(marker => marker.feature);
-                    }
-                    // If it's a single marker
-                    return [cluster.feature];
-                });
-        }
+        // Get visible peaks
+        const visiblePeaks = this.markers.getLayers()
+            .filter(marker => mapBounds.contains(marker.getLatLng()))
+            .map(marker => marker.feature);
     
         const uniqueVisiblePeaks = this.removeDuplicatePeaks(visiblePeaks);
         
