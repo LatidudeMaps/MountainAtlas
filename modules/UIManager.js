@@ -622,14 +622,8 @@ export class UIManager {
         if (highestPeaksPanel) highestPeaksPanel.style.width = this.isMobile ? 'calc(100% - 2rem)' : '18.75rem';
         if (wikipediaPanel) wikipediaPanel.style.width = this.isMobile ? 'calc(100% - 2rem)' : '18.75rem';
     
-        try {
-            // Keep the "wrong" method call inside a try-catch
-            // This maintains the current working behavior while suppressing the error
-            this.updateHierarchyLevelSlider();
-        } catch (e) {
-            // Silently catch the error
-            // This mimics the current behavior but without the console error
-        }
+        // This line is causing the error - it calls a non-existent method
+        this.updateHierarchyLevelSlider();
         
         this.updateSearchSuggestions(true);
     }
