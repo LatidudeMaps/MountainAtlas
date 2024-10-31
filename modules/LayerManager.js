@@ -43,19 +43,34 @@ export class LayerManager {
         
         // Add click handler for zooming
         layer.on('click', (e) => {
-            // Stop event propagation to prevent any conflicts
+            // Stop event propagation
             L.DomEvent.stopPropagation(e);
+            
+            // Close any open popups
+            this.map.closePopup();
             
             // Get bounds of the clicked polygon
             const bounds = layer.getBounds();
+            const currentZoom = this.map.getZoom();
+            const boundsZoom = this.map.getBoundsZoom(bounds);
             
-            // Fit the map to these bounds with some padding
-            this.map.fitBounds(bounds, {
-                padding: [50, 50], // Add 50px padding around the bounds
-                maxZoom: 12,      // Limit maximum zoom level
-                animate: true,    // Enable smooth animation
-                duration: 0.5     // Animation duration in seconds
+            // Calculate target zoom
+            // If we're already zoomed in more than the bounds would require,
+            // maintain current zoom level to avoid zooming out
+            const targetZoom = Math.max(boundsZoom, currentZoom);
+            
+            // Fly to the center of the bounds
+            this.map.flyToBounds(bounds, {
+                padding: [50, 50],
+                maxZoom: targetZoom,
+                animate: true,
+                duration: 0.5
             });
+            
+            // Show popup after flying
+            setTimeout(() => {
+                layer.openPopup();
+            }, 500); // Match the duration of the fly animation
         });
         
         layer.bindPopup(popupContent);
