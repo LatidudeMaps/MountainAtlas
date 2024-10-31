@@ -9,7 +9,8 @@ export class LayerManager {
         this.currentHierLevel = null;
         this.visiblePeaksCache = new Map();
         this.currentOpacity = 1;
-        this.uiManager = null; // We'll set this later
+        this.uiManager = null;
+        this.searchHandler = null; // Add this to store the search handler
     }
 
     initMountainAreasLayer() {
@@ -33,6 +34,10 @@ export class LayerManager {
         }).addTo(this.map);
     }
 
+    setSearchHandler(handler) {
+        this.searchHandler = handler;
+    }
+
     onEachMountainArea(feature, layer) {
         const mapName = feature.properties.MapName_it || feature.properties.MapName;
         const popupContent = `
@@ -41,9 +46,7 @@ export class LayerManager {
             <a href="${feature.properties.wiki_url_en}" target="_blank">Wikipedia (EN)</a>
         `;
         
-        // Add click handler for zooming
         layer.on('click', (e) => {
-            // Stop event propagation
             L.DomEvent.stopPropagation(e);
             
             // Close any open popups
@@ -53,13 +56,9 @@ export class LayerManager {
             const bounds = layer.getBounds();
             const currentZoom = this.map.getZoom();
             const boundsZoom = this.map.getBoundsZoom(bounds);
-            
-            // Calculate target zoom
-            // If we're already zoomed in more than the bounds would require,
-            // maintain current zoom level to avoid zooming out
             const targetZoom = Math.max(boundsZoom, currentZoom);
             
-            // Fly to the center of the bounds
+            // Fly to the bounds
             this.map.flyToBounds(bounds, {
                 padding: [50, 50],
                 maxZoom: targetZoom,
@@ -67,10 +66,23 @@ export class LayerManager {
                 duration: 0.5
             });
             
+            // Trigger the same actions as search
+            if (this.searchHandler) {
+                this.searchHandler(mapName);
+                
+                // Also update the search input value
+                if (this.uiManager) {
+                    const searchInput = document.querySelector('#search-input');
+                    if (searchInput) {
+                        searchInput.value = mapName;
+                    }
+                }
+            }
+            
             // Show popup after flying
             setTimeout(() => {
                 layer.openPopup();
-            }, 500); // Match the duration of the fly animation
+            }, 500);
         });
         
         layer.bindPopup(popupContent);
