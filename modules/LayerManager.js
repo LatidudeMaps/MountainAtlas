@@ -272,31 +272,34 @@ export class LayerManager {
 
     getVisiblePeaks() {
         const mapBounds = this.map.getBounds();
-        
-        // Add more thorough validation
-        if (!mapBounds || !mapBounds.isValid() || !this.map.getCenter()) {
-            console.log('Map not ready yet, returning filtered peaks');
-            // Return peaks filtered by current hierarchy level instead of all peaks
-            return this.allOsmPeaks ? 
-                this.allOsmPeaks.filter(peak => 
-                    String(peak.properties.Hier_lvl).trim() === this.currentHierLevel
-                ) : [];
+        if (!mapBounds.isValid()) {
+            return [];
         }
     
         const now = Date.now();
         const cacheKey = mapBounds.toBBoxString() + '-' + this.map.getZoom();
         
-        // Use cached result if available and not expired
+        // Use cached result if available and recent
         if (this.visiblePeaksCache.has(cacheKey) && 
-            (now - this.lastMapUpdate) < this.cacheTimeout) {
+            (now - this.lastMapUpdate) < 2000) { // 2 second cache validity
             return this.visiblePeaksCache.get(cacheKey);
         }
     
-        // Calculate new result if cache miss or expired
-        const markers = this.markers.getLayers();
-        const visiblePeaks = markers
-            .filter(marker => mapBounds.contains(marker.getLatLng()))
-            .map(marker => marker.feature);
+        // Performance optimization: Use getBounds() from marker cluster if available
+        let visiblePeaks = [];
+        if (this.markers.getLayers().length > 0) {
+            const clusters = this.markers.getClusters(mapBounds);
+            visiblePeaks = clusters
+                .filter(cluster => mapBounds.contains(cluster.getLatLng()))
+                .flatMap(cluster => {
+                    // If it's a cluster, get all child markers
+                    if (cluster.__parent) {
+                        return cluster.getAllChildMarkers().map(marker => marker.feature);
+                    }
+                    // If it's a single marker
+                    return [cluster.feature];
+                });
+        }
     
         const uniqueVisiblePeaks = this.removeDuplicatePeaks(visiblePeaks);
         
