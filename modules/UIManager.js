@@ -622,8 +622,9 @@ export class UIManager {
         if (highestPeaksPanel) highestPeaksPanel.style.width = this.isMobile ? 'calc(100% - 2rem)' : '18.75rem';
         if (wikipediaPanel) wikipediaPanel.style.width = this.isMobile ? 'calc(100% - 2rem)' : '18.75rem';
     
-        // Just update the search suggestions
-        this.updateHierLevelSlider();
+        // This line is causing the error - it calls a non-existent method
+        this.updateHierarchyLevelSlider();
+        
         this.updateSearchSuggestions(true);
     }
 
