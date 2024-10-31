@@ -106,11 +106,31 @@ export class UIManager {
                         const row = e.target.closest('tr');
                         if (row) {
                             const peakName = row.querySelector('td').getAttribute('title');
+                            
+                            // Remove bounce animation from all markers first
+                            this.layerManager.markers.eachLayer((marker) => {
+                                marker.getElement()?.classList.remove('marker-bounce');
+                            });
+    
                             this.layerManager.markers.eachLayer((marker) => {
                                 if (marker.feature.properties.name === peakName) {
                                     const latlng = marker.getLatLng();
+                                    
+                                    // First fly to the location
                                     this.mapManager.flyTo(latlng, 14);
-                                    marker.openPopup();
+                                    
+                                    // After the map movement, add bounce animation and open popup
+                                    setTimeout(() => {
+                                        marker.openPopup();
+                                        const markerElement = marker.getElement();
+                                        if (markerElement) {
+                                            markerElement.classList.add('marker-bounce');
+                                            // Remove the animation class after it completes
+                                            setTimeout(() => {
+                                                markerElement.classList.remove('marker-bounce');
+                                            }, 500); // Match this to the animation duration
+                                        }
+                                    }, 300); // Small delay to let the map movement complete
                                 }
                             });
                         }
