@@ -137,7 +137,7 @@ export class ControlManager {
                 <input type="range" id="hier-lvl-slider" class="custom-slider">
             </div>
             <div class="control-group">
-                <label for="search-input">Search by GMBA MapName:</label>
+                <label for="search-input">Search by Mnt Range name:</label>
                 <div class="input-button-group">
                     <div class="custom-search">
                         <input type="text" id="search-input" class="custom-select" placeholder="Search...">
