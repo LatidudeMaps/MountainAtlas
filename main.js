@@ -24,18 +24,35 @@ class App {
         try {
             console.log('App initialization started');
             this.showLoading();
+            
+            // First load the data
             await this.loadData();
+            
+            // Initialize UI and map
             this.initializeUI();
             await this.showDisclaimer();
             this.initializeMap();
+            
+            // Apply initial filter which sets up layers
             this.applyInitialFilter();
             this.setupMapEventListeners();
             this.setupResponsiveHandling();
             
-            // Just wait for one moveend event after setting the initial extent
-            this.mapManager.map.once('moveend', () => {
-                this.uiManager.updateHighestPeaksPanel();
-                this.hideLoading();
+            // Add a proper initialization sequence for the highest peaks panel
+            // Wait for both map and layers to be ready
+            this.mapManager.map.whenReady(() => {
+                // Ensure we have proper bounds
+                if (this.layerManager.mountainAreasLayer) {
+                    const bounds = this.layerManager.mountainAreasLayer.getBounds();
+                    if (bounds.isValid()) {
+                        // Set the view and then update peaks
+                        this.mapManager.map.fitBounds(bounds);
+                        this.mapManager.map.once('moveend', () => {
+                            this.uiManager.updateHighestPeaksPanel();
+                            this.hideLoading();
+                        });
+                    }
+                }
             });
     
             console.log('App initialization complete');
