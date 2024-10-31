@@ -57,16 +57,16 @@ class App {
         this.controlManager = new ControlManager(this.mapManager, this.layerManager, this.uiManager);
         const unifiedControl = this.controlManager.initControls();
         
+        // Connect the search handler to the LayerManager
+        this.layerManager.setSearchHandler(this.handleSearch.bind(this));
+        
         this.uiManager.initializeElements(unifiedControl);
-        
-        // Connect UIManager to MapManager
         this.mapManager.setUIManager(this.uiManager);
-        
-        // Connect UIManager to LayerManager
         this.layerManager.setUIManager(this.uiManager);
         
         console.log('UI initialization complete');
     }
+}
 
     initializeMap() {
         console.log('Initializing map');
