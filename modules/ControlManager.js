@@ -133,7 +133,7 @@ export class ControlManager {
         const filterSection = L.DomUtil.create('div', 'control-section filter-control-section', container);
         filterSection.innerHTML = `
             <div class="control-group">
-                <label for="hier-lvl-slider">Hierarchy Level: <span id="hier-lvl-value"></span></label>
+                <label for="hier-lvl-slider">Mnt Ranges Hierarchy Level: <span id="hier-lvl-value"></span></label>
                 <input type="range" id="hier-lvl-slider" class="custom-slider">
             </div>
             <div class="control-group">
