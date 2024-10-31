@@ -66,7 +66,6 @@ class App {
         
         console.log('UI initialization complete');
     }
-}
 
     initializeMap() {
         console.log('Initializing map');
