@@ -32,12 +32,18 @@ class App {
             this.setupMapEventListeners();
             this.setupResponsiveHandling();
             
-            // Wait for the map to be fully initialized before updating the highest peaks panel
-            this.mapManager.map.once('moveend', () => {
-                this.uiManager.updateHighestPeaksPanel();
-                this.hideLoading();
+            // Remove the previous moveend listener and replace with this sequence
+            this.mapManager.map.once('load', () => {
+                // Wait for the initial extent to be set
+                this.mapManager.map.once('moveend', () => {
+                    // Add a small delay to ensure all layers are properly rendered
+                    setTimeout(() => {
+                        this.uiManager.updateHighestPeaksPanel();
+                        this.hideLoading();
+                    }, 100);
+                });
             });
-
+    
             console.log('App initialization complete');
         } catch (error) {
             console.error('Error initializing app:', error);
@@ -102,6 +108,15 @@ class App {
         console.log('Applying initial filter');
         const initialHierLevel = "4";
         this.handleFilterChange(initialHierLevel);
+        
+        // After filtering, ensure map is at correct extent
+        if (this.layerManager.mountainAreasLayer) {
+            const bounds = this.layerManager.mountainAreasLayer.getBounds();
+            if (bounds.isValid()) {
+                this.mapManager.map.fitBounds(bounds);
+            }
+        }
+        
         this.uiManager.updateHierLevelSlider(
             Math.min(...this.dataLoader.getUniqueHierLevels()),
             Math.max(...this.dataLoader.getUniqueHierLevels()),
