@@ -622,18 +622,7 @@ export class UIManager {
         if (highestPeaksPanel) highestPeaksPanel.style.width = this.isMobile ? 'calc(100% - 2rem)' : '18.75rem';
         if (wikipediaPanel) wikipediaPanel.style.width = this.isMobile ? 'calc(100% - 2rem)' : '18.75rem';
     
-        // Only update slider if layerManager exists and hierarchy levels are available
-        if (this.layerManager) {
-            const uniqueHierLevels = this.layerManager.getUniqueHierLevels();
-            if (uniqueHierLevels.length > 0 && this.hierLvlSlider) {
-                this.updateHierLevelSlider(
-                    Math.min(...uniqueHierLevels),
-                    Math.max(...uniqueHierLevels),
-                    this.hierLvlSlider.value
-                );
-            }
-        }
-        
+        // Just update the search suggestions
         this.updateSearchSuggestions(true);
     }
 
