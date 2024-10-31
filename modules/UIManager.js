@@ -623,6 +623,7 @@ export class UIManager {
         if (wikipediaPanel) wikipediaPanel.style.width = this.isMobile ? 'calc(100% - 2rem)' : '18.75rem';
     
         // Just update the search suggestions
+        this.updateHierLevelSlider(true);
         this.updateSearchSuggestions(true);
     }
 
