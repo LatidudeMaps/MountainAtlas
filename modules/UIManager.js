@@ -75,7 +75,7 @@ export class UIManager {
             console.log('Map not yet initialized, skipping update');
             return;
         }
-
+    
         const highestPeaks = this.layerManager.getHighestPeaks(5);
         const content = document.getElementById('highest-peaks-content');
         
@@ -90,14 +90,32 @@ export class UIManager {
                     const highlightClass = isHighest ? 'highest-peak' : '';
                     const starIcon = isHighest ? '&#9733; ' : '';
                     const peakName = peak.properties.name || 'Unnamed Peak';
-                    html += `<tr class="${highlightClass}">
-                        <td class="peak-name" title="${peakName}">${starIcon}${peakName}</td>
-                        <td class="peak-elevation">${peak.properties.elevation} m</td>
-                    </tr>`;
+                    html += `<tr class="${highlightClass}" style="cursor: pointer" title="Click to zoom to peak">
+                            <td title="${peakName}">${starIcon}${peakName}</td>
+                            <td>${peak.properties.elevation} m</td>
+                        </tr>`;
                 });
                 
                 html += '</table>';
                 content.innerHTML = html;
+    
+                // Add click handler to the table
+                const table = content.querySelector('#highest-peaks-table');
+                if (table) {
+                    table.addEventListener('click', (e) => {
+                        const row = e.target.closest('tr');
+                        if (row) {
+                            const peakName = row.querySelector('td').getAttribute('title');
+                            this.layerManager.markers.eachLayer((marker) => {
+                                if (marker.feature.properties.name === peakName) {
+                                    const latlng = marker.getLatLng();
+                                    this.mapManager.flyTo(latlng, 14);
+                                    marker.openPopup();
+                                }
+                            });
+                        }
+                    });
+                }
             }
         }
     }
