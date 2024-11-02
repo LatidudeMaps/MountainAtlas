@@ -40,14 +40,16 @@ export class ControlManager {
                 L.DomEvent.disableScrollPropagation(container);
                 L.DomEvent.disableClickPropagation(container);
 
+                // Detect Safari
+                const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+                console.log('Browser detection - Safari:', isSafari);
+
                 setTimeout(() => {
                     const slider = container.querySelector('#mobile-hier-lvl-slider');
                     const valueSpan = container.querySelector('#mobile-hier-lvl-value');
                     
                     if (slider && valueSpan) {
                         const hierLevels = this.layerManager.getUniqueHierLevels();
-                        console.log('Available hierarchy levels:', hierLevels);
-                        
                         const min = Math.min(...hierLevels);
                         const max = Math.max(...hierLevels);
                         const initial = "4";
@@ -57,46 +59,59 @@ export class ControlManager {
                         slider.value = initial;
                         valueSpan.textContent = initial;
 
-                        // Common function to handle filter updates
-                        const updateFilter = (value) => {
-                            console.log('Updating filter with value:', value);
-                            console.log('UIManager exists:', !!this.uiManager);
-                            console.log('FilterHandler exists:', !!this.uiManager?.filterHandler);
-                            
-                            valueSpan.textContent = value;
+                        // Debounced filter update function
+                        const debouncedUpdate = this.debounce((value) => {
+                            console.log('Debounced filter update with value:', value);
                             if (this.uiManager && this.uiManager.filterHandler) {
-                                // Ensure value is a string
-                                const stringValue = value.toString();
-                                console.log('Calling filterHandler with:', stringValue);
-                                this.uiManager.filterHandler(stringValue);
-                                
-                                // Verify the current state after filter
-                                console.log('Current LayerManager state:', {
-                                    mountainAreasVisible: !!this.layerManager.mountainAreasLayer.getLayers().length,
-                                    currentHierLevel: this.layerManager.currentHierLevel
-                                });
+                                this.uiManager.filterHandler(value.toString());
                             }
+                        }, 50);
+
+                        // Function to handle all value updates
+                        const handleValueUpdate = (value) => {
+                            valueSpan.textContent = value;
+                            debouncedUpdate(value);
                         };
 
-                        // Handle all possible events
-                        const events = ['input', 'change', 'touchend'];
-                        events.forEach(eventType => {
-                            slider.addEventListener(eventType, (e) => {
-                                console.log(`${eventType} event triggered with value:`, e.target.value);
-                                updateFilter(e.target.value);
+                        // Safari-specific handling
+                        if (isSafari) {
+                            // Use input event for immediate visual feedback
+                            slider.addEventListener('input', (e) => {
+                                valueSpan.textContent = e.target.value;
                             });
-                        });
 
-                        // Additional touch handling
-                        slider.addEventListener('touchstart', (e) => {
-                            console.log('Touch start on slider');
-                            this.handleSliderTouch(e, slider, valueSpan);
-                        }, { passive: false });
+                            // Use change event for actual filter update
+                            slider.addEventListener('change', (e) => {
+                                console.log('Safari change event:', e.target.value);
+                                handleValueUpdate(e.target.value);
+                            });
 
-                        slider.addEventListener('touchmove', (e) => {
-                            console.log('Touch move on slider');
-                            this.handleSliderTouch(e, slider, valueSpan);
-                        }, { passive: false });
+                            // Additional touch event handling for Safari
+                            let touchInProgress = false;
+
+                            slider.addEventListener('touchstart', () => {
+                                touchInProgress = true;
+                            }, { passive: true });
+
+                            slider.addEventListener('touchend', () => {
+                                if (touchInProgress) {
+                                    console.log('Safari touch end:', slider.value);
+                                    handleValueUpdate(slider.value);
+                                    touchInProgress = false;
+                                }
+                            }, { passive: true });
+                        } else {
+                            // Standard handling for other browsers
+                            ['input', 'change'].forEach(eventType => {
+                                slider.addEventListener(eventType, (e) => {
+                                    console.log(`${eventType} event:`, e.target.value);
+                                    handleValueUpdate(e.target.value);
+                                });
+                            });
+                        }
+
+                        // Ensure proper initialization
+                        handleValueUpdate(initial);
                     }
                 }, 0);
 
@@ -298,23 +313,42 @@ export class ControlManager {
         }
     }
 
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
     handleSliderTouch(e, slider, valueSpan) {
-        e.preventDefault();
-        const touch = e.touches[0];
-        const rect = slider.getBoundingClientRect();
-        const pos = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width));
-        const range = slider.max - slider.min;
-        const newValue = Math.round(pos * range + parseInt(slider.min));
-        
-        console.log('Touch event processing:', {
-            touchX: touch.clientX,
-            sliderLeft: rect.left,
-            position: pos,
-            calculatedValue: newValue
-        });
-        
-        slider.value = newValue;
-        valueSpan.textContent = newValue;
+        // Prevent default only if needed
+        if (!e.defaultPrevented) {
+            e.preventDefault();
+        }
+
+        try {
+            const touch = e.touches[0];
+            const rect = slider.getBoundingClientRect();
+            const pos = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width));
+            const range = slider.max - slider.min;
+            const newValue = Math.round(pos * range + parseInt(slider.min));
+            
+            console.log('Touch processing:', {
+                value: newValue,
+                touch: true,
+                browser: 'Safari'
+            });
+            
+            slider.value = newValue;
+            valueSpan.textContent = newValue;
+        } catch (error) {
+            console.error('Touch handling error:', error);
+        }
     }
 
     handleResponsiveControls() {
