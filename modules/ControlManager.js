@@ -37,17 +37,17 @@ export class ControlManager {
                     </div>
                 `;
 
-                // Prevent map zoom when scrolling on the control
                 L.DomEvent.disableScrollPropagation(container);
                 L.DomEvent.disableClickPropagation(container);
 
-                // Setup the slider after it's added to the DOM
                 setTimeout(() => {
                     const slider = container.querySelector('#mobile-hier-lvl-slider');
                     const valueSpan = container.querySelector('#mobile-hier-lvl-value');
                     
                     if (slider && valueSpan) {
                         const hierLevels = this.layerManager.getUniqueHierLevels();
+                        console.log('Available hierarchy levels:', hierLevels);
+                        
                         const min = Math.min(...hierLevels);
                         const max = Math.max(...hierLevels);
                         const initial = "4";
@@ -57,31 +57,46 @@ export class ControlManager {
                         slider.value = initial;
                         valueSpan.textContent = initial;
 
-                        // Add input event for continuous update
-                        slider.addEventListener('input', (e) => {
-                            valueSpan.textContent = e.target.value;
-                        });
-
-                        // Add change event for when sliding stops
-                        slider.addEventListener('change', (e) => {
-                            const value = e.target.value.toString();
-                            console.log('Mobile slider value changed to:', value);
+                        // Common function to handle filter updates
+                        const updateFilter = (value) => {
+                            console.log('Updating filter with value:', value);
+                            console.log('UIManager exists:', !!this.uiManager);
+                            console.log('FilterHandler exists:', !!this.uiManager?.filterHandler);
+                            
                             valueSpan.textContent = value;
                             if (this.uiManager && this.uiManager.filterHandler) {
-                                this.uiManager.filterHandler(value);
+                                // Ensure value is a string
+                                const stringValue = value.toString();
+                                console.log('Calling filterHandler with:', stringValue);
+                                this.uiManager.filterHandler(stringValue);
+                                
+                                // Verify the current state after filter
+                                console.log('Current LayerManager state:', {
+                                    mountainAreasVisible: !!this.layerManager.mountainAreasLayer.getLayers().length,
+                                    currentHierLevel: this.layerManager.currentHierLevel
+                                });
                             }
+                        };
+
+                        // Handle all possible events
+                        const events = ['input', 'change', 'touchend'];
+                        events.forEach(eventType => {
+                            slider.addEventListener(eventType, (e) => {
+                                console.log(`${eventType} event triggered with value:`, e.target.value);
+                                updateFilter(e.target.value);
+                            });
                         });
 
-                        // Handle touch events
-                        slider.addEventListener('touchstart', (e) => this.handleSliderTouch(e, valueSpan), { passive: false });
-                        slider.addEventListener('touchmove', (e) => this.handleSliderTouch(e, valueSpan), { passive: false });
-                        slider.addEventListener('touchend', (e) => {
-                            const value = slider.value.toString();
-                            console.log('Mobile slider touch ended with value:', value);
-                            if (this.uiManager && this.uiManager.filterHandler) {
-                                this.uiManager.filterHandler(value);
-                            }
-                        });
+                        // Additional touch handling
+                        slider.addEventListener('touchstart', (e) => {
+                            console.log('Touch start on slider');
+                            this.handleSliderTouch(e, slider, valueSpan);
+                        }, { passive: false });
+
+                        slider.addEventListener('touchmove', (e) => {
+                            console.log('Touch move on slider');
+                            this.handleSliderTouch(e, slider, valueSpan);
+                        }, { passive: false });
                     }
                 }, 0);
 
@@ -283,19 +298,23 @@ export class ControlManager {
         }
     }
 
-    handleSliderTouch(e, valueSpan) {
+    handleSliderTouch(e, slider, valueSpan) {
         e.preventDefault();
         const touch = e.touches[0];
-        const slider = e.target;
         const rect = slider.getBoundingClientRect();
         const pos = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width));
         const range = slider.max - slider.min;
         const newValue = Math.round(pos * range + parseInt(slider.min));
         
+        console.log('Touch event processing:', {
+            touchX: touch.clientX,
+            sliderLeft: rect.left,
+            position: pos,
+            calculatedValue: newValue
+        });
+        
         slider.value = newValue;
-        if (valueSpan) {
-            valueSpan.textContent = newValue;
-        }
+        valueSpan.textContent = newValue;
     }
 
     handleResponsiveControls() {
