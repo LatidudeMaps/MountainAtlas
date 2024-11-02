@@ -738,18 +738,49 @@ body.search-focused #map {
         bottom: 0;
         left: 0;
         right: 0;
-        width: 100%;
-        height: 50vh;
-        max-height: 50vh;
+        width: 100% !important;
+        height: 60vh;
+        max-height: 60vh;
         margin: 0;
-        border-radius: var(--spacing-small) var(--spacing-small) 0 0;
-        z-index: calc(var(--z-index-modal) - 1);
+        border-radius: 1rem 1rem 0 0;
+        z-index: 1001;
         transform: translateY(0);
         transition: transform 0.3s ease-out;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
     }
 
     #wikipedia-panel.hidden {
         transform: translateY(100%);
+    }
+
+    #wikipedia-panel::before {
+        content: '';
+        position: absolute;
+        top: 0.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 3rem;
+        height: 0.25rem;
+        background-color: #ccc;
+        border-radius: 0.125rem;
+    }
+
+    .language-toggle {
+        position: sticky;
+        top: 0;
+        background: white;
+        padding: 0.5rem;
+        z-index: 2;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    #map {
+        height: 100vh;
+        transition: height 0.3s ease-out;
+    }
+
+    body.panel-open #map {
+        height: 40vh;
     }
 
     .highest-peaks-panel {

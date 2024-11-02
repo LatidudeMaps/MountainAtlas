@@ -126,17 +126,44 @@ export class UIManager {
         this.wikipediaPanel.id = 'wikipedia-panel';
         this.wikipediaPanel.style.display = 'none';
     
+        // Add touch handling for mobile
+        if (this.isMobile) {
+            this.setupMobileWikipediaPanel();
+        }
+    
         const container = this.isMobile ? document.body : document.querySelector('.leaflet-right');
         if (container) {
             container.appendChild(this.wikipediaPanel);
             console.log('Wikipedia panel appended to container');
-        } else {
-            console.error('Could not find container for Wikipedia panel');
         }
     
         this.setupWikiPanelEventListeners();
     }
     
+    setupMobileWikipediaPanel() {
+        let startY = 0;
+        let startHeight = 0;
+        
+        this.wikipediaPanel.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].clientY;
+            startHeight = this.wikipediaPanel.offsetHeight;
+        }, { passive: true });
+    
+        this.wikipediaPanel.addEventListener('touchmove', (e) => {
+            const deltaY = e.touches[0].clientY - startY;
+            const newHeight = Math.max(200, Math.min(window.innerHeight * 0.9, startHeight - deltaY));
+            this.wikipediaPanel.style.height = `${newHeight}px`;
+            document.body.classList.add('panel-open');
+        }, { passive: true });
+    
+        this.wikipediaPanel.addEventListener('touchend', () => {
+            const threshold = window.innerHeight * 0.3;
+            if (this.wikipediaPanel.offsetHeight < threshold) {
+                this.wikipediaPanel.classList.add('hidden');
+                document.body.classList.remove('panel-open');
+            }
+        });
+    }    
 
     setupWikiPanelEventListeners() {
         L.DomEvent.disableClickPropagation(this.wikipediaPanel);
@@ -356,35 +383,132 @@ export class UIManager {
     }
 
     updateWikipediaPanel(name) {
+        // Handle panel closing
         if (!name) {
             this.wikipediaPanel.style.display = 'none';
+            if (this.isMobile) {
+                document.body.classList.remove('panel-open');
+                this.wikipediaPanel.classList.add('hidden');
+            }
             return;
         }
         
-        this.toggleWikipediaPanel(true);
+        // Show and setup panel
         this.wikipediaPanel.style.display = 'block';
-        this.wikipediaPanel.innerHTML = this.createLanguageToggle();
+        if (this.isMobile) {
+            document.body.classList.add('panel-open');
+            this.wikipediaPanel.classList.remove('hidden');
+            // Reset any custom height set during dragging
+            this.wikipediaPanel.style.height = '60vh';
+        }
     
+        // Add language toggle
+        this.wikipediaPanel.innerHTML = this.createLanguageToggle();
+        
+        // Find matching content
         const matchingLayers = this.layerManager.getMatchingLayers(name);
         if (matchingLayers.length > 0) {
             const properties = matchingLayers[0].properties;
             const wikiUrl = this.currentLanguage === 'it' ? properties.wiki_url_it : properties.wiki_url_en;
             
             if (wikiUrl) {
+                // Show loading state
+                const loadingMessage = this.currentLanguage === 'it' ? 'Caricamento...' : 'Loading...';
+                this.wikipediaPanel.innerHTML += `
+                    <div class="wiki-loading" style="text-align: center; padding: 1rem;">
+                        ${loadingMessage}
+                    </div>
+                `;
+                
+                // Fetch content
                 this.fetchWikipediaContent(wikiUrl);
             } else {
+                // Handle missing wiki URL
                 const message = this.currentLanguage === 'it' 
-                    ? '<p>Info non disponibili</p>'
-                    : '<p>Information not available in English</p>';
+                    ? '<p style="padding: 1rem;">Info non disponibili</p>'
+                    : '<p style="padding: 1rem;">Information not available in English</p>';
                 this.wikipediaPanel.innerHTML += message;
             }
         } else {
-            this.wikipediaPanel.innerHTML += '<p>No matching content found</p>';
+            // Handle no matching content
+            const message = this.currentLanguage === 'it'
+                ? '<p style="padding: 1rem;">Nessun contenuto trovato</p>'
+                : '<p style="padding: 1rem;">No matching content found</p>';
+            this.wikipediaPanel.innerHTML += message;
         }
-
-        // Remove any inline positioning styles
-        this.wikipediaPanel.style.top = '';
-        this.wikipediaPanel.style.bottom = '';
+    
+        // Mobile-specific setup for scroll handling
+        if (this.isMobile) {
+            // Prevent map interaction when touching the panel content
+            const content = this.wikipediaPanel.querySelector('.wiki-content');
+            if (content) {
+                content.addEventListener('touchstart', (e) => {
+                    e.stopPropagation();
+                }, { passive: true });
+                
+                content.addEventListener('touchmove', (e) => {
+                    e.stopPropagation();
+                    
+                    // Allow scrolling only if we're not at the boundaries
+                    const isAtTop = content.scrollTop === 0;
+                    const isAtBottom = content.scrollHeight - content.scrollTop === content.clientHeight;
+                    
+                    if ((isAtTop && e.touches[0].clientY > 0) || 
+                        (isAtBottom && e.touches[0].clientY < 0)) {
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+            }
+    
+            // Add drag handle for mobile
+            const dragHandle = document.createElement('div');
+            dragHandle.className = 'wiki-panel-handle';
+            dragHandle.style.cssText = `
+                width: 40px;
+                height: 4px;
+                background-color: #ccc;
+                border-radius: 2px;
+                margin: 8px auto;
+            `;
+            this.wikipediaPanel.insertBefore(dragHandle, this.wikipediaPanel.firstChild);
+    
+            // Ensure panel is positioned correctly on mobile
+            this.wikipediaPanel.style.position = 'fixed';
+            this.wikipediaPanel.style.bottom = '0';
+            this.wikipediaPanel.style.left = '0';
+            this.wikipediaPanel.style.right = '0';
+            this.wikipediaPanel.style.margin = '0';
+        } else {
+            // Reset desktop positioning if needed
+            this.wikipediaPanel.style.position = '';
+            this.wikipediaPanel.style.bottom = '';
+            this.wikipediaPanel.style.left = '';
+            this.wikipediaPanel.style.right = '';
+        }
+    
+        // Handle scroll propagation
+        this.wikipediaPanel.addEventListener('wheel', (e) => {
+            e.stopPropagation();
+            
+            // Check if we should allow scrolling
+            const panel = e.currentTarget;
+            const isAtTop = panel.scrollTop === 0;
+            const isAtBottom = panel.scrollHeight - panel.scrollTop === panel.clientHeight;
+            
+            if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    
+        // Clean up any inline positioning styles that might interfere with responsive layout
+        if (!this.isMobile) {
+            this.wikipediaPanel.style.top = '';
+            this.wikipediaPanel.style.bottom = '';
+            this.wikipediaPanel.style.transform = '';
+        }
+    
+        // Update panel visibility in UI manager state
+        this.toggleWikipediaPanel(true);
     }
 
     handleWikiPanelWheel(e) {
