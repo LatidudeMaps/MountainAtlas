@@ -68,6 +68,7 @@ body {
     background: none !important;
     border: none !important;
     box-shadow: none !important;
+    margin: 10px !important;
 }
 
 .logo-clean a {
@@ -83,11 +84,28 @@ body {
 .logo-clean img {
     height: 2.5rem;
     width: auto;
+    display: block;
 }
 
+/* Mobile styles */
 @media (max-width: 768px) {
+    .logo-clean {
+        margin: 10px 10px 0 50px !important; /* Adjust left margin to avoid overlap with zoom controls */
+    }
+    
     .logo-clean img {
         height: 2rem;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+    .logo-clean {
+        margin: 10px 10px 0 40px !important;
+    }
+    
+    .logo-clean img {
+        height: 1.8rem;
     }
 }
 

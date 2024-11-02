@@ -195,7 +195,7 @@ export class MapManager {
     addLogoControl(map) {
         const LogoControl = L.Control.extend({
             options: {
-                position: 'bottomleft'
+                position: window.innerWidth <= 768 ? 'topleft' : 'bottomleft'
             },
             onAdd: function(map) {
                 const container = L.DomUtil.create('div', 'leaflet-control logo-clean');
@@ -208,6 +208,14 @@ export class MapManager {
             }
         });
     
-        map.addControl(new LogoControl());
+        this.logoControl = new LogoControl();
+        map.addControl(this.logoControl);
+
+        // Add this to handle responsive position changes
+        window.addEventListener('resize', () => {
+            map.removeControl(this.logoControl);
+            this.logoControl.options.position = window.innerWidth <= 768 ? 'topleft' : 'bottomleft';
+            map.addControl(this.logoControl);
+        });
     }
-}
+}  
