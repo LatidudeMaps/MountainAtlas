@@ -65,15 +65,18 @@ body {
 
 /* Logo Styling */
 .logo-clean {
-    position: fixed;
-    bottom: var(--spacing-medium);
-    left: var(--spacing-medium);
-    z-index: var(--z-index-controls);
-    transition: transform 0.2s ease-in-out;
-    line-height: 0; /* This removes any extra space */
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
-.logo-clean:hover {
+.logo-clean a {
+    display: block;
+    line-height: 0;
+    transition: transform 0.2s ease-in-out;
+}
+
+.logo-clean a:hover {
     transform: scale(1.05);
 }
 
@@ -83,10 +86,6 @@ body {
 }
 
 @media (max-width: 768px) {
-    .logo-clean {
-        bottom: calc(var(--spacing-medium) + 3rem);
-    }
-    
     .logo-clean img {
         height: 2rem;
     }

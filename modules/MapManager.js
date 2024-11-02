@@ -19,8 +19,9 @@ export class MapManager {
             maxBoundsViscosity: 1.0,
             minZoom: 6,
         });
-
+    
         this.addResetViewControl(map);
+        this.addLogoControl(map);  // Add this line
         console.log('Map initialized');
         return map;
     }
@@ -189,5 +190,24 @@ export class MapManager {
         if (this.map) {
             this.map.invalidateSize();
         }
+    }
+
+    addLogoControl(map) {
+        const LogoControl = L.Control.extend({
+            options: {
+                position: 'bottomleft'
+            },
+            onAdd: function(map) {
+                const container = L.DomUtil.create('div', 'leaflet-control logo-clean');
+                container.innerHTML = `
+                    <a href="https://latitudemaps.github.io" target="_blank">
+                        <img src="https://latidudemaps.github.io/MountainAtlas/images/logo_light_512px.png" 
+                             alt="Latidude Maps Logo">
+                    </a>`;
+                return container;
+            }
+        });
+    
+        map.addControl(new LogoControl());
     }
 }
