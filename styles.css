@@ -64,31 +64,30 @@ body {
 }
 
 /* Logo Styling */
-.logo-clean {
+.logo-control {
     background: none !important;
     border: none !important;
     box-shadow: none !important;
+    position: fixed !important;
+    bottom: 5px !important;
+    left: 5px !important;
+    margin: 0 !important;
+    z-index: 1001;
 }
 
-.logo-clean a {
+.logo-control a {
     display: block;
     line-height: 0;
     transition: transform 0.2s ease-in-out;
 }
 
-.logo-clean a:hover {
+.logo-control a:hover {
     transform: scale(1.05);
 }
 
-.logo-clean img {
+.logo-control img {
     height: 2.5rem;
     width: auto;
-}
-
-@media (max-width: 768px) {
-    .logo-clean img {
-        height: 2rem;
-    }
 }
 
 /* Mobile search focus styles */
@@ -733,18 +732,7 @@ body.search-focused #map {
 }
 
 @media (max-width: 768px) {
-    /* Reset the flex container */
-    .leaflet-top.leaflet-left {
-        display: block;
-        padding: 5px;
-    }
-    
-    .leaflet-top.leaflet-right {
-        display: block;
-        padding: 5px;
-    }
-
-    /* Reset Leaflet control containers */
+    /* Reset Leaflet control containers default positioning */
     .leaflet-top.leaflet-left,
     .leaflet-top.leaflet-right {
         display: block;
@@ -776,15 +764,14 @@ body.search-focused #map {
         position: fixed !important;
         top: 5px !important;
         right: 5px !important;
+        left: auto !important;
+        bottom: auto !important;
         margin: 0 !important;
         z-index: 1001;
-        background: none !important;
-        border: none !important;
-        box-shadow: none !important;
     }
 
     .logo-control img {
-        height: 2rem;
+        height: 2.8rem;
         width: auto;
     }
 

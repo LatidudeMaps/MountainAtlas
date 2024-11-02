@@ -201,10 +201,10 @@ export class MapManager {
     addLogoControl(map) {
         const LogoControl = L.Control.extend({
             options: {
-                position: window.innerWidth <= 768 ? 'topleft' : 'bottomleft'
+                position: 'topright'  // Set position to topright explicitly
             },
             onAdd: function(map) {
-                const container = L.DomUtil.create('div', 'leaflet-control logo-clean');
+                const container = L.DomUtil.create('div', 'leaflet-control logo-control');
                 container.innerHTML = `
                     <a href="https://latidudemaps.github.io" target="_blank">
                         <img src="https://latidudemaps.github.io/MountainAtlas/images/logo_light_512px.png" 
@@ -217,11 +217,7 @@ export class MapManager {
         this.logoControl = new LogoControl();
         map.addControl(this.logoControl);
 
-        // Add this to handle responsive position changes
-        window.addEventListener('resize', () => {
-            map.removeControl(this.logoControl);
-            this.logoControl.options.position = window.innerWidth <= 768 ? 'topleft' : 'bottomleft';
-            map.addControl(this.logoControl);
-        });
+        // Remove event listener for responsive position changes as it's not needed
+        // The position will be handled by CSS
     }
 }  
