@@ -739,89 +739,39 @@ body.search-focused #map {
         left: 0;
         right: 0;
         width: 100% !important;
-        background: white;
+        height: 60vh;
+        max-height: 60vh;
         margin: 0;
-        padding: 1rem;
         border-radius: 1rem 1rem 0 0;
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
         z-index: 1001;
-        max-height: 30vh;
-        overflow: hidden;
-        transition: max-height 0.3s ease-out;
+        transform: translateY(0);
+        transition: transform 0.3s ease-out;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
     }
 
-    #wikipedia-panel.expanded {
-        max-height: 80vh;
-        overflow-y: auto;
+    #wikipedia-panel.hidden {
+        transform: translateY(100%);
     }
 
-    .wiki-preview {
-        position: relative;
-        padding-bottom: 2rem;
-    }
-
-    .wiki-preview-content {
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .wiki-expand-button {
+    #wikipedia-panel::before {
+        content: '';
         position: absolute;
-        bottom: 0;
+        top: 0.5rem;
         left: 50%;
         transform: translateX(-50%);
-        background: #f0f0f0;
-        border: none;
-        padding: 0.5rem 2rem;
-        border-radius: 1rem;
-        font-family: inherit;
-        font-size: 0.9rem;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .wiki-expand-button::after {
-        content: '';
-        display: inline-block;
-        width: 0.5rem;
-        height: 0.5rem;
-        border-right: 2px solid #666;
-        border-bottom: 2px solid #666;
-        transform: rotate(45deg);
-        transition: transform 0.3s;
-    }
-
-    #wikipedia-panel.expanded .wiki-expand-button::after {
-        transform: rotate(-135deg);
-    }
-
-    .wiki-full-content {
-        display: none;
-        padding-top: 1rem;
-    }
-
-    #wikipedia-panel.expanded .wiki-full-content {
-        display: block;
-    }
-
-    #wikipedia-panel.expanded .wiki-preview-content {
-        -webkit-line-clamp: unset;
+        width: 3rem;
+        height: 0.25rem;
+        background-color: #ccc;
+        border-radius: 0.125rem;
     }
 
     .language-toggle {
         position: sticky;
         top: 0;
         background: white;
-        padding-bottom: 1rem;
-        margin: -1rem -1rem 1rem -1rem;
-        padding: 1rem;
+        padding: 0.5rem;
         z-index: 2;
-        border-bottom: 1px solid #eee;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     #map {
