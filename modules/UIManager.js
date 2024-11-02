@@ -620,29 +620,19 @@ export class UIManager {
         };
 
         window.addEventListener('resize', debounce(handleResize, 250));
-        handleResize(); // Call once to set initial state
+        handleResize(); // Initial setup
     }
 
     updateLayoutForScreenSize() {
         if (!this.initialized) return;
-    
-        const unifiedControl = document.querySelector('.unified-control');
-        const highestPeaksPanel = document.querySelector('.highest-peaks-panel');
-        const wikipediaPanel = document.getElementById('wikipedia-panel');
-    
+
         if (this.isMobile) {
             this.movePanelsForMobile();
         } else {
             this.restorePanelsForDesktop();
         }
-    
-        if (unifiedControl) unifiedControl.style.width = this.isMobile ? 'calc(100% - 2rem)' : '18.75rem';
-        if (highestPeaksPanel) highestPeaksPanel.style.width = this.isMobile ? 'calc(100% - 2rem)' : '18.75rem';
-        if (wikipediaPanel) wikipediaPanel.style.width = this.isMobile ? 'calc(100% - 2rem)' : '18.75rem';
-    
-        // This line is causing the error - it calls a non-existent method
-        this.updateHierarchyLevelSlider();
-        
+
+        this.updateControlSizes();
         this.updateSearchSuggestions(true);
     }
 
@@ -651,6 +641,7 @@ export class UIManager {
         const highestPeaksPanel = document.querySelector('.highest-peaks-panel');
         const wikipediaPanel = document.getElementById('wikipedia-panel');
 
+        // Move panels outside the map container for mobile
         if (highestPeaksPanel) {
             mapContainer.parentNode.insertBefore(highestPeaksPanel, mapContainer);
         }
@@ -675,20 +666,15 @@ export class UIManager {
     }
 
     updateControlSizes() {
-        const unifiedControl = document.querySelector('.unified-control');
-        const highestPeaksPanel = document.querySelector('.highest-peaks-panel');
-        const wikipediaPanel = document.getElementById('wikipedia-panel');
+        const controls = [
+            document.querySelector('.unified-control'),
+            document.querySelector('.highest-peaks-panel'),
+            document.getElementById('wikipedia-panel')
+        ];
 
-        if (this.isMobile) {
-            const width = `calc(100% - 2rem)`;
-            if (unifiedControl) unifiedControl.style.width = width;
-            if (highestPeaksPanel) highestPeaksPanel.style.width = width;
-            if (wikipediaPanel) wikipediaPanel.style.width = width;
-        } else {
-            const width = `18.75rem`;
-            if (unifiedControl) unifiedControl.style.width = width;
-            if (highestPeaksPanel) highestPeaksPanel.style.width = width;
-            if (wikipediaPanel) wikipediaPanel.style.width = width;
-        }
+        const width = this.isMobile ? 'calc(100% - 2rem)' : '18.75rem';
+        controls.forEach(control => {
+            if (control) control.style.width = width;
+        });
     }
 }
