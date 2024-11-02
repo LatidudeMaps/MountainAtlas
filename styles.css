@@ -69,10 +69,6 @@ body {
     bottom: var(--spacing-medium);
     left: var(--spacing-medium);
     z-index: var(--z-index-controls);
-    background: var(--color-background);
-    padding: 0.5rem;
-    border-radius: var(--spacing-small);
-    box-shadow: 0 1px 5px var(--color-shadow);
     transition: transform 0.2s ease-in-out;
     display: block;
 }
@@ -87,14 +83,13 @@ body {
     display: block;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
     #logo-container {
-        bottom: calc(var(--spacing-medium) + 3rem); /* Adjust if needed to avoid overlap with other controls */
+        bottom: calc(var(--spacing-medium) + 3rem);
     }
     
     #latidude-logo {
-        height: 2rem; /* Slightly smaller on mobile */
+        height: 2rem;
     }
 }
 
