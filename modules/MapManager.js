@@ -200,7 +200,7 @@ export class MapManager {
             onAdd: function(map) {
                 const container = L.DomUtil.create('div', 'leaflet-control logo-clean');
                 container.innerHTML = `
-                    <a href="https://latitudemaps.github.io" target="_blank">
+                    <a href="https://latidudemaps.github.io" target="_blank">
                         <img src="https://latidudemaps.github.io/MountainAtlas/images/logo_light_512px.png" 
                              alt="Latidude Maps Logo">
                     </a>`;
