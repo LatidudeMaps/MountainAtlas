@@ -734,37 +734,36 @@ body.search-focused #map {
 /* Responsive adjustments */
 @media (max-width: 768px) {
     #wikipedia-panel {
-        display: none !important; /* Force hide on mobile */
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100% !important;
+        height: 60vh;
+        max-height: 60vh;
+        margin: 0;
+        border-radius: 1rem 1rem 0 0;
+        z-index: 1001;
+        transform: translateY(0);
+        transition: transform 0.3s ease-out;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
     }
 
-    /* Adjust the layout since Wikipedia panel is removed */
-    .leaflet-right {
-        max-height: calc(100vh - 60px); /* Adjust based on your header height */
-        overflow-y: auto;
+    #wikipedia-panel.hidden {
+        transform: translateY(100%);
     }
 
-    /* Ensure other panels stack properly */
-    .highest-peaks-panel {
-        width: calc(100% - 2rem);
-        margin: 0.5rem 1rem;
-        order: 2;
+    #wikipedia-panel::before {
+        content: '';
+        position: absolute;
+        top: 0.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 3rem;
+        height: 0.25rem;
+        background-color: #ccc;
+        border-radius: 0.125rem;
     }
-
-    .unified-control {
-        width: calc(100% - 2rem);
-        margin: 0.5rem 1rem;
-        order: 1;
-    }
-
-    /* Remove any Wikipedia panel-related spacing */
-    body.panel-open {
-        overflow: auto;
-    }
-
-    body.panel-open #map {
-        height: 100vh;
-    }
-}
 
     .language-toggle {
         position: sticky;
@@ -804,7 +803,7 @@ body.search-focused #map {
     .search-focused #map {
         height: 30vh;
     }
-
+}
 
 @media (max-width: 480px) {
     .unified-control,
