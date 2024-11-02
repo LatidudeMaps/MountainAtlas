@@ -383,132 +383,34 @@ export class UIManager {
     }
 
     updateWikipediaPanel(name) {
-        // Handle panel closing
         if (!name) {
             this.wikipediaPanel.style.display = 'none';
-            if (this.isMobile) {
-                document.body.classList.remove('panel-open');
-                this.wikipediaPanel.classList.add('hidden');
-            }
+            this.wikipediaPanel.classList.remove('expanded');
             return;
         }
         
-        // Show and setup panel
         this.wikipediaPanel.style.display = 'block';
-        if (this.isMobile) {
-            document.body.classList.add('panel-open');
-            this.wikipediaPanel.classList.remove('hidden');
-            // Reset any custom height set during dragging
-            this.wikipediaPanel.style.height = '60vh';
-        }
-    
-        // Add language toggle
+        this.wikipediaPanel.classList.remove('expanded');
         this.wikipediaPanel.innerHTML = this.createLanguageToggle();
-        
-        // Find matching content
+    
         const matchingLayers = this.layerManager.getMatchingLayers(name);
         if (matchingLayers.length > 0) {
             const properties = matchingLayers[0].properties;
             const wikiUrl = this.currentLanguage === 'it' ? properties.wiki_url_it : properties.wiki_url_en;
             
             if (wikiUrl) {
-                // Show loading state
                 const loadingMessage = this.currentLanguage === 'it' ? 'Caricamento...' : 'Loading...';
-                this.wikipediaPanel.innerHTML += `
-                    <div class="wiki-loading" style="text-align: center; padding: 1rem;">
-                        ${loadingMessage}
-                    </div>
-                `;
-                
-                // Fetch content
+                this.wikipediaPanel.innerHTML += `<p>${loadingMessage}</p>`;
                 this.fetchWikipediaContent(wikiUrl);
             } else {
-                // Handle missing wiki URL
                 const message = this.currentLanguage === 'it' 
-                    ? '<p style="padding: 1rem;">Info non disponibili</p>'
-                    : '<p style="padding: 1rem;">Information not available in English</p>';
+                    ? '<p>Info non disponibili</p>'
+                    : '<p>Information not available in English</p>';
                 this.wikipediaPanel.innerHTML += message;
             }
         } else {
-            // Handle no matching content
-            const message = this.currentLanguage === 'it'
-                ? '<p style="padding: 1rem;">Nessun contenuto trovato</p>'
-                : '<p style="padding: 1rem;">No matching content found</p>';
-            this.wikipediaPanel.innerHTML += message;
+            this.wikipediaPanel.innerHTML += '<p>No matching content found</p>';
         }
-    
-        // Mobile-specific setup for scroll handling
-        if (this.isMobile) {
-            // Prevent map interaction when touching the panel content
-            const content = this.wikipediaPanel.querySelector('.wiki-content');
-            if (content) {
-                content.addEventListener('touchstart', (e) => {
-                    e.stopPropagation();
-                }, { passive: true });
-                
-                content.addEventListener('touchmove', (e) => {
-                    e.stopPropagation();
-                    
-                    // Allow scrolling only if we're not at the boundaries
-                    const isAtTop = content.scrollTop === 0;
-                    const isAtBottom = content.scrollHeight - content.scrollTop === content.clientHeight;
-                    
-                    if ((isAtTop && e.touches[0].clientY > 0) || 
-                        (isAtBottom && e.touches[0].clientY < 0)) {
-                        e.preventDefault();
-                    }
-                }, { passive: false });
-            }
-    
-            // Add drag handle for mobile
-            const dragHandle = document.createElement('div');
-            dragHandle.className = 'wiki-panel-handle';
-            dragHandle.style.cssText = `
-                width: 40px;
-                height: 4px;
-                background-color: #ccc;
-                border-radius: 2px;
-                margin: 8px auto;
-            `;
-            this.wikipediaPanel.insertBefore(dragHandle, this.wikipediaPanel.firstChild);
-    
-            // Ensure panel is positioned correctly on mobile
-            this.wikipediaPanel.style.position = 'fixed';
-            this.wikipediaPanel.style.bottom = '0';
-            this.wikipediaPanel.style.left = '0';
-            this.wikipediaPanel.style.right = '0';
-            this.wikipediaPanel.style.margin = '0';
-        } else {
-            // Reset desktop positioning if needed
-            this.wikipediaPanel.style.position = '';
-            this.wikipediaPanel.style.bottom = '';
-            this.wikipediaPanel.style.left = '';
-            this.wikipediaPanel.style.right = '';
-        }
-    
-        // Handle scroll propagation
-        this.wikipediaPanel.addEventListener('wheel', (e) => {
-            e.stopPropagation();
-            
-            // Check if we should allow scrolling
-            const panel = e.currentTarget;
-            const isAtTop = panel.scrollTop === 0;
-            const isAtBottom = panel.scrollHeight - panel.scrollTop === panel.clientHeight;
-            
-            if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
-                e.preventDefault();
-            }
-        }, { passive: false });
-    
-        // Clean up any inline positioning styles that might interfere with responsive layout
-        if (!this.isMobile) {
-            this.wikipediaPanel.style.top = '';
-            this.wikipediaPanel.style.bottom = '';
-            this.wikipediaPanel.style.transform = '';
-        }
-    
-        // Update panel visibility in UI manager state
-        this.toggleWikipediaPanel(true);
     }
 
     handleWikiPanelWheel(e) {
@@ -536,12 +438,64 @@ export class UIManager {
         if (data.parse && data.parse.text) {
             const markup = data.parse.text['*'];
             const displayTitle = data.parse.displaytitle;
-            const sections = data.parse.sections;
             
-            let content = this.cleanWikipediaContent(markup, displayTitle, pageName, sectionAnchor, sections);
+            // Create temporary element to parse content
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = markup;
             
-            if (content) {
-                this.wikipediaPanel.innerHTML = this.createLanguageToggle() + content;
+            // Clean up the content
+            this.removeUnwantedElements(tempDiv);
+            this.cleanOrRemoveInfobox(tempDiv);
+            
+            // Get the first paragraph for preview
+            const firstParagraph = tempDiv.querySelector('p');
+            const previewText = firstParagraph ? firstParagraph.textContent : '';
+            
+            // Get full content
+            const fullContent = this.extractRelevantContent(tempDiv, sectionAnchor);
+            
+            if (previewText || fullContent) {
+                if (this.isMobile) {
+                    this.wikipediaPanel.innerHTML = `
+                        ${this.createLanguageToggle()}
+                        <div class="wiki-preview">
+                            <h3>${displayTitle}</h3>
+                            <div class="wiki-preview-content">
+                                <p>${previewText}</p>
+                            </div>
+                            <button class="wiki-expand-button">
+                                ${this.currentLanguage === 'it' ? 'Leggi tutto' : 'Read more'}
+                            </button>
+                            <div class="wiki-full-content">
+                                ${fullContent}
+                                <p><a href="https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}" target="_blank">
+                                    ${this.currentLanguage === 'it' ? 'Visualizza su Wikipedia' : 'View on Wikipedia'}
+                                </a></p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add expand button handler
+                    const expandButton = this.wikipediaPanel.querySelector('.wiki-expand-button');
+                    if (expandButton) {
+                        expandButton.addEventListener('click', () => {
+                            this.wikipediaPanel.classList.toggle('expanded');
+                            expandButton.textContent = this.wikipediaPanel.classList.contains('expanded') 
+                                ? (this.currentLanguage === 'it' ? 'Mostra meno' : 'Show less')
+                                : (this.currentLanguage === 'it' ? 'Leggi tutto' : 'Read more');
+                        });
+                    }
+                } else {
+                    // Desktop version remains unchanged
+                    this.wikipediaPanel.innerHTML = `
+                        ${this.createLanguageToggle()}
+                        <h3>${displayTitle}</h3>
+                        ${fullContent}
+                        <p><a href="https://${this.currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(pageName)}" target="_blank">
+                            ${this.currentLanguage === 'it' ? 'Visualizza su Wikipedia' : 'View on Wikipedia'}
+                        </a></p>
+                    `;
+                }
             } else {
                 this.displayNoContentMessage(pageName, displayTitle);
             }
