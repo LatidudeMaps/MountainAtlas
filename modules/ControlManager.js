@@ -6,14 +6,75 @@ export class ControlManager {
         this.unifiedControl = null;
         this.defaultOpacity = 1;
         this.isMobile = window.innerWidth <= 768;
+        this.mobileFilterControl = null;
     }
 
     initControls() {
         console.log('Initializing controls');
         this.unifiedControl = this.addUnifiedControl();
+        
+        // Add mobile-specific filter control
+        if (this.isMobile) {
+            this.addMobileFilterControl();
+        }
+        
         this.handleResponsiveControls();
         window.uiManager = this.uiManager;
         return this.unifiedControl;
+    }
+
+    addMobileFilterControl() {
+        const MobileFilterControl = L.Control.extend({
+            options: {
+                position: 'topright'  // Changed from topleft to topright
+            },
+            onAdd: (map) => {
+                const container = L.DomUtil.create('div', 'filter-control-mobile');
+                container.innerHTML = `
+                    <div class="control-group">
+                        <label for="mobile-hier-lvl-slider">Mnt Ranges Hierarchy Level: <span id="mobile-hier-lvl-value"></span></label>
+                        <input type="range" id="mobile-hier-lvl-slider" class="custom-slider">
+                    </div>
+                `;
+
+                // Prevent map zoom when scrolling on the control
+                L.DomEvent.disableScrollPropagation(container);
+                L.DomEvent.disableClickPropagation(container);
+
+                // Setup the slider after it's added to the DOM
+                setTimeout(() => {
+                    const slider = container.querySelector('#mobile-hier-lvl-slider');
+                    const valueSpan = container.querySelector('#mobile-hier-lvl-value');
+                    
+                    if (slider && valueSpan) {
+                        const hierLevels = this.layerManager.getUniqueHierLevels();
+                        const min = Math.min(...hierLevels);
+                        const max = Math.max(...hierLevels);
+                        const initial = "4";
+
+                        slider.min = min;
+                        slider.max = max;
+                        slider.value = initial;
+                        valueSpan.textContent = initial;
+
+                        // Add touch events for mobile
+                        slider.addEventListener('input', (e) => {
+                            valueSpan.textContent = e.target.value;
+                            this.uiManager.filterHandler(e.target.value);
+                        });
+
+                        // Handle touch events
+                        slider.addEventListener('touchstart', this.handleSliderTouch.bind(this), { passive: false });
+                        slider.addEventListener('touchmove', this.handleSliderTouch.bind(this), { passive: false });
+                    }
+                }, 0);
+
+                return container;
+            }
+        });
+
+        this.mobileFilterControl = new MobileFilterControl();
+        this.mapManager.map.addControl(this.mobileFilterControl);
     }
 
     addUnifiedControl() {
@@ -182,14 +243,6 @@ export class ControlManager {
         }
     }
 
-    handleResponsiveControls() {
-        const isMobile = window.innerWidth <= 768;
-        if (this.unifiedControl) {
-            this.unifiedControl.setPosition(isMobile ? 'topleft' : 'topright');
-        }
-        // Reinitialize other controls if needed
-    }
-
     updateControlPosition() {
         if (this.unifiedControl) {
             this.unifiedControl.setPosition(this.isMobile ? 'topleft' : 'topright');
@@ -221,8 +274,26 @@ export class ControlManager {
         const rect = slider.getBoundingClientRect();
         const pos = (touch.clientX - rect.left) / rect.width;
         const newValue = Math.round(pos * (slider.max - slider.min) + parseInt(slider.min));
+        
         slider.value = newValue;
-        document.getElementById('hier-lvl-value').textContent = newValue;
+        document.getElementById('mobile-hier-lvl-value').textContent = newValue;
         this.uiManager.filterHandler(newValue);
+    }
+
+    handleResponsiveControls() {
+        const isMobile = window.innerWidth <= 768;
+        
+        // Handle unified control position
+        if (this.unifiedControl) {
+            this.unifiedControl.setPosition(isMobile ? 'topleft' : 'topright');
+        }
+
+        // Handle mobile filter control
+        if (isMobile && !this.mobileFilterControl) {
+            this.addMobileFilterControl();
+        } else if (!isMobile && this.mobileFilterControl) {
+            this.mapManager.map.removeControl(this.mobileFilterControl);
+            this.mobileFilterControl = null;
+        }
     }
 }

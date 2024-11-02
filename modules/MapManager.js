@@ -17,7 +17,7 @@ export class MapManager {
             preferCanvas: true,
             zoomControl: true,
             maxBoundsViscosity: 1.0,
-            minZoom: 6,
+            minZoom: 5,
         });
     
         this.addResetViewControl(map);
@@ -80,25 +80,31 @@ export class MapManager {
             console.error('Invalid bounds for mountain areas layer');
             return;
         }
-        const center = bounds.getCenter();
+    
+        // Different padding options based on screen size
+        const isMobile = window.innerWidth <= 768;
+        const fitBoundsOptions = {
+            padding: isMobile ? [50, 50] : [0, 0],
+            maxZoom: isMobile ? 5.5 : 6,  // Changed from 4 to 5.5 for mobile
+            animate: false
+        };
         
-        this.map.setView(center, 6, { animate: false });
+        // Fit the map to the bounds with our options
+        this.map.fitBounds(bounds, fitBoundsOptions);
         this.initialBounds = this.map.getBounds();
         
-        // Set max bounds with some padding
+        // Set max bounds with padding
         this.maxBounds = this.initialBounds.pad(0.1);
         this.map.setMaxBounds(this.maxBounds);
         
         console.log('Initial extent and max bounds set');
-
-        // Update the highest peaks panel after a short delay to ensure the map is fully initialized
+    
         setTimeout(() => {
             if (this.uiManager) {
                 this.uiManager.updateHighestPeaksPanel();
             }
         }, 100);
-
-        // Also update on subsequent moveend events
+    
         this.map.on('moveend', () => {
             if (this.uiManager) {
                 this.uiManager.updateHighestPeaksPanel();
