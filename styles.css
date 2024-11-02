@@ -64,31 +64,30 @@ body {
 }
 
 /* Logo Styling */
-#logo-container {
+.logo-clean {
     position: fixed;
     bottom: var(--spacing-medium);
     left: var(--spacing-medium);
     z-index: var(--z-index-controls);
     transition: transform 0.2s ease-in-out;
-    display: block;
+    line-height: 0; /* This removes any extra space */
 }
 
-#logo-container:hover {
+.logo-clean:hover {
     transform: scale(1.05);
 }
 
-#latidude-logo {
+.logo-clean img {
     height: 2.5rem;
     width: auto;
-    display: block;
 }
 
 @media (max-width: 768px) {
-    #logo-container {
+    .logo-clean {
         bottom: calc(var(--spacing-medium) + 3rem);
     }
     
-    #latidude-logo {
+    .logo-clean img {
         height: 2rem;
     }
 }
