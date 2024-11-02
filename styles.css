@@ -68,7 +68,6 @@ body {
     background: none !important;
     border: none !important;
     box-shadow: none !important;
-    margin: 10px !important;
 }
 
 .logo-clean a {
@@ -84,28 +83,11 @@ body {
 .logo-clean img {
     height: 2.5rem;
     width: auto;
-    display: block;
 }
 
-/* Mobile styles */
 @media (max-width: 768px) {
-    .logo-clean {
-        margin: 10px 10px 0 50px !important; /* Adjust left margin to avoid overlap with zoom controls */
-    }
-    
     .logo-clean img {
         height: 2rem;
-    }
-}
-
-/* Extra small devices */
-@media (max-width: 480px) {
-    .logo-clean {
-        margin: 10px 10px 0 40px !important;
-    }
-    
-    .logo-clean img {
-        height: 1.8rem;
     }
 }
 
@@ -752,22 +734,54 @@ body.search-focused #map {
 /* Responsive adjustments */
 @media (max-width: 768px) {
     #wikipedia-panel {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        height: 50vh;
-        max-height: 50vh;
-        margin: 0;
-        border-radius: var(--spacing-small) var(--spacing-small) 0 0;
-        z-index: calc(var(--z-index-modal) - 1);
-        transform: translateY(0);
-        transition: transform 0.3s ease-out;
+        display: none !important; /* Force hide on mobile */
     }
 
-    #wikipedia-panel.hidden {
-        transform: translateY(100%);
+    /* Adjust the layout since Wikipedia panel is removed */
+    .leaflet-right {
+        max-height: calc(100vh - 60px); /* Adjust based on your header height */
+        overflow-y: auto;
+    }
+
+    /* Ensure other panels stack properly */
+    .highest-peaks-panel {
+        width: calc(100% - 2rem);
+        margin: 0.5rem 1rem;
+        order: 2;
+    }
+
+    .unified-control {
+        width: calc(100% - 2rem);
+        margin: 0.5rem 1rem;
+        order: 1;
+    }
+
+    /* Remove any Wikipedia panel-related spacing */
+    body.panel-open {
+        overflow: auto;
+    }
+
+    body.panel-open #map {
+        height: 100vh;
+    }
+}
+
+    .language-toggle {
+        position: sticky;
+        top: 0;
+        background: white;
+        padding: 0.5rem;
+        z-index: 2;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    #map {
+        height: 100vh;
+        transition: height 0.3s ease-out;
+    }
+
+    body.panel-open #map {
+        height: 40vh;
     }
 
     .highest-peaks-panel {
@@ -790,7 +804,7 @@ body.search-focused #map {
     .search-focused #map {
         height: 30vh;
     }
-}
+
 
 @media (max-width: 480px) {
     .unified-control,
