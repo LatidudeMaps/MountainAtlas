@@ -26,7 +26,7 @@ export class ControlManager {
     addMobileFilterControl() {
         const MobileFilterControl = L.Control.extend({
             options: {
-                position: 'topright'  // Changed from topleft to topright
+                position: 'topright'
             },
             onAdd: (map) => {
                 const container = L.DomUtil.create('div', 'filter-control-mobile');
@@ -57,15 +57,31 @@ export class ControlManager {
                         slider.value = initial;
                         valueSpan.textContent = initial;
 
-                        // Add touch events for mobile
+                        // Add input event for continuous update
                         slider.addEventListener('input', (e) => {
                             valueSpan.textContent = e.target.value;
-                            this.uiManager.filterHandler(e.target.value);
+                        });
+
+                        // Add change event for when sliding stops
+                        slider.addEventListener('change', (e) => {
+                            const value = e.target.value.toString();
+                            console.log('Mobile slider value changed to:', value);
+                            valueSpan.textContent = value;
+                            if (this.uiManager && this.uiManager.filterHandler) {
+                                this.uiManager.filterHandler(value);
+                            }
                         });
 
                         // Handle touch events
-                        slider.addEventListener('touchstart', this.handleSliderTouch.bind(this), { passive: false });
-                        slider.addEventListener('touchmove', this.handleSliderTouch.bind(this), { passive: false });
+                        slider.addEventListener('touchstart', (e) => this.handleSliderTouch(e, valueSpan), { passive: false });
+                        slider.addEventListener('touchmove', (e) => this.handleSliderTouch(e, valueSpan), { passive: false });
+                        slider.addEventListener('touchend', (e) => {
+                            const value = slider.value.toString();
+                            console.log('Mobile slider touch ended with value:', value);
+                            if (this.uiManager && this.uiManager.filterHandler) {
+                                this.uiManager.filterHandler(value);
+                            }
+                        });
                     }
                 }, 0);
 
@@ -267,17 +283,19 @@ export class ControlManager {
         }
     }
 
-    handleSliderTouch(e) {
+    handleSliderTouch(e, valueSpan) {
         e.preventDefault();
         const touch = e.touches[0];
         const slider = e.target;
         const rect = slider.getBoundingClientRect();
-        const pos = (touch.clientX - rect.left) / rect.width;
-        const newValue = Math.round(pos * (slider.max - slider.min) + parseInt(slider.min));
+        const pos = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width));
+        const range = slider.max - slider.min;
+        const newValue = Math.round(pos * range + parseInt(slider.min));
         
         slider.value = newValue;
-        document.getElementById('mobile-hier-lvl-value').textContent = newValue;
-        this.uiManager.filterHandler(newValue);
+        if (valueSpan) {
+            valueSpan.textContent = newValue;
+        }
     }
 
     handleResponsiveControls() {
