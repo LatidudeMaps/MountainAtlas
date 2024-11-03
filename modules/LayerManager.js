@@ -1,3 +1,9 @@
+/* ---------------------------------------------------
+Written by Michele Tricarico (LatidudeMaps) 
+latidude.maps@gmail.com | https://latidudemaps.github.io/
+Copyright 2024 | All Rights Reserved | CC BY-NC-SA 4.0
+---------------------------------------------------- */
+
 export class LayerManager {
     constructor(map) {
         this.map = map;

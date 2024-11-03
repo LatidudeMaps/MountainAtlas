@@ -1,3 +1,9 @@
+/* ---------------------------------------------------
+Written by Michele Tricarico (LatidudeMaps) 
+latidude.maps@gmail.com | https://latidudemaps.github.io/
+Copyright 2024 | All Rights Reserved | CC BY-NC-SA 4.0
+---------------------------------------------------- */
+
 /**
  * Debounces a function, ensuring it's not called more frequently than the specified delay.
  * @param {Function} func - The function to debounce.

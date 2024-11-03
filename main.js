@@ -1,3 +1,9 @@
+/* ---------------------------------------------------
+Written by Michele Tricarico (LatidudeMaps) 
+latidude.maps@gmail.com | https://latidudemaps.github.io/
+Copyright 2024 | All Rights Reserved | CC BY-NC-SA 4.0
+---------------------------------------------------- */
+
 import { MapManager } from './modules/MapManager.js';
 import { LayerManager } from './modules/LayerManager.js';
 import { ControlManager } from './modules/ControlManager.js';

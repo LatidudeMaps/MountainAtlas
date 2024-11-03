@@ -1,3 +1,9 @@
+/* ---------------------------------------------------
+Written by Michele Tricarico (LatidudeMaps) 
+latidude.maps@gmail.com | https://latidudemaps.github.io/
+Copyright 2024 | All Rights Reserved | CC BY-NC-SA 4.0
+---------------------------------------------------- */
+
 export class ControlManager {
     constructor(mapManager, layerManager, uiManager) {
         this.mapManager = mapManager;
